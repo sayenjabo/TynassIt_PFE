@@ -1,0 +1,324 @@
+\chapter{Contexte général}
+
+\section{Introduction}
+
+Ce chapitre présente le contexte général du projet. Nous introduisons l'organisme d'accueil,
+le cadre du projet, la problématique retenue et ses objectifs. Une étude de l'existant permet
+de positionner \tynassit{} par rapport aux solutions disponibles. Nous détaillons ensuite
+la méthodologie adoptée, le planning du projet et l'environnement de développement.
+
+\section{Cadre général du projet}
+
+Ce projet s'inscrit dans le cadre du Projet de Fin d'Études (PFE) d'une durée de
+\textbf{six mois}, dont \textbf{quatre mois} consacrés au développement effectif.
+Il est réalisé au sein de \textbf{Tynass IT}, une entreprise tunisienne spécialisée dans le
+développement d'expériences immersives en Réalité Étendue (XR).
+
+\section{Organisme d'accueil --- Tynass IT}
+
+\subsection{Présentation de Tynass IT}
+
+Tynass IT est une entreprise tunisienne fondée en \textbf{2020}, spécialisée dans le
+développement d'expériences immersives en XR (Réalité Virtuelle, Augmentée et Mixte).
+Sa mission~: \og~\textit{Elevating Ideas, Creating Experiences}~\fg, traduit son engagement
+à transformer des idées complexes en expériences numériques mémorables.
+
+\placeholder{Logo Tynass IT}
+
+Tynass accompagne des institutions culturelles, des entreprises et des organismes
+publics dans leur transition vers des expériences numériques immersives, en exploitant
+les technologies les plus avancées du marché XR.
+
+\subsection{Projets réalisés}
+
+Avant ce PFE, Tynass a développé plusieurs projets XR remarquables~:
+
+\begin{itemize}
+  \item \textbf{Immersive Tunisia}~: une expérience de Réalité Mixte sur Meta Quest~3,
+    combinant VR, AR et contenu web pour faire revivre le patrimoine tunisien. Les utilisateurs
+    explorent des modèles 3D de monuments historiques avec des portails interactifs gamifiés.
+
+  \item \textbf{Farhat Hached VR/Web Experience}~: une galerie VR immersive retraçant la vie
+    du syndicaliste Farhat Hached, avec une collection de photos rares et de documents d'archive.
+
+  \item \textbf{Habib Bourgiba VR Experience}~: une galerie VR mettant en lumière la vie de
+    Habib Bourgiba, avec une recréation 3D de l'un de ses discours historiques.
+
+  \item \textbf{Tynass Trips}~: une application mobile de guidage touristique immersif avec
+    narration audio multilingue, comptant plus de \textbf{1500 utilisateurs} sur iOS et Android.
+\end{itemize}
+
+\section{Présentation du projet}
+
+\subsection{Problématique}
+
+\subsection{Objectifs}
+
+En réponse à cette problématique, \tynassit{} vise à~:
+
+\begin{itemize}
+  \item Concevoir et développer un \textbf{backend REST sécurisé} gérant les entreprises
+    clientes, les formations VR et le suivi des sessions.
+  \item Développer un \textbf{dashboard web Admin} permettant aux équipes Tynass de gérer
+    les entreprises, les formations et les casques Meta Quest~3.
+  \item Développer un \textbf{dashboard web Company} permettant aux entreprises clientes
+    de gérer leurs employés et de consulter leurs performances.
+  \item Développer une \textbf{application VR Unity~6} offrant aux employés une expérience
+    de formation immersive avec envoi automatique des résultats.
+  \item Réaliser le premier module de formation pour \textbf{Indigo Company}~:
+    simulation d'intégration des nouveaux employés.
+\end{itemize}
+
+\section{Étude de l'existant}
+
+\subsection{Solutions LMS traditionnelles}
+
+\subsubsection{TalentLMS}
+
+TalentLMS~\cite{talentlms2026} est la plateforme LMS cloud \#1 mondiale, utilisée par plus
+de \textbf{70 000 équipes} à travers le monde (dont Google, Amazon, Meta, PwC).
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: création de cours en ligne, suivi des progrès, certifications,
+    onboarding, application mobile, intégrations (Slack, Zoom, SCORM).
+  \item \textbf{Certifications}~: ISO/IEC 27001:2022, ISO 9001:2015, conforme RGPD.
+  \item \textbf{Limites pour notre cas}~: formation uniquement en 2D (vidéos, quiz en ligne),
+    pas de simulation immersive, rétention inférieure à la VR~\cite{pwc2020},
+    pas d'adaptation au contexte terrain métier.
+\end{itemize}
+
+\subsection{Solutions VR existantes}
+
+\subsubsection{BCG Universe}
+
+Boston Consulting Group a déployé \textbf{BCG Universe}~\cite{bcg2024} en 2024, un programme
+d'onboarding en VR destiné à ses nouvelles recrues mondiales.
+
+\begin{itemize}
+  \item \textbf{Résultats}~: 100\% de satisfaction des participants, Gold Award
+    Brandon Hall Excellence Awards 2024.
+  \item \textbf{Limite}~: solution interne, budget de plusieurs millions de dollars,
+    non accessible aux PME.
+\end{itemize}
+
+\subsubsection{Accenture Nth Floor}
+
+Accenture a développé \textbf{Nth Floor}~\cite{accenture2025}, un environnement métaverse
+pour l'intégration de ses nouvelles recrues.
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: visite virtuelle des bureaux, présentation des équipes,
+    collaboration immersive.
+  \item \textbf{Limite}~: solution propriétaire non commercialisée, réservée en interne.
+\end{itemize}
+
+\subsubsection{ClassVR}
+
+ClassVR est une plateforme VR dédiée à l'éducation, proposant des casques spécifiques
+pour les établissements scolaires.
+
+\begin{itemize}
+  \item \textbf{Limite}~: orientée enfants et adolescents, pas adaptée à la formation
+    professionnelle adulte en entreprise.
+\end{itemize}
+
+\subsubsection{Meta Quest for Business}
+
+Meta Quest for Business était un bundle enterprise combinant casques Quest et outils de
+gestion d'entreprise.
+
+\begin{itemize}
+  \item \textbf{Arrêt}~: Meta a annoncé l'arrêt de ce programme en \textbf{février 2026},
+    citant une demande insuffisante et un marché pas encore assez mature.
+\end{itemize}
+
+\subsection{Tableau comparatif}
+
+Le tableau~\ref{tab:comparatif} présente une synthèse comparative des solutions existantes
+par rapport à \tynassit{}.
+
+\begin{table}[H]
+  \centering
+  \caption{Synthèse comparative des solutions existantes}
+  \label{tab:comparatif}
+  \begin{tabularx}{\textwidth}{Xccccc}
+    \toprule
+    \textbf{Critère} & \textbf{TalentLMS} & \textbf{BCG} & \textbf{ClassVR}
+                     & \textbf{Meta QB} & \textbf{\tynassit{}} \\
+    \midrule
+    B2B               & \checkmark & \checkmark & $\times$   & \checkmark & \checkmark \\
+    VR immersive      & $\times$   & \checkmark & \checkmark & $\times$   & \checkmark \\
+    Plateforme gestion& \checkmark & $\times$   & \checkmark & \checkmark & \checkmark \\
+    Suivi sessions    & \checkmark & $\times$   & $\times$   & $\times$   & \checkmark \\
+    Meta Quest 3      & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
+    PME Tunisie       & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Positionnement de TynassIt}
+
+L'analyse des solutions existantes révèle un vide significatif~: aucune solution ne combine
+simultanément l'immersion VR sur Meta Quest~3, une plateforme de gestion B2B intégrée et
+une accessibilité adaptée aux entreprises tunisiennes. \tynassit{} se positionne précisément
+dans cet espace, en offrant une alternative abordable aux solutions VR enterprise coûteuses
+(BCG, Accenture), tout en dépassant les capacités des LMS classiques (TalentLMS) par
+l'immersion et l'interactivité.
+
+\section{Méthodologie de développement}
+
+\subsection{Comparaison des méthodologies}
+
+Le choix d'une méthodologie de gestion de projet constitue une décision structurante pour
+le déroulement du développement. Le tableau~\ref{tab:methodo} présente une comparaison entre
+les approches traditionnelles et agiles~\cite{agile2020}.
+
+\begin{table}[H]
+  \centering
+  \caption{Comparaison des méthodologies traditionnelles et agiles}
+  \label{tab:methodo}
+  \begin{tabularx}{\textwidth}{lXX}
+    \toprule
+    \textbf{Critère} & \textbf{Traditionnel (Waterfall)} & \textbf{Agile (Scrum)} \\
+    \midrule
+    Cycle de développement & Séquentiel et linéaire & Itératif et incrémental \\
+    Gestion des besoins & Définis en amont & Évolutifs à chaque sprint \\
+    Flexibilité & Faible & Forte \\
+    Livraisons & Une seule livraison finale & Incréments fréquents \\
+    Adaptation & Difficile & Naturelle \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Choix de Scrum}
+
+La nature de ce projet~--- évolutif, avec un client réel (Indigo Company) dont les besoins
+peuvent changer, et développé par un seul ingénieur~--- impose une approche flexible. Scrum
+a été retenu pour les raisons suivantes~:
+
+\begin{itemize}
+  \item Itérations courtes (sprints) permettant des validations régulières avec les encadrants.
+  \item Adaptation facile aux changements de priorités (règlement intérieur Indigo, retours terrain).
+  \item Livraisons incrémentales permettant de tester chaque composante sur le casque physique.
+  \item Backlog produit structurant clairement les priorités via la méthode MoSCoW.
+\end{itemize}
+
+\subsection{Rôles Scrum}
+
+\begin{itemize}
+  \item \textbf{Product Owner}~: encadrant professionnel Tynass~--- définit les priorités
+    et valide les livrables de chaque sprint.
+  \item \textbf{Scrum Master et Développeur}~: [Nom Prénom]~--- planifie, développe,
+    teste et livre chaque incrément.
+\end{itemize}
+
+\subsection{Planning global du projet}
+
+\placeholder{Diagramme de Gantt --- 6 mois (à insérer)}
+
+Le tableau~\ref{tab:sprints_global} présente la répartition horizontale des épics sur
+les quatre sprints de développement.
+
+\begin{table}[H]
+  \centering
+  \caption{Répartition des épics sur les sprints}
+  \label{tab:sprints_global}
+  \begin{tabular}{lccccc}
+    \toprule
+    \textbf{Épic} & \textbf{Description} & \textbf{S1} & \textbf{S2}
+                  & \textbf{S3} & \textbf{S4} \\
+    \midrule
+    EP-01 & Backend \& Sécurité      & \checkmark &            &            &            \\
+    EP-02 & Dashboard Admin          &            & \checkmark &            &            \\
+    EP-03 & Dashboard Company        &            & \checkmark &            &            \\
+    EP-04 & Unity Auth \& Scènes     &            &            & \checkmark &            \\
+    EP-05 & Simulation Indigo        &            &            &            & \checkmark \\
+    \midrule
+    \textbf{Durée} & & 3 semaines & 3 semaines & 4 semaines & 5 semaines \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Environnement de développement}
+
+\subsection{Matériel utilisé}
+
+\begin{table}[H]
+  \centering
+  \caption{Matériel utilisé durant le projet}
+  \label{tab:hardware}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Composant} & \textbf{Description} \\
+    \midrule
+    Processeur       & [à compléter] \\
+    RAM              & [à compléter] \\
+    Stockage         & [à compléter] \\
+    Système d'exploitation & Windows 11 \\
+    Casque VR        & Meta Quest 3 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Logiciels et outils}
+
+\begin{table}[H]
+  \centering
+  \caption{Logiciels et outils utilisés}
+  \label{tab:software}
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Outil} & \textbf{Version} & \textbf{Usage} \\
+    \midrule
+    Unity          & 6 LTS            & Développement de l'application VR \\
+    Visual Studio Code & Latest       & Développement backend et frontend \\
+    Node.js        & 20 LTS           & Runtime backend \\
+    MongoDB Compass & Latest          & Gestion et visualisation BDD \\
+    Postman        & Latest           & Tests API \\
+    Blender        & 4.x              & Modélisation 3D et environnements \\
+    Figma          & Latest           & Conception UI/UX \\
+    Git / GitHub   & Latest           & Versioning et collaboration \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Bibliothèques et frameworks}
+
+\begin{table}[H]
+  \centering
+  \caption{Bibliothèques et frameworks principaux}
+  \label{tab:frameworks}
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Bibliothèque} & \textbf{Version} & \textbf{Usage} \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Backend}} \\
+    Express.js     & 4.x       & Framework web REST \\
+    Mongoose       & 8.x       & ODM MongoDB \\
+    bcryptjs       & 2.x       & Hachage des mots de passe et PINs \\
+    jsonwebtoken   & 9.x       & Authentification JWT \\
+    Nodemailer     & 6.x       & Envoi d'emails \\
+    cors           & 2.x       & Gestion CORS \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Frontend}} \\
+    React          & 18.x      & Framework UI \\
+    TypeScript     & 5.x       & Typage statique \\
+    TanStack Query & 5.x       & Gestion des données et cache \\
+    React Router   & 6.x       & Routage côté client \\
+    Shadcn UI      & Latest    & Composants UI \\
+    Tailwind CSS   & 3.x       & Styles utilitaires \\
+    Framer Motion  & 11.x      & Animations \\
+    Sonner         & Latest    & Notifications toast \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Unity / VR}} \\
+    Meta XR All-in-One SDK & Latest & Développement Quest 3 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion}
+
+Ce premier chapitre a présenté le contexte général du projet~: l'organisme d'accueil Tynass IT
+et ses réalisations XR, la problématique de la formation professionnelle B2B, l'analyse des
+solutions existantes, et la méthodologie Scrum retenue. Le chapitre suivant présente la
+spécification détaillée du système et son pilotage.

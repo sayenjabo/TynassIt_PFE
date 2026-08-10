@@ -1,0 +1,305 @@
+\chapter{Sprint~3 --- Application VR Meta Quest~3 (Scènes Auth)}
+
+\section{Introduction}
+
+Ce sprint couvre le développement de l'application Unity~6 pour Meta Quest~3,
+incluant les deux premières scènes~: \textbf{trailler} (tutoriel des contrôleurs)
+et \textbf{Companys} (authentification et sélection des formations). À l'issue de ce sprint,
+un employé peut activer le casque, se connecter, voir les formations disponibles
+et accéder aux paramètres.
+
+\section{Planification du sprint~3}
+
+\subsection{Objectifs}
+
+\begin{itemize}
+  \item Implémenter le flow complet d'activation du casque (Meta User ID).
+  \item Permettre le login employé (accessCode + PIN) via une interface VR intuitive.
+  \item Charger et afficher les formations assignées à l'entreprise.
+  \item Livrer un tutoriel d'introduction aux contrôleurs Meta Quest~3.
+  \item Permettre la configuration des paramètres (audio, langue, contrôleurs).
+\end{itemize}
+
+\subsection{Backlog du sprint~3}
+
+\begin{table}[H]
+  \centering
+  \caption{Backlog du sprint~3}
+  \label{tab:backlog_s3}
+  \begin{tabularx}{\textwidth}{llXl}
+    \toprule
+    \textbf{ID} & \textbf{MoSCoW} & \textbf{Description} & \textbf{Statut} \\
+    \midrule
+    US-14 & \must{}   & Scène trailler --- tutoriel 3 leçons & \checkmark \\
+    US-15 & \must{}   & DeviceActivationManager (Meta User ID) & \checkmark \\
+    US-16 & \must{}   & EmployeeSignInPanel (code + PIN numpad) & \checkmark \\
+    US-17 & \must{}   & ModulesPanel (grille formations) & \checkmark \\
+    US-18 & \should{} & SettingsPanel (audio, langue, contrôleurs) & \checkmark \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conception du sprint~3}
+
+\subsection{Configuration Unity~6 pour Meta Quest~3}
+
+\begin{table}[H]
+  \centering
+  \caption{Configuration Unity~6 pour Meta Quest~3}
+  \label{tab:unity_config}
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Paramètre} & \textbf{Valeur} \\
+    \midrule
+    Plateforme cible     & Android (ARM64) \\
+    API graphique        & Vulkan (recommandé Quest~3) \\
+    XR Plugin            & Meta OpenXR \\
+    Features activées    & Meta Quest Support, Foveated Rendering,
+                           Hand Interaction Poses, XR Performance Settings \\
+    Profils contrôleurs  & Meta Quest Touch Plus, Meta Quest Touch Pro \\
+    Niveau API minimum   & Android 10 (API 29) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Décisions architecturales --- Unity}
+
+\begin{table}[H]
+  \centering
+  \caption{Décisions architecturales --- Unity}
+  \label{tab:archi_unity}
+  \begin{tabularx}{\textwidth}{lllX}
+    \toprule
+    \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
+    \midrule
+    Moteur & Unity 6 LTS & Unreal Engine 5 & 85\% des apps Quest Store en 2024,
+                                             Meta XR SDK optimisé Unity \\
+    SDK    & Meta XR All-in-One & Meta Core SDK & Un seul package intégrant tous les
+                                                  SDK Meta \\
+    Client HTTP & TynassApiClient & ApiManager (obsolète) & Singleton avec JWT,
+                                                              méthodes typées, PlayerPrefs \\
+    État global & AppSession & SessionManager & Classe statique~: toujours disponible
+                                                sans instanciation, pas de cycle de vie \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{archbox}
+  \textbf{AppSession vs SessionManager}~: \texttt{SessionManager.cs} en tant que
+  MonoBehaviour singleton nécessite un GameObject dans la scène et dépend du cycle
+  de vie Unity. \texttt{AppSession.cs} est une classe statique C\# toujours disponible
+  sans instanciation, sans DontDestroyOnLoad, sans risque de destruction entre scènes.
+  Pour des données d'état global (token, employé connecté, formation active),
+  la classe statique est architecturalement plus appropriée.
+\end{archbox}
+
+\subsection{Architecture Unity --- Scripts principaux}
+
+\placeholder{Diagramme de composants Unity --- 8 scripts (à insérer)}
+
+Les 8 scripts principaux de l'application Unity~:
+
+\begin{itemize}
+  \item \textbf{TynassApiClient.cs}~: singleton HTTP centralisé. Gère le JWT
+    (\texttt{SetToken/ClearToken}), \texttt{TryRestoreSession()} au démarrage,
+    et toutes les méthodes typées de l'API. Utilise les classes \texttt{[Serializable]}
+    pour la sérialisation JSON via \texttt{JsonUtility}.
+  \item \textbf{AppSession.cs}~: classe statique globale. Stocke les données de
+    Device, Company, Employee, Training et Quiz (QuizScore, QuizCorrect, QuizTotal,
+    QuizCurrentIndex, QuizElapsedSecs). \texttt{AppSession.Clear()} efface les données
+    personnelles de l'employé mais conserve le \texttt{DeviceToken} (appartient au casque).
+  \item \textbf{PanelManager.cs}~: gère la navigation entre les panels UI
+    (GoSignIn, GoEmployeePicker, GoModules, GoSettings, GoQuiz, GoQuizResult).
+  \item \textbf{DeviceActivationManager.cs}~: récupère le Meta User ID via
+    \texttt{Oculus.Platform.\allowbreak Users.\allowbreak GetLoggedInUser()}, orchestre le flow d'activation.
+  \item \textbf{EmployeeSignInPanel.cs}~: gère les 2 étapes de login
+    (Step 1: accessCode XX-001, Step 2: PIN numpad 4 chiffres).
+  \item \textbf{ModulesPanel.cs}~: charge les formations via \texttt{device\_token},
+    instancie les cartes de formation dans un Grid Layout Group.
+  \item \textbf{SettingsPanel.cs}~: audio (master/sfx/narration/spatial), langue
+    (FR/EN/AR), contrôleurs (main, dwell time, haptic). Persistance via PlayerPrefs.
+  \item \textbf{TrainingSceneManager.cs}~: orchestre la scène trailler
+    (leçons, narration audio, NarrationManager).
+\end{itemize}
+
+\subsection{Cas d'utilisation --- Descriptions textuelles}
+
+\begin{ucbox}{Tutoriel d'introduction (scène trailler)}
+  \begin{tabular}{lp{9cm}}
+    \textbf{Pré-conditions} & Casque démarré, utilisateur novice en VR. \\
+    \textbf{Acteur}         & Employé. \\
+    \textbf{Scénario A}     &
+      1. L'utilisateur choisit \og Commencer les leçons \fg (choix A). \newline
+      2. Leçon 1~: se déplacer avec le joystick jusqu'au waypoint. \newline
+      3. Leçon 2~: saisir un cube (grip) et l'amener au waypoint. \newline
+      4. Leçon 3~: lire un panel, cliquer sur le bouton (trigger). \newline
+      5. Transition automatique vers la scène Companys. \\
+    \textbf{Scénario B}     &
+      1. L'utilisateur choisit \og Passer \fg (choix B). \newline
+      2. Transition directe vers la scène Companys. \\
+    \textbf{Post-conditions}& Utilisateur maîtrise les 3 interactions fondamentales. \\
+  \end{tabular}
+\end{ucbox}
+
+\vspace{0.5cm}
+
+\begin{ucbox}{Sélectionner une formation (ModulesPanel)}
+  \begin{tabular}{lp{9cm}}
+    \textbf{Pré-conditions} & Employé connecté, device\_token valide. \\
+    \textbf{Acteur}         & Employé. \\
+    \textbf{Scénario}       &
+      1. ModulesPanel appelle \texttt{GET /api/company/devices/trainings}. \newline
+      2. Les formations assignées à l'entreprise sont affichées en grille. \newline
+      3. L'employé pointe et sélectionne une formation. \newline
+      4. \texttt{AppSession.ActiveTraining} est défini. \newline
+      5. \texttt{SceneManager.LoadScene(training.sceneName)} est appelé. \newline
+      6. Si \texttt{sceneName} est null~: erreur loguée, rien ne se passe. \\
+    \textbf{Post-conditions}& Scène de formation chargée. \\
+  \end{tabular}
+\end{ucbox}
+
+\subsection{Diagramme de séquence}
+
+\placeholder{Séquence --- Flow complet trailler → Companys → intigo (à insérer)}
+
+\section{Implémentation du sprint~3}
+
+\subsection{TynassApiClient.cs --- Client HTTP centralisé}
+
+\texttt{TynassApiClient} est le singleton central de communication avec le backend.
+Sa conception résout un problème fondamental de Unity~: \texttt{JsonUtility} ne
+sérialise que les classes marquées \texttt{[Serializable]}. Tout objet anonyme
+produit un JSON vide (\texttt{\{\}}).
+
+\begin{lstlisting}[language={[Sharp]C}, caption={TynassApiClient -- methode typee}]
+[Serializable]
+public class LoginPayload {
+    public string accessCode;
+    public string pin;
+}
+
+public IEnumerator LoginEmployee(string code, string pin,
+    Action<EmployeeResponse> onSuccess,
+    Action<string> onError)
+{
+    var payload = new LoginPayload { accessCode = code, pin = pin };
+    string body = JsonUtility.ToJson(payload);
+    // ... UnityWebRequest POST avec device_token dans header
+}
+\end{lstlisting}
+
+\subsection{DeviceActivationManager --- Meta User ID}
+
+\begin{lstlisting}[language={[Sharp]C}, caption={Meta User ID -- recuperation}]
+private void GetMetaUserId() {
+    Oculus.Platform.Users.GetLoggedInUser().OnComplete(msg => {
+        if (!msg.IsError) {
+            string metaUserId = msg.Data.ID.ToString();
+            StartCoroutine(ApiClient.CheckDevice(metaUserId,
+                onActivated: LoadEmployeePicker,
+                onNotActivated: ShowActivationPanel));
+        } else {
+            // Fallback editeur : deviceUniqueIdentifier
+            string fallback = SystemInfo.deviceUniqueIdentifier;
+            StartCoroutine(ApiClient.CheckDevice(fallback, ...));
+        }
+    });
+}
+\end{lstlisting}
+
+\subsection{EmployeeSignInPanel --- Login en 2 étapes}
+
+\begin{enumerate}
+  \item \textbf{Step 1 --- accessCode}~: l'employé saisit son code via un clavier
+    alphanumérique. Unity valide le format en temps réel avec
+    \texttt{Regex.IsMatch(code, \texttt{\^}[A-Z]\{2\}-\textbackslash d\{3\}\$)}.
+    Cette validation côté Unity donne un retour immédiat sans aller-retour réseau.
+    La validation backend constitue la sécurité réelle (défense en profondeur).
+  \item \textbf{Step 2 --- PIN}~: numpad 4 chiffres (0-9 + effacer). Visuellement
+    masqué par des étoiles. Envoyé au backend pour vérification bcrypt.
+\end{enumerate}
+
+\placeholder{Capture EmployeeSignInPanel Step 1 --- accessCode (à insérer)}
+
+\placeholder{Capture EmployeeSignInPanel Step 2 --- PIN numpad (à insérer)}
+
+\subsection{ModulesPanel --- Grille des formations}
+
+Les cartes de formation sont instanciées dynamiquement depuis un prefab dans un
+\textbf{Grid Layout Group}, qui calcule automatiquement la position de chaque enfant
+selon \texttt{Cell Size} et \texttt{Spacing}.
+
+\placeholder{Capture ModulesPanel avec 2 formations (à insérer)}
+
+\subsection{SettingsPanel --- Paramètres persistants}
+
+Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
+\texttt{vol\_master}, \texttt{vol\_sfx}, \texttt{vol\_narr}, \texttt{mute\_all},
+\texttt{spatial}, \texttt{ui\_lang}, \texttt{narr\_lang}, \texttt{hand},
+\texttt{dwell\_time}, \texttt{glow}, \texttt{haptic}.
+
+\placeholder{Capture SettingsPanel (à insérer)}
+
+\section{Difficultés et solutions}
+
+\begin{table}[H]
+  \centering
+  \caption{Difficultés rencontrées et solutions --- Sprint~3}
+  \label{tab:dificultes_s3}
+  \begin{tabularx}{\textwidth}{lXX}
+    \toprule
+    \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+    \midrule
+    JsonUtility & Les objets anonymes \texttt{new \{email = "test"\}}
+                  produisaient \texttt{\{\}} (JSON vide). &
+                  Création de classes \texttt{[Serializable]} explicites
+                  pour tous les payloads. \\
+    \midrule
+    Vidéos lentes & Les vidéos dans \texttt{Resources/} étaient préchargées
+                    au démarrage, causant un gel de plus d'une minute. &
+                    Migration vers \texttt{StreamingAssets/}~: lecture en
+                    streaming via URL \texttt{file://}, démarrage instantané. \\
+    \midrule
+    Cards superposées & Les cartes de formations apparaissaient toutes
+                        au même point (0,0,0) sans layout automatique. &
+                        \texttt{Grid Layout Group} calcule automatiquement
+                        la position de chaque carte. \\
+    \midrule
+    Vélocité locomotion & Maintenir le joystick pendant un blocage
+                          accumulait une vélocité~: l'employé partait
+                          en sprint au déblocage. &
+                          \texttt{EnableMovement()} remet la vélocité
+                          à zéro avant de réactiver le mouvement. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Évaluation du sprint~3}
+
+\begin{table}[H]
+  \centering
+  \caption{Métriques d'évaluation --- Sprint~3}
+  \label{tab:eval_s3}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \midrule
+    FPS scène Companys                & --- fps  & 72~fps \\
+    Temps chargement panels           & --- sec  & $<$ 3~sec \\
+    Succès activation casque (tests)  & ---/---  & 100\% \\
+    Succès login employé (tests)      & ---/---  & 100\% \\
+    Leçons tutoriel fonctionnelles    & 3/3      & 3 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\placeholder{Capture scène trailler --- Leçon 2 (grip) (à insérer)}
+
+\placeholder{Capture flow complet sur Meta Quest~3 (à insérer)}
+
+\section{Conclusion}
+
+Ce troisième sprint a livré l'application VR Unity~6 avec les deux premières scènes~:
+tutoriel contrôleurs (trailler) et authentification (Companys). Le flow complet
+fonctionne sur le casque physique Meta Quest~3~: activation, login employé, affichage
+des formations. Le chapitre suivant présente la simulation VR Indigo Company.

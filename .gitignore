@@ -1,0 +1,19 @@
+# Fichiers temporaires LaTeX
+out/
+*.aux
+*.bbl
+*.blg
+*.idx
+*.ind
+*.lof
+*.lot
+*.out
+*.toc
+*.fls
+*.log
+*.fdb_latexmk
+*.bcf
+*.run.xml
+*.synctex.gz
+!out/.gitkeep
+main.pdf

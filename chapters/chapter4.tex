@@ -1,0 +1,275 @@
+\chapter{Sprint~2 --- Dashboards Web Admin et Company}
+
+\section{Introduction}
+
+Ce sprint couvre le développement des deux interfaces web de \tynassit{}~:
+le \textbf{dashboard Admin} destiné aux équipes Tynass, et le \textbf{dashboard Company}
+destiné aux entreprises clientes. Les deux dashboards sont développés avec React,
+TypeScript et déployés séparément sur Vercel pour garantir une isolation totale.
+
+\section{Planification du sprint~2}
+
+\subsection{Objectifs}
+
+\begin{itemize}
+  \item Livrer 7 pages fonctionnelles pour le dashboard Admin.
+  \item Livrer 6 pages fonctionnelles pour le dashboard Company.
+  \item Connecter les deux dashboards au backend via l'API REST.
+  \item Déployer les deux dashboards en production sur Vercel.
+\end{itemize}
+
+\subsection{Backlog du sprint~2}
+
+\begin{table}[H]
+  \centering
+  \caption{Backlog du sprint~2}
+  \label{tab:backlog_s2}
+  \begin{tabularx}{\textwidth}{llXl}
+    \toprule
+    \textbf{ID} & \textbf{MoSCoW} & \textbf{Tâches principales} & \textbf{Statut} \\
+    \midrule
+    US-06 & \must{}   & LoginPage admin + AuthProvider + JWT localStorage & \checkmark \\
+    US-07 & \must{}   & DashboardPage --- 4 KPIs + Top 5 Companies/Trainings & \checkmark \\
+    US-08 & \must{}   & CompaniesPage --- CRUD + toggle + assign formations & \checkmark \\
+    US-09 & \must{}   & DevicesPage --- activation (code 6 chiffres) + révocation & \checkmark \\
+    US-10 & \should{} & SessionsPage --- filtres company/training/date & \checkmark \\
+    US-11 & \must{}   & LoginPage company + AuthProvider company & \checkmark \\
+    US-12 & \must{}   & EmployeesPage --- CRUD + accessCode + PIN & \checkmark \\
+    US-13 & \should{} & SessionsPage company --- historique + pagination & \checkmark \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conception du sprint~2}
+
+\subsection{Décisions architecturales --- Frontend}
+
+\begin{table}[H]
+  \centering
+  \caption{Décisions architecturales --- Dashboards React}
+  \label{tab:archi_frontend}
+  \begin{tabularx}{\textwidth}{lllX}
+    \toprule
+    \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
+    \midrule
+    Framework  & React + TS  & Vue, Angular   & Maîtrise préalable, écosystème npm,
+                                                typage strict \\
+    Language   & TypeScript  & JavaScript     & Détection erreurs à la compilation,
+                                                interfaces pour types API \\
+    Bundler    & Vite        & CRA, Webpack   & Démarrage instantané (ESM natif),
+                                                HMR ultra-rapide \\
+    Router     & React Router v6 & TanStack Start & SSR bloquait les appels fetch API
+                                                    côté client \\
+    Data       & TanStack Query & SWR, Axios  & Cache automatique, invalidation après
+                                                mutation, états loading/error natifs \\
+    UI         & Shadcn UI   & Material UI    & Composants copiés dans le projet
+                                                (pas de lock-in), basés sur Radix UI \\
+    CSS        & Tailwind v3 & Tailwind v4    & Incompatibilité v4 avec composants
+                                                Shadcn UI \\
+    Animations & Framer Motion & CSS seul    & Transitions fluides, animations déclaratives \\
+    Toasts     & Sonner      & React-Toastify & API simple, design moderne \\
+    Déploiement & Vercel     & Netlify        & CI/CD automatique depuis GitHub \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Pourquoi deux projets séparés~?}
+
+Un seul projet avec gestion des rôles aurait été possible, mais deux projets séparés ont
+été préférés pour les raisons suivantes~:
+
+\begin{itemize}
+  \item \textbf{Isolation totale des données}~: le dashboard Company n'a accès qu'aux
+    routes \texttt{/api/company/*}, jamais aux routes admin.
+  \item \textbf{Déploiements indépendants}~: une mise à jour du dashboard Admin
+    n'affecte pas le dashboard Company.
+  \item \textbf{URLs distinctes}~: \url{admin-dashbord-mypfe.vercel.app} et
+    \texttt{company-dashbord-mypfe.vercel.app}.
+\end{itemize}
+
+\subsection{Système d'authentification}
+
+\placeholder{Séquence --- Login admin (à insérer)}
+
+Le JWT admin est stocké dans \texttt{localStorage("admin\_token")}. Au chargement de
+l'application, le hook \texttt{useAuth()} appelle \texttt{api.getMe()} pour valider
+le token et récupérer le profil admin. Si le token est expiré, \texttt{.catch()} l'efface
+automatiquement et redirige vers la page de connexion.
+
+\subsection{Cas d'utilisation --- Descriptions textuelles}
+
+\begin{ucbox}{Activer un casque (côté Dashboard)}
+  \begin{tabular}{lp{9cm}}
+    \textbf{Pré-conditions} & Admin connecté, casque affichant un code 6 chiffres. \\
+    \textbf{Acteur}         & Staff Admin Tynass. \\
+    \textbf{Scénario}       &
+      1. Admin ouvre DevicesPage et clique \og Activate Device \fg. \newline
+      2. Admin saisit le code 6 chiffres affiché sur le casque. \newline
+      3. Admin sélectionne l'entreprise propriétaire du casque. \newline
+      4. Admin saisit un label optionnel (ex: \og Salle de formation A \fg). \newline
+      5. Dashboard appelle \texttt{POST /api/company/devices/activate}. \newline
+      6. Succès~: le casque apparaît dans la liste comme \og Active \fg. \\
+    \textbf{Exceptions}     & Code expiré (15 min) → message d'erreur, régénérer. \\
+    \textbf{Post-conditions}& Casque actif, apparaît dans la liste des devices. \\
+  \end{tabular}
+\end{ucbox}
+
+\vspace{0.5cm}
+
+\begin{ucbox}{Créer un employé avec accessCode et PIN}
+  \begin{tabular}{lp{9cm}}
+    \textbf{Pré-conditions} & Manager Company connecté au dashboard. \\
+    \textbf{Acteur}         & Company (client B2B). \\
+    \textbf{Scénario}       &
+      1. Manager ouvre EmployeesPage et clique \og Créer employé \fg. \newline
+      2. Saisie~: nom, prénom, poste, département. \newline
+      3. Saisie du PIN 4 chiffres (haché bcrypt côté backend). \newline
+      4. Dashboard appelle \texttt{POST /api/company/employees}. \newline
+      5. Backend génère l'accessCode (ex: \texttt{IN-001}) via Counter + \$inc. \newline
+      6. L'accessCode est affiché en lecture seule dans la fiche employé. \\
+    \textbf{Post-conditions}& Employé créé, accessCode communiqué à l'employé. \\
+  \end{tabular}
+\end{ucbox}
+
+\section{Implémentation du sprint~2}
+
+\subsection{Dashboard Admin --- Pages implémentées}
+
+\subsubsection{LoginPage}
+
+Interface d'authentification avec animation Framer Motion (fade-in + scale de la carte).
+Le formulaire appelle \texttt{POST /api/admin/auth/login} et stocke le JWT dans
+\texttt{localStorage}.
+
+\placeholder{Capture LoginPage admin (à insérer)}
+
+\subsubsection{DashboardPage}
+
+Page d'accueil affichant 4 KPIs calculés depuis le backend~:
+\textbf{Total Companies}, \textbf{Total Trainings}, \textbf{Sessions Played},
+\textbf{Global Pass Rate}. Affiche également les 5 entreprises les plus actives
+et les 5 formations les plus jouées.
+
+\placeholder{Capture DashboardPage avec KPIs (à insérer)}
+
+\subsubsection{CompaniesPage}
+
+Gestion complète des entreprises clientes~: création, modification, suppression (superadmin
+uniquement), activation/désactivation, et assignation des formations via un dialog interactif.
+
+\placeholder{Capture CompaniesPage (à insérer)}
+
+\subsubsection{TrainingsPage}
+
+Gestion du catalogue de formations VR. Le champ \textbf{sceneName} est crucial~: il
+correspond exactement au nom de la scène Unity à charger via
+\texttt{SceneManager.LoadScene(training.sceneName)}.
+
+\placeholder{Capture TrainingsPage avec champ sceneName (à insérer)}
+
+\subsubsection{DevicesPage}
+
+Activation et révocation des casques Meta Quest~3. L'admin saisit le code 6 chiffres
+affiché sur le casque, sélectionne l'entreprise et confirme l'activation.
+
+\placeholder{Capture DevicesPage --- activation en cours (à insérer)}
+
+\subsubsection{SessionsPage}
+
+Historique de toutes les sessions avec filtres multi-critères~:
+\texttt{companyFilter}, \texttt{trainingFilter}, \texttt{dateFrom}, \texttt{dateTo}.
+Le filtrage est effectué côté client (JavaScript) sur le tableau complet retourné par l'API.
+
+\placeholder{Capture SessionsPage avec filtres (à insérer)}
+
+\subsubsection{StatisticsPage}
+
+Visualisation des statistiques agrégées par formation et par entreprise,
+calculées via les pipelines d'agrégation MongoDB.
+
+\placeholder{Capture StatisticsPage (à insérer)}
+
+\subsection{Dashboard Company --- Pages implémentées}
+
+\subsubsection{EmployeesPage}
+
+Page centrale du dashboard Company~: CRUD complet des employés, affichage de l'accessCode
+(lecture seule après création), saisie du PIN lors de la création, et consultation
+des milestones de chaque employé.
+
+\placeholder{Capture EmployeesPage (à insérer)}
+
+\subsubsection{SessionsPage Company}
+
+Historique des sessions avec pagination frontend (PAGE\_SIZE = 20 sessions par page),
+filtrage par employé ou par formation.
+
+\placeholder{Capture SessionsPage company (à insérer)}
+
+\section{Difficultés et solutions}
+
+\begin{table}[H]
+  \centering
+  \caption{Difficultés rencontrées et solutions --- Sprint~2}
+  \label{tab:dificultes_s2}
+  \begin{tabularx}{\textwidth}{lXX}
+    \toprule
+    \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+    \midrule
+    Migration router & TanStack Start (SSR) bloquait les appels
+                       fetch côté client en production. &
+                       Migration vers React Router v6~: routage
+                       100\% côté client, sans SSR. \\
+    \midrule
+    Tailwind v4 & Shadcn UI incompatible avec Tailwind v4
+                  (classes manquantes, styles cassés). &
+                  Migration vers Tailwind v3, stable et
+                  pleinement compatible avec Shadcn. \\
+    \midrule
+    Pattern \texttt{?? data} & Le backend enveloppe les réponses~:
+                               \texttt{\{companies: [...]\}} au lieu de
+                               \texttt{[...]} directement. &
+                               Pattern \texttt{data.companies ?? data}
+                               dans chaque appel API pour
+                               rétrocompatibilité. \\
+    \midrule
+    Tri statistiques & Le champ \texttt{sessionsPlayed} dans les
+                       mock-data ne correspondait pas au champ
+                       \texttt{totalSessions} retourné par le backend. &
+                       Correction du tri~: utilisation de
+                       \texttt{totalSessions} (champ backend réel). \\
+    \midrule
+    CORS & Le dashboard (localhost:8080) était bloqué
+           par le backend sans configuration CORS. &
+           Ajout du middleware cors() avant toutes les
+           routes, avec origines explicites. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Évaluation du sprint~2}
+
+\begin{table}[H]
+  \centering
+  \caption{Métriques d'évaluation --- Sprint~2}
+  \label{tab:eval_s2}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \midrule
+    Pages admin livrées              & 7/7      & 7 \\
+    Pages company livrées            & 6/6      & 6 \\
+    Temps chargement DashboardPage   & --- ms   & $<$ 2~s \\
+    Tests manuels passés             & ---/---  & 100\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\placeholder{Captures des deux dashboards déployés sur Vercel (à insérer)}
+
+\section{Conclusion}
+
+Ce deuxième sprint a livré les deux dashboards web de \tynassit{}, déployés sur Vercel~:
+\url{admin-dashbord-mypfe.vercel.app} et \texttt{company-dashbord-mypfe.vercel.app}.
+Les 13 user stories couvertes sont toutes en état \textit{done}. Le chapitre suivant
+présente le développement de l'application VR Unity~6.

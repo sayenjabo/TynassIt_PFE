@@ -1,0 +1,252 @@
+\chapter{Spécification et pilotage du projet}
+
+\section{Introduction}
+
+Ce chapitre cadre le périmètre fonctionnel et technique de \tynassit{}. Nous identifions
+les acteurs, détaillons les besoins fonctionnels et non-fonctionnels selon le modèle
+\textbf{ISO/IEC 25010}, présentons la modélisation UML du système, l'architecture retenue,
+puis le backlog produit avec priorisation \textbf{MoSCoW} et la planification des sprints.
+
+\section{Analyse des besoins}
+
+\subsection{Identification des acteurs}
+
+Quatre acteurs interagissent avec \tynassit{}~:
+
+\begin{itemize}
+  \item \textbf{Superadmin}~: membre de l'équipe Tynass disposant d'un accès total à
+    toutes les fonctionnalités, y compris la gestion des comptes administrateurs.
+  \item \textbf{Staff Admin}~: membre de l'équipe Tynass chargé de la gestion quotidienne
+    des entreprises clientes, des formations et des casques.
+  \item \textbf{Company}~: entreprise cliente B2B de Tynass, gérant ses employés et
+    consultant les résultats de leurs formations.
+  \item \textbf{Employé}~: utilisateur final du casque Meta Quest~3, réalisant les
+    simulations de formation.
+\end{itemize}
+
+\subsection{Besoins fonctionnels}
+
+Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par acteur.
+
+\begin{table}[H]
+  \centering
+  \caption{Description des besoins fonctionnels par acteur}
+  \label{tab:besoins_fonctionnels}
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Acteur} & \textbf{Besoins fonctionnels} \\
+    \midrule
+    \multirow{4}{*}{\textbf{Superadmin}} &
+      S'authentifier à la plateforme web. \\
+    & Gérer les comptes Staff Admin (créer, activer, désactiver). \\
+    & Accéder à toutes les fonctionnalités du Staff Admin. \\
+    & Créer le premier compte Superadmin via l'endpoint \texttt{/setup}. \\
+    \midrule
+    \multirow{6}{*}{\textbf{Staff Admin}} &
+      S'authentifier à la plateforme web. \\
+    & Gérer les entreprises clientes (CRUD, activation/désactivation). \\
+    & Gérer le catalogue de formations VR (CRUD, sceneName). \\
+    & Activer un casque Meta Quest~3 via le système Meta User ID. \\
+    & Assigner des formations à une entreprise. \\
+    & Consulter les statistiques et sessions de toutes les entreprises. \\
+    \midrule
+    \multirow{4}{*}{\textbf{Company}} &
+      S'authentifier au dashboard entreprise. \\
+    & Gérer les employés (CRUD, génération accessCode, PIN bcrypt). \\
+    & Révoquer un casque Meta Quest~3. \\
+    & Consulter les sessions et performances de ses employés. \\
+    \midrule
+    \multirow{5}{*}{\textbf{Employé}} &
+      Se connecter au casque (accessCode XX-001 + PIN 4 chiffres). \\
+    & Accéder aux formations assignées à son entreprise. \\
+    & Suivre le tutoriel d'introduction aux contrôleurs (scène trailler). \\
+    & Vivre la simulation VR (scène intigo). \\
+    & Voir ses résultats envoyés automatiquement à \tynassit{}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Besoins non-fonctionnels selon ISO/IEC~25010}
+
+L'analyse des besoins non-fonctionnels s'appuie sur le modèle de qualité logicielle
+\textbf{ISO/IEC~25010}~\cite{iso25010}, qui définit huit caractéristiques de qualité.
+
+\placeholder{Modèle ISO/IEC 25010 (figure)}
+
+\subsubsection{Performance Efficiency (Time Behaviour)}
+
+Le système doit garantir des temps de réponse acceptables sur toutes ses composantes~:
+
+\begin{itemize}
+  \item \textbf{API backend}~: temps de réponse moyen inférieur à \textbf{500~ms}
+    pour les endpoints critiques (login, submission de session).
+  \item \textbf{Application VR}~: maintien d'une cadence de \textbf{72~fps stables}
+    sur Meta Quest~3 (seuil minimum pour éviter le motion sickness).
+  \item \textbf{Chargement scènes Unity}~: inférieur à \textbf{5 secondes}.
+\end{itemize}
+
+\subsubsection{Security}
+
+Conformément au principe de défense en profondeur, la sécurité est organisée en
+\textbf{quatre couches} complémentaires (détaillées au chapitre~3).
+
+\begin{itemize}
+  \item \textbf{Confidentialité}~: JWT signé HS256, différencié par type d'acteur.
+  \item \textbf{Résistance}~: bcrypt 10 rounds ($\approx$100~ms), SHA-256 pour les
+    tokens sensibles, validation des entrées côté Unity et backend.
+\end{itemize}
+
+\subsubsection{Reliability (Availability)}
+
+\begin{itemize}
+  \item \textbf{MongoDB Atlas}~: SLA de 99,9\%, sauvegardes automatiques, accès global.
+  \item \textbf{Render + Vercel}~: déploiements continus avec rollback automatique.
+\end{itemize}
+
+\subsubsection{Maintainability (Modifiability)}
+
+\begin{itemize}
+  \item \textbf{sceneName dynamique}~: l'ajout d'une nouvelle formation VR ne nécessite
+    aucune modification du code Unity --- seul le champ \texttt{sceneName} en base de données
+    suffit.
+  \item \textbf{Architecture MVC}~: modification d'un contrôleur sans impact sur les autres.
+  \item \textbf{AppSession statique}~: état global Unity accessible sans instanciation.
+\end{itemize}
+
+\subsubsection{Usability (Learnability)}
+
+\begin{itemize}
+  \item \textbf{Tutoriel VR}~: scène trailler avec 3 leçons couvrant les interactions
+    fondamentales (mouvement, manipulation, interface UI).
+  \item \textbf{Interface VR simple}~: login en 2 étapes (code alphanumerique + PIN
+    numérique) ne nécessitant pas de clavier virtuel.
+\end{itemize}
+
+\section{Modélisation du système}
+
+\subsection{Vue fonctionnelle --- Diagramme de cas d'utilisation}
+
+\placeholder{Diagramme de cas d'utilisation global (à insérer)}
+
+\subsection{Vue structurelle --- Diagramme de classes}
+
+\placeholder{Diagramme de classes --- 7 modèles MongoDB (à insérer)}
+
+\subsection{Vue dynamique --- Diagrammes de séquence}
+
+\placeholder{Diagramme de séquence --- Activation casque (à insérer)}
+
+\placeholder{Diagramme de séquence --- Login employé VR (à insérer)}
+
+\placeholder{Diagramme de séquence --- SubmitSession (à insérer)}
+
+\section{Architecture du système}
+
+\subsection{Architecture logique}
+
+\tynassit{} adopte une \textbf{architecture en trois couches}~:
+
+\begin{itemize}
+  \item \textbf{Couche présentation}~: dashboards React (Admin et Company) et application
+    VR Unity~6 sur Meta Quest~3.
+  \item \textbf{Couche métier}~: API REST Node.js/Express avec contrôleurs MVC.
+  \item \textbf{Couche données}~: MongoDB Atlas avec 7 collections.
+\end{itemize}
+
+\placeholder{Architecture logique --- diagramme en couches (à insérer)}
+
+\subsection{Architecture physique --- Diagramme de déploiement}
+
+\placeholder{Diagramme de déploiement (à insérer)}
+
+\noindent Le système est déployé sur trois environnements cloud~:
+
+\begin{itemize}
+  \item \textbf{MongoDB Atlas}~: base de données cloud, accessible depuis tous les composants.
+  \item \textbf{Render}~: hébergement du backend Node.js avec déploiement continu depuis GitHub.
+  \item \textbf{Vercel}~: hébergement des deux dashboards React avec CI/CD automatique.
+  \item \textbf{Meta Quest~3}~: application Unity déployée en APK via Meta Developer Hub.
+\end{itemize}
+
+\section{Pilotage du projet avec Scrum}
+
+\subsection{Application de Scrum}
+
+\placeholder{Processus Scrum adapté au projet (figure)}
+
+\subsection{Backlog produit}
+
+Le backlog produit regroupe \textbf{23 user stories} organisées en \textbf{5 épics},
+priorisées selon la méthode \textbf{MoSCoW}~\cite{moscow2009}.
+
+\begin{longtable}{llp{7cm}c}
+  \caption{Backlog produit --- TynassIt}
+  \label{tab:backlog} \\
+  \toprule
+  \textbf{ID} & \textbf{Épic} & \textbf{User Story} & \textbf{MoSCoW} \\
+  \midrule
+  \endfirsthead
+  \toprule
+  \textbf{ID} & \textbf{Épic} & \textbf{User Story} & \textbf{MoSCoW} \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  \multicolumn{4}{l}{\textit{EP-01 --- Backend \& Sécurité}} \\
+  US-01 & EP-01 & En tant qu'admin, je veux me connecter à la plateforme. & \must{} \\
+  US-02 & EP-01 & En tant qu'admin, je veux créer et gérer les entreprises. & \must{} \\
+  US-03 & EP-01 & En tant qu'admin, je veux créer des formations (+ sceneName). & \must{} \\
+  US-04 & EP-01 & En tant qu'admin, je veux activer un casque via Meta User ID. & \must{} \\
+  US-05 & EP-01 & En tant qu'admin, je veux consulter les statistiques globales. & \should{} \\
+  \midrule
+  \multicolumn{4}{l}{\textit{EP-02 --- Dashboard Admin}} \\
+  US-06 & EP-02 & En tant qu'admin, je veux me connecter au dashboard. & \must{} \\
+  US-07 & EP-02 & En tant qu'admin, je veux voir les KPIs (Total Companies, Sessions...). & \must{} \\
+  US-08 & EP-02 & En tant qu'admin, je veux gérer les entreprises (CRUD + assign). & \must{} \\
+  US-09 & EP-02 & En tant qu'admin, je veux activer et révoquer les casques. & \must{} \\
+  US-10 & EP-02 & En tant qu'admin, je veux filtrer les sessions par company/training. & \should{} \\
+  \midrule
+  \multicolumn{4}{l}{\textit{EP-03 --- Dashboard Company}} \\
+  US-11 & EP-03 & En tant qu'entreprise, je veux me connecter au dashboard. & \must{} \\
+  US-12 & EP-03 & En tant qu'entreprise, je veux gérer mes employés (CRUD + PIN). & \must{} \\
+  US-13 & EP-03 & En tant qu'entreprise, je veux consulter les sessions de mes employés. & \should{} \\
+  \midrule
+  \multicolumn{4}{l}{\textit{EP-04 --- Application VR Unity}} \\
+  US-14 & EP-04 & En tant qu'employé, je veux apprendre à utiliser les contrôleurs VR. & \must{} \\
+  US-15 & EP-04 & En tant qu'employé, je veux activer le casque (Meta User ID). & \must{} \\
+  US-16 & EP-04 & En tant qu'employé, je veux me connecter (code + PIN 4 chiffres). & \must{} \\
+  US-17 & EP-04 & En tant qu'employé, je veux voir les formations disponibles. & \must{} \\
+  US-18 & EP-04 & En tant qu'employé, je veux configurer l'audio et la langue. & \should{} \\
+  \midrule
+  \multicolumn{4}{l}{\textit{EP-05 --- Simulation VR Indigo}} \\
+  US-19 & EP-05 & En tant qu'employé, je veux explorer virtuellement les locaux d'Indigo. & \must{} \\
+  US-20 & EP-05 & En tant qu'employé, je veux vivre une mise en situation (quiz). & \must{} \\
+  US-21 & EP-05 & En tant que système, je veux soumettre automatiquement les résultats. & \must{} \\
+  US-22 & EP-05 & En tant qu'employé, je veux voir mon score et mes résultats. & \must{} \\
+  US-23 & EP-05 & En tant qu'employé, je veux scroller la liste des formations. & \could{} \\
+\end{longtable}
+
+\subsection{Planification des sprints}
+
+\begin{table}[H]
+  \centering
+  \caption{Planification des sprints}
+  \label{tab:sprint_plan}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Sprint} & \textbf{Titre} & \textbf{Durée} & \textbf{US couvertes} \\
+    \midrule
+    Sprint 1 & Backend Core \& Sécurité          & 3 semaines & US-01 à US-05 \\
+    Sprint 2 & Dashboards Admin \& Company        & 3 semaines & US-06 à US-13 \\
+    Sprint 3 & Application VR Unity (Auth)        & 4 semaines & US-14 à US-18 \\
+    Sprint 4 & Simulation VR Indigo (intigo)      & 5 semaines & US-19 à US-23 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+Ce chapitre a établi les bases de \tynassit{}~: identification des acteurs, besoins
+fonctionnels et non-fonctionnels (structurés selon ISO/IEC~25010), modélisation UML,
+architecture déployée et backlog MoSCoW de 23 user stories. Le chapitre suivant présente
+la réalisation du premier sprint~: le backend core et son architecture de sécurité.

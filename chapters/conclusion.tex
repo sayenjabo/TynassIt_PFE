@@ -1,0 +1,88 @@
+\chapter*{Conclusion générale et perspectives}
+\addcontentsline{toc}{chapter}{Conclusion générale et perspectives}
+\markboth{Conclusion générale et perspectives}{}
+
+\section*{Récapitulatif des réalisations}
+
+Ce projet de fin d'études a abouti au développement complet de \tynassit{},
+une plateforme B2B de formation en Réalité Virtuelle sur Meta Quest~3.
+Les quatre sprints ont livré les réalisations suivantes~:
+
+\begin{itemize}
+  \item \textbf{Sprint~1 --- Backend}~: API REST complète (30+ endpoints), 7 modèles
+    MongoDB, architecture de sécurité à 4 couches (JWT différencié, RBAC, bcrypt,
+    SHA-256), système d'activation de casques via Meta User ID, login employé
+    (accessCode XX-001 + PIN). Déployé sur Render.
+
+  \item \textbf{Sprint~2 --- Dashboards}~: dashboard Admin (7 pages, React + TypeScript)
+    et dashboard Company (6 pages). Gestion complète des entreprises, formations,
+    casques, employés et statistiques. Déployés sur Vercel.
+
+  \item \textbf{Sprint~3 --- Unity Auth}~: scène trailler (tutoriel 3 leçons) et
+    scène Companys (activation casque, login employé, sélection formations, paramètres).
+    Architecture Unity avec TynassApiClient, AppSession, PanelManager.
+
+  \item \textbf{Sprint~4 --- Simulation Indigo}~: simulation VR d'intégration des
+    nouveaux employés (3 phases~: exploration, mise en situation, quiz), soumission
+    automatique des résultats à \tynassit{}, panel QuizResult.
+\end{itemize}
+
+\section*{Bilan personnel}
+
+Ce projet a permis d'acquérir et d'approfondir des compétences dans des domaines variés~:
+
+\begin{itemize}
+  \item \textbf{Développement VR}~: Unity~6, Meta XR SDK, OpenXR, optimisation Quest~3,
+    modélisation Blender, animation 3D.
+  \item \textbf{Backend}~: Node.js, Express, MongoDB, Mongoose, JWT, bcrypt, SHA-256,
+    architecture REST, déploiement cloud.
+  \item \textbf{Frontend}~: React, TypeScript, TanStack Query, Shadcn UI, Tailwind.
+  \item \textbf{Gestion de projet}~: méthodologie Scrum, backlog MoSCoW, sprints.
+  \item \textbf{Sécurité}~: architecture RBAC, hachage, tokens temporaires, défense en profondeur.
+\end{itemize}
+
+\section*{Limites identifiées}
+
+Dans un souci de transparence et d'honnêteté académique, les limites suivantes sont
+documentées~:
+
+\begin{itemize}
+  \item \textbf{Rate limiting absent}~: les endpoints sensibles (login, forgot password)
+    ne sont pas protégés contre les attaques brute force. Une implémentation avec
+    \texttt{express-rate-limit} est prévue en production.
+  \item \textbf{Tests automatisés absents}~: les tests sont effectués manuellement
+    (Postman, APITestSuite.cs). Des tests Jest (backend) et Playwright (frontend)
+    seraient nécessaires pour la production.
+  \item \textbf{Scroll VR joystick non résolu}~: \texttt{ScrollRect} Unity ne répond pas
+    nativement aux inputs \texttt{OVRInput}. Un script custom est nécessaire pour les
+    entreprises avec 10+ formations.
+  \item \textbf{Personnages 3D génériques}~: les guides dans la simulation Indigo sont
+    des personnages génériques Mixamo, non personnalisés à l'effigie des vrais responsables.
+\end{itemize}
+
+\section*{Perspectives}
+
+\tynassit{} ouvre de nombreuses perspectives d'évolution~:
+
+\begin{itemize}
+  \item \textbf{Personnages personnalisés}~: modélisation 3D à l'effigie des responsables
+    réels d'Indigo Company, permettant une intégration encore plus immersive et authentique.
+  \item \textbf{OAuth Meta Quest}~: authentification via le compte Meta de l'employé,
+    éliminant le code + PIN au profit d'un login transparent.
+  \item \textbf{Nouvelles formations VR}~: extension du catalogue pour d'autres clients
+    B2B (sécurité en magasin, procédures logistiques, formation à la vente).
+  \item \textbf{Pagination backend}~: implémentation de la pagination côté serveur pour
+    les grandes quantités de sessions.
+  \item \textbf{Export données}~: génération de rapports PDF/Excel des sessions par
+    entreprise, pour faciliter le suivi RH.
+  \item \textbf{Analyse IA}~: intégration d'analyses automatiques des performances pour
+    identifier les lacunes récurrentes et adapter le contenu des formations.
+\end{itemize}
+
+\vspace{1cm}
+
+En conclusion, \tynassit{} constitue une réponse concrète et opérationnelle au besoin
+d'intégration immersive des nouveaux employés. La plateforme est entièrement fonctionnelle
+et déployée en production, avec un premier client réel~: Indigo Company. Elle ouvre la
+voie à un catalogue de formations VR évolutif, accessible à l'ensemble des entreprises
+clientes de Tynass IT.

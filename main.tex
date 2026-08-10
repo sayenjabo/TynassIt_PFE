@@ -1,0 +1,197 @@
+\documentclass[a4paper,12pt,oneside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{csquotes}
+\usepackage[french]{babel}
+
+\usepackage[
+  top=2.5cm,
+  bottom=2.5cm,
+  left=3cm,
+  right=2.5cm,
+  headheight=14.5pt
+]{geometry}
+
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage[dvipsnames,table]{xcolor}
+\definecolor{TynassBlue}{RGB}{0,72,255}
+\definecolor{TynassLight}{RGB}{152,181,255}
+\definecolor{TynassDark}{RGB}{0,42,153}
+\definecolor{LightGray}{RGB}{245,247,255}
+\definecolor{MustColor}{RGB}{220,38,38}
+\definecolor{ShouldColor}{RGB}{234,88,12}
+\definecolor{CouldColor}{RGB}{22,163,74}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\graphicspath{{./images/}}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{makecell}
+\renewcommand{\arraystretch}{1.4}
+
+\usepackage{enumitem}
+\setlist[itemize]{noitemsep, topsep=4pt}
+\setlist[enumerate]{noitemsep, topsep=4pt}
+
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{LightGray},
+  frame=single,
+  rulecolor=\color{TynassLight},
+  breaklines=true,
+  breakatwhitespace=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{TynassBlue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{TynassDark},
+  tabsize=2,
+  showstringspaces=false,
+  captionpos=b,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate=
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1
+    {ù}{{\`u}}1 {ô}{{\^o}}1 {î}{{\^i}}1 {ç}{{\c c}}1
+    {â}{{\^a}}1 {û}{{\^u}}1 {É}{{\'E}}1 {È}{{\`E}}1
+    {Ê}{{\^E}}1 {À}{{\`A}}1 {Ù}{{\`U}}1 {Ô}{{\^O}}1
+    {Î}{{\^I}}1 {Ç}{{\c C}}1 {Â}{{\^A}}1 {Û}{{\^U}}1
+}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{\leftmark}}
+\fancyhead[R]{\small\textcolor{TynassBlue}{\textbf{TynassIt}}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\usepackage[
+  colorlinks=true,
+  linkcolor=TynassBlue,
+  citecolor=TynassDark,
+  urlcolor=TynassBlue,
+  pdftitle={TynassIt --- Rapport PFE},
+  pdfsubject={Plateforme B2B de Formation en Réalité Virtuelle}
+]{hyperref}
+\usepackage{bookmark}
+
+\usepackage[
+  backend=biber,
+  style=numeric,
+  sorting=none,
+  citestyle=numeric-comp
+]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{archbox}{
+  colback=LightGray,
+  colframe=TynassBlue,
+  fonttitle=\bfseries\color{white},
+  title=D\'{e}cision architecturale,
+  arc=4pt,
+  boxrule=1pt,
+  breakable
+}
+
+\newtcolorbox{ucbox}[1]{
+  colback=LightGray,
+  colframe=TynassDark,
+  fonttitle=\bfseries\color{white},
+  title=Cas d'utilisation : #1,
+  arc=4pt,
+  boxrule=1pt,
+  breakable
+}
+
+\newtcolorbox{notebox}{
+  colback=yellow!10,
+  colframe=orange!70,
+  fonttitle=\bfseries,
+  title=Note,
+  arc=4pt,
+  boxrule=1pt,
+  breakable
+}
+
+\newcommand{\tynassit}{\textcolor{TynassBlue}{\textbf{TynassIt}}}
+\newcommand{\must}{\textcolor{MustColor}{\textbf{Must}}}
+\newcommand{\should}{\textcolor{ShouldColor}{\textbf{Should}}}
+\newcommand{\could}{\textcolor{CouldColor}{\textbf{Could}}}
+\newcommand{\wont}{\textcolor{gray}{\textbf{Won't}}}
+\newcommand{\placeholder}[1]{
+  \begin{center}
+    \fbox{\parbox{0.8\textwidth}{
+      \centering\vspace{0.8cm}
+      \textit{\textcolor{gray}{[FIGURE~: #1]}}\\
+      \vspace{0.8cm}
+    }}
+  \end{center}
+}
+\newcommand{\ok}{\textcolor{CouldColor}{\checkmark}}
+
+\setlength{\emergencystretch}{3em}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\begin{document}
+
+\pagenumbering{roman}
+
+\input{chapters/titlepage}
+\input{chapters/dedications}
+\input{chapters/acknowledgements}
+\input{chapters/abstract}
+
+\tableofcontents
+\clearpage
+
+\listoffigures
+\addcontentsline{toc}{chapter}{Liste des figures}
+\clearpage
+
+\listoftables
+\addcontentsline{toc}{chapter}{Liste des tableaux}
+\clearpage
+
+\input{chapters/abbreviations}
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/introduction}
+\input{chapters/chapter1}
+\input{chapters/chapter2}
+\input{chapters/chapter3}
+\input{chapters/chapter4}
+\input{chapters/chapter5}
+\input{chapters/chapter6}
+\input{chapters/conclusion}
+
+\printbibliography[
+  heading=bibintoc,
+  title={R\'{e}f\'{e}rences bibliographiques}
+]
+
+\end{document}

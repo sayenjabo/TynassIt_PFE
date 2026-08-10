@@ -1,0 +1,266 @@
+\chapter{Sprint~4 --- Simulation VR Indigo Company (Scène intigo)}
+
+\section{Introduction}
+
+Ce quatrième sprint représente le cœur fonctionnel de \tynassit{}~: la simulation VR
+d'intégration des nouveaux employés d'\textbf{Indigo Company}. La scène \textbf{intigo}
+plonge le nouvel employé dans un environnement 3D fidèle aux locaux d'Indigo, lui fait
+découvrir les départements, présenter les règles internes et vivre des mises en situation.
+À la fin de la simulation, les résultats sont automatiquement soumis à la plateforme \tynassit{}.
+
+\section{Planification du sprint~4}
+
+\subsection{Objectifs}
+
+\begin{itemize}
+  \item Modéliser et optimiser l'environnement 3D Indigo Company dans Blender.
+  \item Importer et intégrer l'environnement dans Unity~6.
+  \item Développer les 3 phases de la simulation (exploration, mise en situation, quiz).
+  \item Implémenter le système de quiz avec calcul automatique du score.
+  \item Connecter la fin de simulation à \texttt{TynassApiClient.SubmitSession()}.
+  \item Afficher les résultats dans le panel QuizResult.
+\end{itemize}
+
+\subsection{Backlog du sprint~4}
+
+\begin{table}[H]
+  \centering
+  \caption{Backlog du sprint~4}
+  \label{tab:backlog_s4}
+  \begin{tabularx}{\textwidth}{llXl}
+    \toprule
+    \textbf{ID} & \textbf{MoSCoW} & \textbf{Description} & \textbf{Statut} \\
+    \midrule
+    US-19 & \must{}   & Environnement 3D Indigo (Blender + optimisation Quest~3) & \checkmark \\
+    US-20 & \must{}   & Simulation~: exploration + mise en situation + quiz & \checkmark \\
+    US-21 & \must{}   & SubmitSession → backend → visible dashboard & \checkmark \\
+    US-22 & \must{}   & Panel QuizResult (score + critères) & \checkmark \\
+    US-23 & \could{}  & Scroll VR joystick dans ModulesPanel & En cours \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conception du sprint~4}
+
+\subsection{Modélisation 3D --- Blender}
+
+L'environnement 3D d'Indigo Company a été modélisé dans \textbf{Blender} sur la base
+des plans réels des locaux fournis par Indigo Company, puis exporté en FBX et importé
+dans Unity~6.
+
+Les optimisations appliquées pour Meta Quest~3~:
+
+\begin{itemize}
+  \item \textbf{Polygon count}~: inférieur à 500\,000 triangles pour la scène complète.
+  \item \textbf{Textures}~: format ASTC 6x6 pour les grandes surfaces, ASTC 4x4 pour
+    les textures détaillées.
+  \item \textbf{Éclairage}~: \textit{baked lighting} (pas d'éclairage dynamique en
+    temps réel), lightmaps calculées dans Unity.
+  \item \textbf{Static Batching}~: activé sur tous les objets statiques pour réduire
+    les draw calls.
+  \item \textbf{Occlusion Culling}~: activé pour ne rendre que les objets visibles
+    depuis la position courante.
+\end{itemize}
+
+\placeholder{Environnement Blender --- vue isométrique (à insérer)}
+
+\placeholder{Environnement importé dans Unity~6 (à insérer)}
+
+\subsection{Structure de la simulation}
+
+La simulation intigo est organisée en \textbf{3 phases séquentielles}~:
+
+\begin{enumerate}
+  \item \textbf{Phase 1 --- Exploration des locaux}~: l'employé navigue librement
+    dans les locaux d'Indigo Company, découvre les différents espaces (accueil,
+    open space, salles de réunion, zone de stockage) via des panneaux interactifs.
+  \item \textbf{Phase 2 --- Mise en situation}~: scénario interactif simulant une
+    situation réelle (ex~: accueil d'un client, gestion d'un incident).
+  \item \textbf{Phase 3 --- Quiz}~: questions à choix multiples évaluant la
+    compréhension des règles internes et des procédures.
+\end{enumerate}
+
+\placeholder{Diagramme d'activité --- 3 phases de la simulation (à insérer)}
+
+\subsection{Système de quiz}
+
+Le quiz fonctionne en questions séquentielles à choix multiples. Chaque bonne réponse
+incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
+
+\[
+  \text{Score} = \frac{\text{QuizCorrect}}{\text{QuizTotal}} \times 100
+\]
+
+\[
+  \text{passed} = \text{Score} \geq 70
+\]
+
+\subsection{Mapping AppSession → SessionPayload}
+
+\begin{table}[H]
+  \centering
+  \caption{Correspondance AppSession --- SessionPayload}
+  \label{tab:session_mapping}
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Champ SessionPayload} & \textbf{Source dans AppSession / Unity} \\
+    \midrule
+    \texttt{trainingId}       & \texttt{AppSession.ActiveTraining.\_id} \\
+    \texttt{employeeId}       & \texttt{AppSession.EmployeeId} \\
+    \texttt{startedAt}        & \texttt{DateTime.UtcNow} au chargement de la scène \\
+    \texttt{completedAt}      & \texttt{DateTime.UtcNow} à la fin du quiz \\
+    \texttt{score}            & \texttt{AppSession.QuizScore} (calculé localement) \\
+    \texttt{passed}           & \texttt{AppSession.QuizScore} $\geq 70$ \\
+    \texttt{evaluationCriteria[]} & Actions évaluées pendant la simulation \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Cas d'utilisation --- Descriptions textuelles}
+
+\begin{ucbox}{Vivre la simulation intigo}
+  \begin{tabular}{lp{9cm}}
+    \textbf{Pré-conditions} & Employé connecté, formation intigo sélectionnée. \\
+    \textbf{Acteur}         & Employé (via Meta Quest~3). \\
+    \textbf{Scénario}       &
+      1. SceneManager charge la scène intigo. \newline
+      2. SimulationManager enregistre \texttt{startedAt = DateTime.UtcNow}. \newline
+      3. Phase 1~: Employé explore les locaux (navigation + panneaux). \newline
+      4. Phase 2~: Mise en situation interactive. \newline
+      5. Phase 3~: Quiz séquentiel (N questions). \newline
+      6. À la fin~: SimulationManager appelle \texttt{SubmitSession()}. \newline
+      7. PanelManager.GoQuizResult() affiche les résultats. \\
+    \textbf{Post-conditions}& Session stockée en BDD, visible dans dashboard admin. \\
+  \end{tabular}
+\end{ucbox}
+
+\vspace{0.5cm}
+
+\begin{ucbox}{Soumettre une session (SubmitSession)}
+  \begin{tabular}{lp{9cm}}
+    \textbf{Pré-conditions} & Simulation terminée, AppSession remplie. \\
+    \textbf{Acteur}         & SimulationManager (automatique). \\
+    \textbf{Scénario}       &
+      1. Construire \texttt{SessionPayload} depuis AppSession. \newline
+      2. Appel \texttt{TynassApiClient.SubmitSession(payload)}. \newline
+      3. Backend calcule \texttt{durationSeconds} (côté serveur). \newline
+      4. Backend incrémente \texttt{attemptNumber} (pre-save hook). \newline
+      5. Session stockée en MongoDB. \newline
+      6. Réponse 201 Created → GoQuizResult(). \\
+    \textbf{Exceptions}     & Perte Wi-Fi → retry automatique (3 tentatives). \\
+    \textbf{Post-conditions}& Session visible dans les dashboards Admin et Company. \\
+  \end{tabular}
+\end{ucbox}
+
+\placeholder{Diagramme de séquence --- SubmitSession (à insérer)}
+
+\section{Implémentation du sprint~4}
+
+\subsection{SimulationManager.cs}
+
+SimulationManager orchestre le déroulement de la simulation et collecte les données~:
+
+\begin{lstlisting}[language={[Sharp]C}, caption={Fin de simulation --- SubmitSession}]
+private IEnumerator EndSimulation() {
+    // Finaliser AppSession
+    AppSession.QuizScore = CalculateFinalScore();
+    AppSession.Passed = AppSession.QuizScore >= 70;
+
+    // Construire le payload
+    SessionPayload payload = new SessionPayload {
+        trainingId = AppSession.ActiveTraining._id,
+        employeeId = AppSession.EmployeeId,
+        startedAt  = _startedAt.ToString("o"),
+        completedAt = DateTime.UtcNow.ToString("o"),
+        score       = AppSession.QuizScore,
+        passed      = AppSession.Passed,
+        evaluationCriteria = BuildCriteria()
+    };
+
+    // Soumettre
+    yield return StartCoroutine(
+        TynassApiClient.Instance.SubmitSession(
+            payload,
+            onSuccess: () => PanelManager.Instance.GoQuizResult(),
+            onError: (err) => Debug.LogError(err)
+        )
+    );
+}
+\end{lstlisting}
+
+\subsection{Panel QuizResult}
+
+Le panel QuizResult affiche~:
+\begin{itemize}
+  \item Le \textbf{score final} en pourcentage.
+  \item Le \textbf{statut}~: \og Réussi \fg{} (vert) ou \og Échoué \fg{} (rouge).
+  \item Le détail des \textbf{critères d'évaluation} (procédure, identification,
+    décision, temps).
+  \item Un bouton \og Retour aux formations \fg{} et un bouton \og Se déconnecter \fg{}.
+\end{itemize}
+
+\placeholder{Capture Panel QuizResult --- score et critères (à insérer)}
+
+\section{Difficultés et solutions}
+
+\begin{table}[H]
+  \centering
+  \caption{Difficultés rencontrées et solutions --- Sprint~4}
+  \label{tab:dificultes_s4}
+  \begin{tabularx}{\textwidth}{lXX}
+    \toprule
+    \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+    \midrule
+    Optimisation polygones & L'environnement complet dépassait
+                             500\,000 polygones, causant des chutes
+                             de FPS sur Meta Quest~3. &
+                             Décimation des meshes dans Blender,
+                             activation du LOD Group pour les
+                             objets distants. \\
+    \midrule
+    Artefacts lightmap & Les baked lightmaps calculées dans Blender
+                         n'étaient pas transférées correctement en
+                         FBX vers Unity. &
+                         Recalcul des lightmaps directement dans Unity
+                         avec la Progressive Lightmapper. \\
+    \midrule
+    Timer quiz & La synchronisation entre QuizElapsedSecs et
+                 les transitions de questions causait des décalages. &
+                 Timer géré dans AppSession avec
+                 \texttt{Time.deltaTime} indépendant des transitions. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Évaluation du sprint~4}
+
+\begin{table}[H]
+  \centering
+  \caption{Métriques d'évaluation --- Sprint~4}
+  \label{tab:eval_s4}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \midrule
+    FPS moyen scène intigo            & --- fps  & 72~fps \\
+    Temps chargement scène            & --- sec  & $<$ 5~sec \\
+    Taille APK final                  & --- MB   & $<$ 1~GB \\
+    Durée simulation complète         & --- min  & 25--35~min \\
+    Succès SubmitSession (tests)      & ---/---  & 100\% \\
+    Session visible dashboard admin   & ---      & \checkmark \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\placeholder{Capture environnement 3D Indigo dans Unity (à insérer)}
+
+\placeholder{Capture quiz en VR --- question à choix multiples (à insérer)}
+
+\placeholder{Capture session visible dans le dashboard admin (à insérer)}
+
+\section{Conclusion}
+
+Ce quatrième et dernier sprint clôture le développement de \tynassit{}. La simulation
+d'intégration Indigo Company fonctionne de bout en bout~: de l'exploration immersive
+des locaux jusqu'à la soumission automatique des résultats au dashboard Tynass. Le
+chapitre suivant présente la conclusion générale et les perspectives du projet.
