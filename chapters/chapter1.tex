@@ -1,3 +1,30 @@
+% ================================================================
+% chapters/chapter1.tex --- RECONSTRUCTION
+% ----------------------------------------------------------------
+% Ce fichier est assemblé à partir des fragments retrouvés dans le
+% project knowledge (recherches successives), PAS une copie directe
+% et vérifiée d'un seul fichier source. Confiance élevée : chaque
+% section a été retrouvée et confirmée, souvent à plusieurs reprises,
+% au fil de cette conversation. Recommandation : fais un diff rapide
+% contre ton fichier réel avant d'écraser l'original, par sécurité.
+%
+% CE QUI EST FUSIONNÉ ICI (déjà appliqué, rien à recoller) :
+%   - \subsubsection{Start Beyond} (après Meta Quest for Business)
+%   - \subsection{Fondements pédagogiques du choix de la VR} (après
+%     Positionnement de TynassIt)
+%   - Blender 4.x -> 5.1 dans le tableau Logiciels et outils
+%
+% CE QUI N'A PAS ÉTÉ TOUCHÉ / INVENTÉ (déjà incomplet dans l'original,
+% reste à toi de compléter) :
+%   - \subsection{Problématique} --- vide dans le fichier source
+%   - Tableau "Matériel utilisé" --- Processeur / RAM / Stockage
+%     marqués [à compléter] dans le fichier source
+%
+% NON INCLUS (proposé comme optionnel dans un échange précédent, pas
+% confirmé par toi) : la phrase justifiant le changement Blender
+% 4.x -> 5.1. Dis-moi si tu la veux, je te la rajoute.
+% ================================================================
+
 \chapter{Contexte général}
 
 \section{Introduction}
@@ -132,6 +159,31 @@ gestion d'entreprise.
     citant une demande insuffisante et un marché pas encore assez mature.
 \end{itemize}
 
+\subsubsection{Start Beyond}
+
+Start Beyond~\cite{startbeyond2026} est une entreprise australienne fondée en 2015,
+spécialisée dans la conception de contenus VR/AR sur mesure pour l'entreprise et
+l'éducation, via son studio de production et sa plateforme \textbf{Oncio}.
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: formations immersives à la demande (onboarding,
+    certification, sécurité, compétences comportementales), déployées pour des
+    clients tels que St John Ambulance ou Qantas.
+  \item \textbf{Limite}~: prestataire généraliste multi-secteurs~--- chaque
+    simulation est développée sur mesure pour un client donné, sans plateforme
+    de gestion exposée à l'entreprise cliente~; les indicateurs de performance
+    communiqués (ex.\ « 2x faster training times », « 97\% increased confidence »)
+    relèvent de communications commerciales et ne sont pas appuyés par une
+    méthodologie publique vérifiable.
+\end{itemize}
+
+\begin{notebox}
+  Start Beyond n'apparaît pas dans le tableau comparatif ci-dessous, pour la
+  même raison qu'Accenture Nth Floor~: certains critères (suivi de sessions
+  par employé, compatibilité Meta Quest~3) ne sont pas documentés publiquement
+  pour cette solution, et il serait malhonnête de les cocher sans preuve.
+\end{notebox}
+
 \subsection{Tableau comparatif}
 
 Le tableau~\ref{tab:comparatif} présente une synthèse comparative des solutions existantes
@@ -164,6 +216,40 @@ une accessibilité adaptée aux entreprises tunisiennes. \tynassit{} se position
 dans cet espace, en offrant une alternative abordable aux solutions VR enterprise coûteuses
 (BCG, Accenture), tout en dépassant les capacités des LMS classiques (TalentLMS) par
 l'immersion et l'interactivité.
+
+\subsection{Fondements pédagogiques du choix de la VR}
+
+Au-delà des indicateurs sectoriels déjà cités en introduction~\cite{pwc2020}, le choix
+de la VR comme support pédagogique s'appuie sur deux corpus théoriques distincts de la
+littérature académique.
+
+\paragraph{Double codage de l'information.}
+La théorie du double codage~\cite{paivio1971,clarkpaivio1991} établit que l'information
+encodée simultanément par le canal verbal et le canal visuel bénéficie de deux traces
+mnésiques indépendantes, augmentant significativement les chances de rappel par rapport
+à un encodage mono-canal. Ce principe justifie la combinaison, dans \tynassit{}, de la
+narration audio, du texte informatif et de la représentation visuelle~3D des lieux et
+procédures, plutôt qu'un support uniquement textuel ou uniquement oral.
+
+\paragraph{Apprentissage expérientiel et présence immersive.}
+Au-delà du simple visuel, la spécificité de la VR tient à l'immersion et à
+l'expérience à la première personne. Une revue systématique de l'usage de la VR en
+éducation~\cite{radianti2020} et le modèle des \textit{learning affordances} des
+environnements 3D~\cite{dalgarnolee2010} convergent~: le sentiment de présence en
+environnement virtuel immersif améliore la mémorisation spatiale, l'engagement et la
+rétention de connaissances, en particulier pour des tâches procédurales et
+situées~--- exactement le cas d'usage de l'intégration de nouveaux employés visé par
+la scène \textit{intigo}.
+
+\begin{notebox}
+  Il convient de nuancer~: l'efficacité de la VR n'est pas uniforme selon le type de
+  tâche. Elle est particulièrement démontrée pour les compétences procédurales et
+  situées~--- se repérer dans un lieu, suivre une procédure, réagir à une
+  situation~--- et moins systématiquement supérieure aux supports électroniques
+  classiques pour l'acquisition de connaissances purement déclaratives. C'est ce
+  périmètre précis (repérage, procédures, mise en situation) que cible la scène
+  \textit{intigo}, plutôt qu'une prétention à remplacer tout support de formation.
+\end{notebox}
 
 \section{Méthodologie de développement}
 
@@ -275,7 +361,7 @@ les quatre sprints de développement.
     Node.js        & 20 LTS           & Runtime backend \\
     MongoDB Compass & Latest          & Gestion et visualisation BDD \\
     Postman        & Latest           & Tests API \\
-    Blender        & 4.x              & Modélisation 3D et environnements \\
+    Blender        & 5.1              & Modélisation 3D et environnements \\
     Figma          & Latest           & Conception UI/UX \\
     Git / GitHub   & Latest           & Versioning et collaboration \\
     \bottomrule
