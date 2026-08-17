@@ -1,3 +1,25 @@
+% ================================================================
+% chapters/chapter2.tex --- RECONSTRUCTION
+% ----------------------------------------------------------------
+% Assemblé à partir des fragments retrouvés dans le project knowledge
+% (recherches successives, plusieurs se recoupant), PAS une copie
+% directe d'un fichier source unique. Confiance élevée : chaque
+% section a été retrouvée et confirmée, la table du backlog (23 US)
+% a été retrouvée en entier en une seule recherche. Recommandation :
+% fais un diff rapide contre ton fichier réel avant d'écraser
+% l'original, par sécurité.
+%
+% CE QUI EST CORRIGÉ ICI (déjà appliqué, rien à recoller) :
+%   - \subsubsection{Usability (Learnability)} --- le bullet
+%     "Interface VR simple" ne prétend plus l'absence de clavier
+%     virtuel (contredit par le code ET par ton propre chapitre 5).
+%
+% RIEN D'AUTRE N'A ÉTÉ MODIFIÉ. Toutes les autres sections (besoins
+% fonctionnels/non-fonctionnels, modélisation, architecture, backlog,
+% sprints) sont reproduites telles que retrouvées, placeholders
+% inclus (diagrammes UML, figures --- toujours à insérer par toi).
+% ================================================================
+
 \chapter{Spécification et pilotage du projet}
 
 \section{Introduction}
@@ -14,10 +36,14 @@ puis le backlog produit avec priorisation \textbf{MoSCoW} et la planification de
 Quatre acteurs interagissent avec \tynassit{}~:
 
 \begin{itemize}
-  \item \textbf{Superadmin}~: membre de l'équipe Tynass disposant d'un accès total à   toutes les fonctionnalités, y compris la gestion des comptes administrateurs.
-  \item \textbf{Staff Admin}~: membre de l'équipe Tynass chargé de la gestion quotidienne des entreprises clientes, des formations et des casques.
-  \item \textbf{Company}~: entreprise cliente B2B de Tynass, gérant ses employés et  consultant les résultats de leurs formations.
-  \item \textbf{Employé}~: utilisateur final du casque Meta Quest~3, réalisant les simulations de formation.
+  \item \textbf{Superadmin}~: membre de l'équipe Tynass disposant d'un accès total à
+    toutes les fonctionnalités, y compris la gestion des comptes administrateurs.
+  \item \textbf{Staff Admin}~: membre de l'équipe Tynass chargé de la gestion quotidienne
+    des entreprises clientes, des formations et des casques.
+  \item \textbf{Company}~: entreprise cliente B2B de Tynass, gérant ses employés et
+    consultant les résultats de leurs formations.
+  \item \textbf{Employé}~: utilisateur final du casque Meta Quest~3, réalisant les
+    simulations de formation.
 \end{itemize}
 
 \subsection{Besoins fonctionnels}
@@ -114,8 +140,10 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
 \begin{itemize}
   \item \textbf{Tutoriel VR}~: scène trailler avec 3 leçons couvrant les interactions
     fondamentales (mouvement, manipulation, interface UI).
-  \item \textbf{Interface VR simple}~: login en 2 étapes (code alphanumerique + PIN
-    numérique) ne nécessitant pas de clavier virtuel.
+  \item \textbf{Interface VR simple}~: login en 2 étapes~--- un clavier virtuel
+    simplifié et à saisie minimale pour le code d'accès alphanumérique
+    (étape~1), puis un pavé numérique dédié, sans clavier virtuel, pour le
+    PIN à 4 chiffres (étape~2).
 \end{itemize}
 
 \section{Modélisation du système}

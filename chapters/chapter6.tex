@@ -1,3 +1,35 @@
+% ================================================================
+% chapters/chapter6.tex --- RECONSTRUCTION
+% ----------------------------------------------------------------
+% Assemblé à partir des fragments retrouvés dans le project knowledge
+% au fil de cette conversation, PAS une copie directe et vérifiée
+% d'un seul fichier source. Fais un diff rapide contre ton fichier
+% réel avant d'écraser l'original, par sécurité.
+%
+% CE QUI EST FUSIONNÉ ICI (déjà appliqué) :
+%   - Objectifs : 2 phases au lieu de 3 (bloc itemize complet, pas
+%     de "Lonely \item")
+%   - Structure de la simulation : 2 phases (Exploration, Quiz)
+%   - Mapping : SessionPayload -> SessionSubmitPayload, partout
+%     y compris dans le use case "Soumettre une session"
+%   - Cas d'utilisation "Vivre la simulation intigo" : renuméroté
+%     sur 2 phases
+%   - Code listing SimulationManager.cs : remplacé par le vrai
+%     QuizManager.EndQuizAsync() (async/await, SessionSubmitPayload,
+%     device token explicite) --- l'ancien listing montrait encore
+%     un style coroutine + callbacks qui ne correspond ni à l'ancien
+%     ni au nouveau code réel
+%   - Conclusion du chapitre : nuancée ("en cours de finalisation"
+%     au lieu de "fonctionne de bout en bout")
+%
+% CE QUI N'EST PAS TOUCHÉ (attend ta confirmation / tes vraies
+% mesures) :
+%   - Backlog du sprint 4 (tableau 6.2.2) : checkmarks inchangés
+%   - Difficultés et solutions : inchangé
+%   - Évaluation du sprint 4 : toujours "---", à remplir avec les
+%     vraies mesures une fois testé sur casque
+% ================================================================
+
 \chapter{Sprint~4 --- Simulation VR Indigo Company (Scène intigo)}
 
 \section{Introduction}
@@ -15,7 +47,7 @@ découvrir les départements, présenter les règles internes et vivre des mises
 \begin{itemize}
   \item Modéliser et optimiser l'environnement 3D Indigo Company dans Blender.
   \item Importer et intégrer l'environnement dans Unity~6.
-  \item Développer les 3 phases de la simulation (exploration, mise en situation, quiz).
+  \item Développer les 2 phases de la simulation (exploration des locaux, quiz).
   \item Implémenter le système de quiz avec calcul automatique du score.
   \item Connecter la fin de simulation à \texttt{TynassApiClient.SubmitSession()}.
   \item Afficher les résultats dans le panel QuizResult.
@@ -68,19 +100,19 @@ Les optimisations appliquées pour Meta Quest~3~:
 
 \subsection{Structure de la simulation}
 
-La simulation intigo est organisée en \textbf{3 phases séquentielles}~:
+La simulation intigo est organisée en \textbf{2 phases séquentielles}~:
 
 \begin{enumerate}
   \item \textbf{Phase 1 --- Exploration des locaux}~: l'employé navigue librement
     dans les locaux d'Indigo Company, découvre les différents espaces (accueil,
-    open space, salles de réunion, zone de stockage) via des panneaux interactifs.
-  \item \textbf{Phase 2 --- Mise en situation}~: scénario interactif simulant une
-    situation réelle (ex~: accueil d'un client, gestion d'un incident).
-  \item \textbf{Phase 3 --- Quiz}~: questions à choix multiples évaluant la
-    compréhension des règles internes et des procédures.
+    open space, salles de réunion, zone de stockage) et les 7 départements via
+    des panneaux interactifs et narrations.
+  \item \textbf{Phase 2 --- Quiz}~: questions à choix multiples évaluant la
+    compréhension des informations présentées lors de l'exploration, une
+    question par département visité.
 \end{enumerate}
 
-\placeholder{Diagramme d'activité --- 3 phases de la simulation (à insérer)}
+\placeholder{Diagramme d'activité --- 2 phases de la simulation (à insérer)}
 
 \subsection{Système de quiz}
 
@@ -95,15 +127,15 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
   \text{passed} = \text{Score} \geq 70
 \]
 
-\subsection{Mapping AppSession → SessionPayload}
+\subsection{Mapping AppSession → SessionSubmitPayload}
 
 \begin{table}[H]
   \centering
-  \caption{Correspondance AppSession --- SessionPayload}
+  \caption{Correspondance AppSession --- SessionSubmitPayload}
   \label{tab:session_mapping}
   \begin{tabularx}{\textwidth}{lX}
     \toprule
-    \textbf{Champ SessionPayload} & \textbf{Source dans AppSession / Unity} \\
+    \textbf{Champ SessionSubmitPayload} & \textbf{Source dans AppSession / Unity} \\
     \midrule
     \texttt{trainingId}       & \texttt{AppSession.ActiveTraining.\_id} \\
     \texttt{employeeId}       & \texttt{AppSession.EmployeeId} \\
@@ -125,11 +157,11 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
     \textbf{Scénario}       &
       1. SceneManager charge la scène intigo. \newline
       2. SimulationManager enregistre \texttt{startedAt = DateTime.UtcNow}. \newline
-      3. Phase 1~: Employé explore les locaux (navigation + panneaux). \newline
-      4. Phase 2~: Mise en situation interactive. \newline
-      5. Phase 3~: Quiz séquentiel (N questions). \newline
-      6. À la fin~: SimulationManager appelle \texttt{SubmitSession()}. \newline
-      7. PanelManager.GoQuizResult() affiche les résultats. \\
+      3. Phase 1~: Employé explore les locaux et les 7 départements
+         (navigation + panneaux + narrations). \newline
+      4. Phase 2~: Quiz séquentiel (une question par département visité). \newline
+      5. À la fin~: QuizManager appelle \texttt{SubmitSession()}. \newline
+      6. PanelManager.GoQuizResult() affiche les résultats. \\
     \textbf{Post-conditions}& Session stockée en BDD, visible dans dashboard admin. \\
   \end{tabular}
 \end{ucbox}
@@ -139,10 +171,10 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
 \begin{ucbox}{Soumettre une session (SubmitSession)}
   \begin{tabular}{lp{9cm}}
     \textbf{Pré-conditions} & Simulation terminée, AppSession remplie. \\
-    \textbf{Acteur}         & SimulationManager (automatique). \\
+    \textbf{Acteur}         & QuizManager (automatique). \\
     \textbf{Scénario}       &
-      1. Construire \texttt{SessionPayload} depuis AppSession. \newline
-      2. Appel \texttt{TynassApiClient.SubmitSession(payload)}. \newline
+      1. Construire \texttt{SessionSubmitPayload} depuis AppSession. \newline
+      2. Appel \texttt{TynassApiClient.SubmitSession(...)}. \newline
       3. Backend calcule \texttt{durationSeconds} (côté serveur). \newline
       4. Backend incrémente \texttt{attemptNumber} (pre-save hook). \newline
       5. Session stockée en MongoDB. \newline
@@ -156,35 +188,40 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
 
 \section{Implémentation du sprint~4}
 
-\subsection{SimulationManager.cs}
+\subsection{SimulationManager.cs et QuizManager.cs}
 
-SimulationManager orchestre le déroulement de la simulation et collecte les données~:
+\texttt{SimulationManager} orchestre l'exploration des 7 départements (Phase~1). À la
+fin de cette séquence, il délègue au \texttt{QuizManager} le déclenchement du quiz
+(Phase~2) et la soumission finale des résultats~:
 
-\begin{lstlisting}[language={[Sharp]C}, caption={Fin de simulation --- SubmitSession}]
-private IEnumerator EndSimulation() {
-    // Finaliser AppSession
-    AppSession.QuizScore = CalculateFinalScore();
-    AppSession.Passed = AppSession.QuizScore >= 70;
+\begin{lstlisting}[language={[Sharp]C}, caption={QuizManager --- fin du quiz et SubmitSession}]
+private async Task EndQuizAsync() {
+    quizActive = false;
+    quizPanel.SetActive(false);
 
-    // Construire le payload
-    SessionPayload payload = new SessionPayload {
-        trainingId = AppSession.ActiveTraining._id,
-        employeeId = AppSession.EmployeeId,
-        startedAt  = _startedAt.ToString("o"),
-        completedAt = DateTime.UtcNow.ToString("o"),
-        score       = AppSession.QuizScore,
-        passed      = AppSession.Passed,
-        evaluationCriteria = BuildCriteria()
-    };
+    // Pourcentage, jamais le nombre brut de bonnes reponses
+    AppSession.QuizScore = Mathf.RoundToInt(
+        AppSession.QuizCorrect * 100f / AppSession.QuizTotal);
+    bool passed = AppSession.QuizScore >= 70;
 
-    // Soumettre
-    yield return StartCoroutine(
-        TynassApiClient.Instance.SubmitSession(
-            payload,
-            onSuccess: () => PanelManager.Instance.GoQuizResult(),
-            onError: (err) => Debug.LogError(err)
-        )
+    string deviceToken = AppSession.DeviceToken;
+    if (string.IsNullOrEmpty(deviceToken))
+        deviceToken = PlayerPrefs.GetString("device_token", "");
+
+    var result = await TynassApiClient.Instance.SubmitSession(
+        trainingId:  AppSession.ActiveTraining?._id,
+        employeeId:  AppSession.IsGuest ? null : AppSession.EmployeeId,
+        startedAt:   AppSession.SimulationStartedAt,
+        completedAt: DateTime.UtcNow,
+        score:       AppSession.QuizScore,
+        passed:      passed,
+        deviceToken: deviceToken
     );
+
+    if (result == null)
+        Debug.LogError("SubmitSession a echoue");
+
+    PanelManager.Instance.GoQuizResult();
 }
 \end{lstlisting}
 
@@ -192,7 +229,7 @@ private IEnumerator EndSimulation() {
 
 Le panel QuizResult affiche~:
 \begin{itemize}
-  \item Le \textbf{score final} en pourcentage.
+  \item Le score final en pourcentage.
   \item Le \textbf{statut}~: \og Réussi \fg{} (vert) ou \og Échoué \fg{} (rouge).
   \item Le détail des \textbf{critères d'évaluation} (procédure, identification,
     décision, temps).
@@ -260,7 +297,10 @@ Le panel QuizResult affiche~:
 
 \section{Conclusion}
 
-Ce quatrième et dernier sprint clôture le développement de \tynassit{}. La simulation
-d'intégration Indigo Company fonctionne de bout en bout~: de l'exploration immersive
-des locaux jusqu'à la soumission automatique des résultats au dashboard Tynass. Le
-chapitre suivant présente la conclusion générale et les perspectives du projet.
+Ce quatrième sprint constitue le cœur du module de formation Indigo~: modélisation
+complète de l'environnement 3D, système de quiz et intégration \texttt{SubmitSession}
+en cours de finalisation. Une fois les narrations enregistrées et les tests sur casque
+validés, la simulation d'intégration Indigo Company fonctionnera de bout en bout~: de
+l'exploration immersive des locaux jusqu'à la soumission automatique des résultats au
+dashboard Tynass. Le chapitre suivant présente la conclusion générale et les perspectives
+du projet.
