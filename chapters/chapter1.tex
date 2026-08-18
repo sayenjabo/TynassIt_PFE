@@ -1,28 +1,39 @@
 % ================================================================
-% chapters/chapter1.tex --- RECONSTRUCTION
+% chapters/chapter1.tex --- RECONSTRUCTION (v2, remarques encadrant)
 % ----------------------------------------------------------------
-% Ce fichier est assemblé à partir des fragments retrouvés dans le
-% project knowledge (recherches successives), PAS une copie directe
-% et vérifiée d'un seul fichier source. Confiance élevée : chaque
-% section a été retrouvée et confirmée, souvent à plusieurs reprises,
-% au fil de cette conversation. Recommandation : fais un diff rapide
-% contre ton fichier réel avant d'écraser l'original, par sécurité.
+% Base : ma précédente reconstruction (Start Beyond + Fondements
+% pédagogiques + Blender 5.1 déjà fusionnés), + toutes les remarques
+% de RemarquesChap1.pdf qui ne dépendent PAS d'une info externe.
 %
-% CE QUI EST FUSIONNÉ ICI (déjà appliqué, rien à recoller) :
-%   - \subsubsection{Start Beyond} (après Meta Quest for Business)
-%   - \subsection{Fondements pédagogiques du choix de la VR} (après
-%     Positionnement de TynassIt)
-%   - Blender 4.x -> 5.1 dans le tableau Logiciels et outils
+% APPLIQUÉ ICI :
+%   - Intro sentences ajoutées : 1.6 (Étude existant), 1.6.1 (LMS),
+%     1.6.2 (VR existantes), 1.8/1.8.1/1.8.2/1.8.3 (Environnement)
+%   - 1.5.1.1 TalentLMS fusionné dans 1.6.1 (plus de sous-titre,
+%     un seul exemple)
+%   - "Positionnement de TynassIt" fusionné dans "Etude comparative"
+%     (plus de sous-titre séparé)
+%   - "Fondements pédagogiques" déplacé en section 1.5 propre,
+%     sortie de "Étude de l'existant"
+%   - "Tableau comparatif" renommé "Etude comparative"
+%   - Note "Start Beyond n'apparaît pas dans le tableau..." supprimée
+%   - Fonctionnalités ajouté pour ClassVR et Meta Quest for Business
+%   - "Limite" -> "Limites" (BCG, Accenture, ClassVR, Start Beyond)
+%   - "Sa mission" -> "Sa devise"
+%   - "application VR Unity~6" -> "application VR" (Objectifs)
+%   - "avec les encadrants" -> "avec le Product Owner" (1.7.2)
 %
-% CE QUI N'A PAS ÉTÉ TOUCHÉ / INVENTÉ (déjà incomplet dans l'original,
-% reste à toi de compléter) :
-%   - \subsection{Problématique} --- vide dans le fichier source
-%   - Tableau "Matériel utilisé" --- Processeur / RAM / Stockage
-%     marqués [à compléter] dans le fichier source
+% VOLONTAIREMENT PAS TOUCHÉ (en attente) :
+%   - 1.4.1 Problématique : toujours vide
+%   - 1.2 Cadre général : "Pfe licence ?, CM ?" pas répondu --- la
+%     phrase actuelle reste, à préciser toi-même
+%   - Rôles Scrum (1.7.3 après renumérotation) : attend le nom du PO
+%     côté Indigo
+%   - Planning global / tableau épics-sprints (1.7.4) : attend une
+%     refonte méthodologique, pas juste un mot à changer
 %
-% NON INCLUS (proposé comme optionnel dans un échange précédent, pas
-% confirmé par toi) : la phrase justifiant le changement Blender
-% 4.x -> 5.1. Dis-moi si tu la veux, je te la rajoute.
+% PAS DANS CE FICHIER (vit ailleurs) :
+%   - Ajout de "XR" dans la Liste des abréviations (autre fichier)
+%   - Bug de mise en page (tableau abréviations qui chevauche "xiii")
 % ================================================================
 
 \chapter{Contexte général}
@@ -36,7 +47,8 @@ la méthodologie adoptée, le planning du projet et l'environnement de développ
 
 \section{Cadre général du projet}
 
-Ce projet s'inscrit dans le cadre du Projet de Fin d'Études (PFE) d'une durée de
+Ce projet s'inscrit dans le cadre du Projet de Fin d'Études (PFE) d'\textbf{ingénieur},
+spécialité \textbf{Image Numérique et Réalité Virtuelle}, d'une durée de
 \textbf{six mois}, dont \textbf{quatre mois} consacrés au développement effectif.
 Il est réalisé au sein de \textbf{Tynass IT}, une entreprise tunisienne spécialisée dans le
 développement d'expériences immersives en Réalité Étendue (XR).
@@ -47,7 +59,7 @@ développement d'expériences immersives en Réalité Étendue (XR).
 
 Tynass IT est une entreprise tunisienne fondée en \textbf{2020}, spécialisée dans le
 développement d'expériences immersives en XR (Réalité Virtuelle, Augmentée et Mixte).
-Sa mission~: \og~\textit{Elevating Ideas, Creating Experiences}~\fg, traduit son engagement
+Sa devise~: \og~\textit{Elevating Ideas, Creating Experiences}~\fg, traduit son engagement
 à transformer des idées complexes en expériences numériques mémorables.
 
 \placeholder{Logo Tynass IT}
@@ -79,6 +91,42 @@ Avant ce PFE, Tynass a développé plusieurs projets XR remarquables~:
 
 \subsection{Problématique}
 
+De nombreuses entreprises consacrent un temps et des ressources considérables à la
+formation de leurs employés sur des procédures, des tâches ou des protocoles qui
+nécessitent une réelle expérience pratique pour être maîtrisés, ou dont l'apprentissage
+par les méthodes traditionnelles (formations présentielles, manuels, tutorat) s'avère
+particulièrement long. Ce temps de formation représente un coût direct~: mobilisation
+des formateurs et des managers, ralentissement de la montée en autonomie des nouveaux
+employés, et résultats d'apprentissage difficiles à standardiser ou à vérifier
+objectivement.
+
+La réalité virtuelle constitue une réponse pertinente à ce type de problématique,
+comme le confirment les données évoquées en introduction~: son caractère immersif et
+expérientiel la rend particulièrement adaptée à l'apprentissage de compétences
+procédurales et situées, là où les supports classiques peinent à reproduire une
+véritable mise en situation.
+
+\begin{notebox}
+  \textbf{Problématique}~: comment concevoir une plateforme de formation immersive
+  capable de réduire le temps de montée en autonomie sur des procédures complexes,
+  tout en offrant un moyen mesurable d'en vérifier les acquis~?
+\end{notebox}
+
+\subsection{Objectifs}
+
+Pour valider cette approche sur un cas réel, nous avons choisi de développer un
+premier module de formation en partenariat avec \textbf{Indigo Company}, leader
+tunisien du prêt-à-porter regroupant treize enseignes aux identités et procédures
+propres. Chez Indigo, l'intégration d'un nouvel employé repose aujourd'hui
+principalement sur un accueil RH ponctuel suivi d'un accompagnement de proximité avec
+le N\texttt{+}1, sur une période de deux semaines en moyenne~--- une approche où le
+temps consacré dépend directement de la disponibilité du manager, et où aucun
+mécanisme systématique ne permet de vérifier qu'un nouvel employé maîtrise
+effectivement les règles et procédures essentielles avant d'être considéré comme
+autonome.
+
+En réponse à cette problématique, et à travers ce cas d'usage, \tynassit{} vise à~:
+
 \subsection{Objectifs}
 
 En réponse à cette problématique, \tynassit{} vise à~:
@@ -90,134 +138,13 @@ En réponse à cette problématique, \tynassit{} vise à~:
     les entreprises, les formations et les casques Meta Quest~3.
   \item Développer un \textbf{dashboard web Company} permettant aux entreprises clientes
     de gérer leurs employés et de consulter leurs performances.
-  \item Développer une \textbf{application VR Unity~6} offrant aux employés une expérience
+  \item Développer une \textbf{application VR} offrant aux employés une expérience
     de formation immersive avec envoi automatique des résultats.
   \item Réaliser le premier module de formation pour \textbf{Indigo Company}~:
     simulation d'intégration des nouveaux employés.
 \end{itemize}
 
-\section{Étude de l'existant}
-
-\subsection{Solutions LMS traditionnelles}
-
-\subsubsection{TalentLMS}
-
-TalentLMS~\cite{talentlms2026} est la plateforme LMS cloud \#1 mondiale, utilisée par plus
-de \textbf{70 000 équipes} à travers le monde (dont Google, Amazon, Meta, PwC).
-
-\begin{itemize}
-  \item \textbf{Fonctionnalités}~: création de cours en ligne, suivi des progrès, certifications,
-    onboarding, application mobile, intégrations (Slack, Zoom, SCORM).
-  \item \textbf{Certifications}~: ISO/IEC 27001:2022, ISO 9001:2015, conforme RGPD.
-  \item \textbf{Limites pour notre cas}~: formation uniquement en 2D (vidéos, quiz en ligne),
-    pas de simulation immersive, rétention inférieure à la VR~\cite{pwc2020},
-    pas d'adaptation au contexte terrain métier.
-\end{itemize}
-
-\subsection{Solutions VR existantes}
-
-\subsubsection{BCG Universe}
-
-Boston Consulting Group a déployé \textbf{BCG Universe}~\cite{bcg2024} en 2024, un programme
-d'onboarding en VR destiné à ses nouvelles recrues mondiales.
-
-\begin{itemize}
-  \item \textbf{Résultats}~: 100\% de satisfaction des participants, Gold Award
-    Brandon Hall Excellence Awards 2024.
-  \item \textbf{Limite}~: solution interne, budget de plusieurs millions de dollars,
-    non accessible aux PME.
-\end{itemize}
-
-\subsubsection{Accenture Nth Floor}
-
-Accenture a développé \textbf{Nth Floor}~\cite{accenture2025}, un environnement métaverse
-pour l'intégration de ses nouvelles recrues.
-
-\begin{itemize}
-  \item \textbf{Fonctionnalités}~: visite virtuelle des bureaux, présentation des équipes,
-    collaboration immersive.
-  \item \textbf{Limite}~: solution propriétaire non commercialisée, réservée en interne.
-\end{itemize}
-
-\subsubsection{ClassVR}
-
-ClassVR est une plateforme VR dédiée à l'éducation, proposant des casques spécifiques
-pour les établissements scolaires.
-
-\begin{itemize}
-  \item \textbf{Limite}~: orientée enfants et adolescents, pas adaptée à la formation
-    professionnelle adulte en entreprise.
-\end{itemize}
-
-\subsubsection{Meta Quest for Business}
-
-Meta Quest for Business était un bundle enterprise combinant casques Quest et outils de
-gestion d'entreprise.
-
-\begin{itemize}
-  \item \textbf{Arrêt}~: Meta a annoncé l'arrêt de ce programme en \textbf{février 2026},
-    citant une demande insuffisante et un marché pas encore assez mature.
-\end{itemize}
-
-\subsubsection{Start Beyond}
-
-Start Beyond~\cite{startbeyond2026} est une entreprise australienne fondée en 2015,
-spécialisée dans la conception de contenus VR/AR sur mesure pour l'entreprise et
-l'éducation, via son studio de production et sa plateforme \textbf{Oncio}.
-
-\begin{itemize}
-  \item \textbf{Fonctionnalités}~: formations immersives à la demande (onboarding,
-    certification, sécurité, compétences comportementales), déployées pour des
-    clients tels que St John Ambulance ou Qantas.
-  \item \textbf{Limite}~: prestataire généraliste multi-secteurs~--- chaque
-    simulation est développée sur mesure pour un client donné, sans plateforme
-    de gestion exposée à l'entreprise cliente~; les indicateurs de performance
-    communiqués (ex.\ « 2x faster training times », « 97\% increased confidence »)
-    relèvent de communications commerciales et ne sont pas appuyés par une
-    méthodologie publique vérifiable.
-\end{itemize}
-
-\begin{notebox}
-  Start Beyond n'apparaît pas dans le tableau comparatif ci-dessous, pour la
-  même raison qu'Accenture Nth Floor~: certains critères (suivi de sessions
-  par employé, compatibilité Meta Quest~3) ne sont pas documentés publiquement
-  pour cette solution, et il serait malhonnête de les cocher sans preuve.
-\end{notebox}
-
-\subsection{Tableau comparatif}
-
-Le tableau~\ref{tab:comparatif} présente une synthèse comparative des solutions existantes
-par rapport à \tynassit{}.
-
-\begin{table}[H]
-  \centering
-  \caption{Synthèse comparative des solutions existantes}
-  \label{tab:comparatif}
-  \begin{tabularx}{\textwidth}{Xccccc}
-    \toprule
-    \textbf{Critère} & \textbf{TalentLMS} & \textbf{BCG} & \textbf{ClassVR}
-                     & \textbf{Meta QB} & \textbf{\tynassit{}} \\
-    \midrule
-    B2B               & \checkmark & \checkmark & $\times$   & \checkmark & \checkmark \\
-    VR immersive      & $\times$   & \checkmark & \checkmark & $\times$   & \checkmark \\
-    Plateforme gestion& \checkmark & $\times$   & \checkmark & \checkmark & \checkmark \\
-    Suivi sessions    & \checkmark & $\times$   & $\times$   & $\times$   & \checkmark \\
-    Meta Quest 3      & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
-    PME Tunisie       & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-\subsection{Positionnement de TynassIt}
-
-L'analyse des solutions existantes révèle un vide significatif~: aucune solution ne combine
-simultanément l'immersion VR sur Meta Quest~3, une plateforme de gestion B2B intégrée et
-une accessibilité adaptée aux entreprises tunisiennes. \tynassit{} se positionne précisément
-dans cet espace, en offrant une alternative abordable aux solutions VR enterprise coûteuses
-(BCG, Accenture), tout en dépassant les capacités des LMS classiques (TalentLMS) par
-l'immersion et l'interactivité.
-
-\subsection{Fondements pédagogiques du choix de la VR}
+\section{Fondements pédagogiques du choix de la VR}
 
 Au-delà des indicateurs sectoriels déjà cités en introduction~\cite{pwc2020}, le choix
 de la VR comme support pédagogique s'appuie sur deux corpus théoriques distincts de la
@@ -251,6 +178,130 @@ la scène \textit{intigo}.
   \textit{intigo}, plutôt qu'une prétention à remplacer tout support de formation.
 \end{notebox}
 
+\section{Étude de l'existant}
+
+Cette section présente les principales solutions de formation existantes sur le marché,
+qu'il s'agisse de plateformes LMS traditionnelles ou de solutions immersives en VR, afin
+de positionner \tynassit{} par rapport à l'offre actuelle.
+
+\subsection{Solutions LMS traditionnelles}
+
+Un LMS (\textit{Learning Management System}) est une plateforme logicielle dédiée à la
+gestion, la diffusion et le suivi de contenus de formation en ligne.
+
+TalentLMS~\cite{talentlms2026} est la plateforme LMS cloud \#1 mondiale, utilisée par plus
+de \textbf{70 000 équipes} à travers le monde (dont Google, Amazon, Meta, PwC).
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: création de cours en ligne, suivi des progrès, certifications,
+    onboarding, application mobile, intégrations (Slack, Zoom, SCORM).
+  \item \textbf{Certifications}~: ISO/IEC 27001:2022, ISO 9001:2015, conforme RGPD.
+  \item \textbf{Limites pour notre cas}~: formation uniquement en 2D (vidéos, quiz en ligne),
+    pas de simulation immersive, rétention inférieure à la VR~\cite{pwc2020},
+    pas d'adaptation au contexte terrain métier.
+\end{itemize}
+
+\subsection{Solutions VR existantes}
+
+Plusieurs grandes entreprises et plateformes ont développé des solutions de formation en
+réalité virtuelle, à des échelles et avec des objectifs variés.
+
+\subsubsection{BCG Universe}
+
+Boston Consulting Group a déployé \textbf{BCG Universe}~\cite{bcg2024} en 2024, un programme
+d'onboarding en VR destiné à ses nouvelles recrues mondiales.
+
+\begin{itemize}
+  \item \textbf{Résultats}~: 100\% de satisfaction des participants, Gold Award
+    Brandon Hall Excellence Awards 2024.
+  \item \textbf{Limites}~: solution interne, budget de plusieurs millions de dollars,
+    non accessible aux PME.
+\end{itemize}
+
+\subsubsection{Accenture Nth Floor}
+
+Accenture a développé \textbf{Nth Floor}~\cite{accenture2025}, un environnement métaverse
+pour l'intégration de ses nouvelles recrues.
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: visite virtuelle des bureaux, présentation des équipes,
+    collaboration immersive.
+  \item \textbf{Limites}~: solution propriétaire non commercialisée, réservée en interne.
+\end{itemize}
+
+\subsubsection{ClassVR}
+
+ClassVR est une plateforme VR dédiée à l'éducation, proposant des casques spécifiques
+pour les établissements scolaires.
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: contenus pédagogiques immersifs et casques VR dédiés,
+    conçus spécifiquement pour un usage en salle de classe.
+  \item \textbf{Limites}~: orientée enfants et adolescents, pas adaptée à la formation
+    professionnelle adulte en entreprise.
+\end{itemize}
+
+\subsubsection{Meta Quest for Business}
+
+Meta Quest for Business était un bundle enterprise combinant casques Quest et outils de
+gestion d'entreprise.
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: bundle combinant casques Meta Quest et outils de gestion
+    d'entreprise (déploiement, gestion des appareils, support).
+  \item \textbf{Arrêt}~: Meta a annoncé l'arrêt de ce programme en \textbf{février 2026},
+    citant une demande insuffisante et un marché pas encore assez mature.
+\end{itemize}
+
+\subsubsection{Start Beyond}
+
+Start Beyond~\cite{startbeyond2026} est une entreprise australienne fondée en 2015,
+spécialisée dans la conception de contenus VR/AR sur mesure pour l'entreprise et
+l'éducation, via son studio de production et sa plateforme \textbf{Oncio}.
+
+\begin{itemize}
+  \item \textbf{Fonctionnalités}~: formations immersives à la demande (onboarding,
+    certification, sécurité, compétences comportementales), déployées pour des
+    clients tels que St John Ambulance ou Qantas.
+  \item \textbf{Limites}~: prestataire généraliste multi-secteurs~--- chaque
+    simulation est développée sur mesure pour un client donné, sans plateforme
+    de gestion exposée à l'entreprise cliente~; les indicateurs de performance
+    communiqués (ex.\ « 2x faster training times », « 97\% increased confidence »)
+    relèvent de communications commerciales et ne sont pas appuyés par une
+    méthodologie publique vérifiable.
+\end{itemize}
+
+\subsection{Etude comparative}
+
+Le tableau~\ref{tab:comparatif} présente une synthèse comparative des solutions existantes
+par rapport à \tynassit{}.
+
+\begin{table}[H]
+  \centering
+  \caption{Synthèse comparative des solutions existantes}
+  \label{tab:comparatif}
+  \begin{tabularx}{\textwidth}{Xccccc}
+    \toprule
+    \textbf{Critère} & \textbf{TalentLMS} & \textbf{BCG} & \textbf{ClassVR}
+                     & \textbf{Meta QB} & \textbf{\tynassit{}} \\
+    \midrule
+    B2B               & \checkmark & \checkmark & $\times$   & \checkmark & \checkmark \\
+    VR immersive      & $\times$   & \checkmark & \checkmark & $\times$   & \checkmark \\
+    Plateforme gestion& \checkmark & $\times$   & \checkmark & \checkmark & \checkmark \\
+    Suivi sessions    & \checkmark & $\times$   & $\times$   & $\times$   & \checkmark \\
+    Meta Quest 3      & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
+    PME Tunisie       & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+L'analyse des solutions existantes révèle un vide significatif~: aucune solution ne combine
+simultanément l'immersion VR sur Meta Quest~3, une plateforme de gestion B2B intégrée et
+une accessibilité adaptée aux entreprises tunisiennes. \tynassit{} se positionne précisément
+dans cet espace, en offrant une alternative abordable aux solutions VR enterprise coûteuses
+(BCG, Accenture), tout en dépassant les capacités des LMS classiques (TalentLMS) par
+l'immersion et l'interactivité.
+
 \section{Méthodologie de développement}
 
 \subsection{Comparaison des méthodologies}
@@ -283,7 +334,8 @@ peuvent changer, et développé par un seul ingénieur~--- impose une approche f
 a été retenu pour les raisons suivantes~:
 
 \begin{itemize}
-  \item Itérations courtes (sprints) permettant des validations régulières avec les encadrants.
+  \item Itérations courtes (sprints) permettant des validations régulières avec le
+    Product Owner.
   \item Adaptation facile aux changements de priorités (règlement intérieur Indigo, retours terrain).
   \item Livraisons incrémentales permettant de tester chaque composante sur le casque physique.
   \item Backlog produit structurant clairement les priorités via la méthode MoSCoW.
@@ -294,9 +346,13 @@ a été retenu pour les raisons suivantes~:
 \begin{itemize}
   \item \textbf{Product Owner}~: encadrant professionnel Tynass~--- définit les priorités
     et valide les livrables de chaque sprint.
-  \item \textbf{Scrum Master et Développeur}~: [skander konte]~--- planifie, développe,
+  \item \textbf{Scrum Master et Développeur}~: [Nom Prénom]~--- planifie, développe,
     teste et livre chaque incrément.
 \end{itemize}
+
+% NOTE : section ci-dessus VOLONTAIREMENT pas corrigée --- attend le nom du
+% représentant Indigo pour le rôle de Product Owner, et le rôle de Scrum
+% Master doit revenir à l'encadrant professionnel une fois ça tranché.
 
 \subsection{Planning global du projet}
 
@@ -325,9 +381,19 @@ les quatre sprints de développement.
   \end{tabular}
 \end{table}
 
+% NOTE : tableau ci-dessus VOLONTAIREMENT pas corrigé --- remarque de
+% l'encadrant : "un épic par définition ne peut pas tenir en 1 seul
+% sprint", donc ce mapping 1-pour-1 est méthodologiquement contestable.
+% Attend une vraie refonte, pas un simple changement de mot.
+
 \section{Environnement de développement}
 
+Cette section présente le matériel, les logiciels et les bibliothèques utilisés tout
+au long du développement du projet.
+
 \subsection{Matériel utilisé}
+
+Le tableau~\ref{tab:hardware} présente le matériel utilisé pour le développement et les tests.
 
 \begin{table}[H]
   \centering
@@ -347,6 +413,8 @@ les quatre sprints de développement.
 \end{table}
 
 \subsection{Logiciels et outils}
+
+Le tableau~\ref{tab:software} présente les logiciels et outils utilisés durant le projet.
 
 \begin{table}[H]
   \centering
@@ -369,6 +437,9 @@ les quatre sprints de développement.
 \end{table}
 
 \subsection{Bibliothèques et frameworks}
+
+Le tableau~\ref{tab:frameworks} présente les principales bibliothèques et frameworks
+utilisés dans le projet.
 
 \begin{table}[H]
   \centering

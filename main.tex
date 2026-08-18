@@ -1,3 +1,23 @@
+% ================================================================
+% main.tex --- RECONSTRUCTION avec renommage Immersio appliqué
+% ----------------------------------------------------------------
+% Assemblé à partir de deux extraits qui se recoupent dans le
+% project knowledge (préambule complet, y compris la définition de
+% notebox qui était coupée entre les deux). Fais un diff rapide
+% contre ton fichier réel avant d'écraser, comme toujours.
+%
+% 3 CHANGEMENTS APPLIQUÉS ICI (TynassIt -> Immersio) :
+%   - \newcommand{\tynassit}{...}  --- propage dans tout le corps du texte
+%   - \fancyhead[R]{...}           --- en-tête de chaque page
+%   - pdftitle={...}               --- métadonnées du PDF
+%
+% RESTE À FAIRE AILLEURS (pas dans ce fichier) :
+%   - chapters/titlepage.tex --- le grand titre (fichier séparé,
+%     donné à côté de celui-ci)
+%   - "de \tynassit{}" -> "d'\tynassit{}" dans les chapitres, via
+%     Replace in Files (voir renommage_immersio.tex donné précédemment)
+% ================================================================
+
 \documentclass[a4paper,12pt,oneside]{report}
 
 \usepackage[utf8]{inputenc}
@@ -79,7 +99,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\textit{\leftmark}}
-\fancyhead[R]{\small\textcolor{TynassBlue}{\textbf{TynassIt}}}
+\fancyhead[R]{\small\textcolor{TynassBlue}{\textbf{Immersio}}}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
@@ -89,7 +109,7 @@
   linkcolor=TynassBlue,
   citecolor=TynassDark,
   urlcolor=TynassBlue,
-  pdftitle={TynassIt --- Rapport PFE},
+  pdftitle={Immersio --- Rapport PFE},
   pdfsubject={Plateforme B2B de Formation en Réalité Virtuelle}
 ]{hyperref}
 \usepackage{bookmark}
@@ -135,7 +155,7 @@
   breakable
 }
 
-\newcommand{\tynassit}{\textcolor{TynassBlue}{\textbf{TynassIt}}}
+\newcommand{\tynassit}{\textcolor{TynassBlue}{\textbf{Immersio}}}
 \newcommand{\must}{\textcolor{MustColor}{\textbf{Must}}}
 \newcommand{\should}{\textcolor{ShouldColor}{\textbf{Should}}}
 \newcommand{\could}{\textcolor{CouldColor}{\textbf{Could}}}
