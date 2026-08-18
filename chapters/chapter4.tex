@@ -1,3 +1,12 @@
+% ================================================================
+% chapters/chapter4.tex --- RECONSTRUCTION (même structure que ch.3)
+% ----------------------------------------------------------------
+% Backlog restructuré~: Titre + Charge (j/h) ajoutées, Statut retiré
+% + phrase de synthèse. Charge (j/h) = MES ESTIMATIONS RELATIVES,
+% pas des mesures réelles --- à remplacer si tu as de vraies données.
+% Rien d'autre n'est modifié dans ce chapitre.
+% ================================================================
+
 \chapter{Sprint~2 --- Dashboards Web Admin et Company}
 
 \section{Introduction}
@@ -18,27 +27,39 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
   \item Déployer les deux dashboards en production sur Vercel.
 \end{itemize}
 
-\subsection{Backlog du sprint~2}
+\subsection{Tâches et estimations du sprint~2}
 
 \begin{table}[H]
   \centering
-  \caption{Backlog du sprint~2}
+  \caption{Tâches et estimations --- Sprint~2}
   \label{tab:backlog_s2}
-  \begin{tabularx}{\textwidth}{llXl}
+  \begin{tabularx}{\textwidth}{llXcc}
     \toprule
-    \textbf{ID} & \textbf{MoSCoW} & \textbf{Tâches principales} & \textbf{Statut} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
     \midrule
-    US-06 & \must{}   & LoginPage admin + AuthProvider + JWT localStorage & \checkmark \\
-    US-07 & \must{}   & DashboardPage --- 4 KPIs + Top 5 Companies/Trainings & \checkmark \\
-    US-08 & \must{}   & CompaniesPage --- CRUD + toggle + assign formations & \checkmark \\
-    US-09 & \must{}   & DevicesPage --- activation (code 6 chiffres) + révocation & \checkmark \\
-    US-10 & \should{} & SessionsPage --- filtres company/training/date & \checkmark \\
-    US-11 & \must{}   & LoginPage company + AuthProvider company & \checkmark \\
-    US-12 & \must{}   & EmployeesPage --- CRUD + accessCode + PIN & \checkmark \\
-    US-13 & \should{} & SessionsPage company --- historique + pagination & \checkmark \\
+    US-06 & Connexion Admin &
+      LoginPage admin + AuthProvider + JWT localStorage & \must{} & 1,5 \\
+    US-07 & KPIs du dashboard &
+      DashboardPage --- 4 KPIs + Top 5 Companies/Trainings & \must{} & 2 \\
+    US-08 & Gestion des entreprises &
+      CompaniesPage --- CRUD + toggle + assign formations & \must{} & 2,5 \\
+    US-09 & Gestion des casques &
+      DevicesPage --- activation (code 6 chiffres) + révocation & \must{} & 2 \\
+    US-10 & Filtrage des sessions &
+      SessionsPage --- filtres company/training/date & \should{} & 1,5 \\
+    US-11 & Connexion Company &
+      LoginPage company + AuthProvider company & \must{} & 1 \\
+    US-12 & Gestion des employés &
+      EmployeesPage --- CRUD + accessCode + PIN & \must{} & 2 \\
+    US-13 & Historique Company &
+      SessionsPage company --- historique + pagination & \should{} & 1,5 \\
+    \midrule
+    \multicolumn{4}{r}{\textbf{Total}} & \textbf{14} \\
     \bottomrule
   \end{tabularx}
 \end{table}
+
+\noindent Toutes les user stories de ce sprint ont été livrées.
 
 \section{Conception du sprint~2}
 
@@ -75,15 +96,15 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
 
 \subsection{Pourquoi deux projets séparés~?}
 
-Un seul projet avec gestion des rôles aurait été possible, mais deux projets séparés ont
-été préférés pour les raisons suivantes~:
+Un seul projet avec gestion des rôles aurait été possible, mais deux projets séparés
+ont été préférés pour les raisons suivantes~:
 
 \begin{itemize}
   \item \textbf{Isolation totale des données}~: le dashboard Company n'a accès qu'aux
     routes \texttt{/api/company/*}, jamais aux routes admin.
   \item \textbf{Déploiements indépendants}~: une mise à jour du dashboard Admin
     n'affecte pas le dashboard Company.
-  \item \textbf{URLs distinctes}~: \url{admin-dashbord-mypfe.vercel.app} et
+  \item \textbf{URLs distinctes}~: \texttt{admin-dashbord-mypfe.vercel.app} et
     \texttt{company-dashbord-mypfe.vercel.app}.
 \end{itemize}
 
@@ -93,8 +114,8 @@ Un seul projet avec gestion des rôles aurait été possible, mais deux projets 
 
 Le JWT admin est stocké dans \texttt{localStorage("admin\_token")}. Au chargement de
 l'application, le hook \texttt{useAuth()} appelle \texttt{api.getMe()} pour valider
-le token et récupérer le profil admin. Si le token est expiré, \texttt{.catch()} l'efface
-automatiquement et redirige vers la page de connexion.
+le token et récupérer le profil admin. Si le token est expiré, \texttt{.catch()}
+l'efface automatiquement et redirige vers la page de connexion.
 
 \subsection{Cas d'utilisation --- Descriptions textuelles}
 
@@ -103,12 +124,12 @@ automatiquement et redirige vers la page de connexion.
     \textbf{Pré-conditions} & Admin connecté, casque affichant un code 6 chiffres. \\
     \textbf{Acteur}         & Staff Admin Tynass. \\
     \textbf{Scénario}       &
-      1. Admin ouvre DevicesPage et clique \og Activate Device \fg. \newline
+      1. Admin ouvre DevicesPage et clique « Activate Device ». \newline
       2. Admin saisit le code 6 chiffres affiché sur le casque. \newline
       3. Admin sélectionne l'entreprise propriétaire du casque. \newline
-      4. Admin saisit un label optionnel (ex: \og Salle de formation A \fg). \newline
+      4. Admin saisit un label optionnel (ex~: « Salle de formation A »). \newline
       5. Dashboard appelle \texttt{POST /api/company/devices/activate}. \newline
-      6. Succès~: le casque apparaît dans la liste comme \og Active \fg. \\
+      6. Succès~: le casque apparaît dans la liste comme « Active ». \\
     \textbf{Exceptions}     & Code expiré (15 min) → message d'erreur, régénérer. \\
     \textbf{Post-conditions}& Casque actif, apparaît dans la liste des devices. \\
   \end{tabular}
@@ -121,11 +142,11 @@ automatiquement et redirige vers la page de connexion.
     \textbf{Pré-conditions} & Manager Company connecté au dashboard. \\
     \textbf{Acteur}         & Company (client B2B). \\
     \textbf{Scénario}       &
-      1. Manager ouvre EmployeesPage et clique \og Créer employé \fg. \newline
+      1. Manager ouvre EmployeesPage et clique « Créer employé ». \newline
       2. Saisie~: nom, prénom, poste, département. \newline
       3. Saisie du PIN 4 chiffres (haché bcrypt côté backend). \newline
       4. Dashboard appelle \texttt{POST /api/company/employees}. \newline
-      5. Backend génère l'accessCode (ex: \texttt{IN-001}) via Counter + \$inc. \newline
+      5. Backend génère l'accessCode (ex~: IN-001) via Counter + \texttt{\$inc}. \newline
       6. L'accessCode est affiché en lecture seule dans la fiche employé. \\
     \textbf{Post-conditions}& Employé créé, accessCode communiqué à l'employé. \\
   \end{tabular}
@@ -137,31 +158,31 @@ automatiquement et redirige vers la page de connexion.
 
 \subsubsection{LoginPage}
 
-Interface d'authentification avec animation Framer Motion (fade-in + scale de la carte).
-Le formulaire appelle \texttt{POST /api/admin/auth/login} et stocke le JWT dans
-\texttt{localStorage}.
+Interface d'authentification avec animation Framer Motion (fade-in + scale de la
+carte). Le formulaire appelle \texttt{POST /api/admin/auth/login} et stocke le JWT
+dans \texttt{localStorage}.
 
 \placeholder{Capture LoginPage admin (à insérer)}
 
 \subsubsection{DashboardPage}
 
-Page d'accueil affichant 4 KPIs calculés depuis le backend~:
-\textbf{Total Companies}, \textbf{Total Trainings}, \textbf{Sessions Played},
-\textbf{Global Pass Rate}. Affiche également les 5 entreprises les plus actives
-et les 5 formations les plus jouées.
+Page d'accueil affichant 4 KPIs calculés depuis le backend~: Total Companies, Total
+Trainings, Sessions Played, Global Pass Rate. Affiche également les 5 entreprises
+les plus actives et les 5 formations les plus jouées.
 
 \placeholder{Capture DashboardPage avec KPIs (à insérer)}
 
 \subsubsection{CompaniesPage}
 
-Gestion complète des entreprises clientes~: création, modification, suppression (superadmin
-uniquement), activation/désactivation, et assignation des formations via un dialog interactif.
+Gestion complète des entreprises clientes~: création, modification, suppression
+(superadmin uniquement), activation/désactivation, et assignation des formations
+via un dialog interactif.
 
 \placeholder{Capture CompaniesPage (à insérer)}
 
 \subsubsection{TrainingsPage}
 
-Gestion du catalogue de formations VR. Le champ \textbf{sceneName} est crucial~: il
+Gestion du catalogue de formations VR. Le champ \texttt{sceneName} est crucial~: il
 correspond exactement au nom de la scène Unity à charger via
 \texttt{SceneManager.LoadScene(training.sceneName)}.
 
@@ -176,16 +197,16 @@ affiché sur le casque, sélectionne l'entreprise et confirme l'activation.
 
 \subsubsection{SessionsPage}
 
-Historique de toutes les sessions avec filtres multi-critères~:
-\texttt{companyFilter}, \texttt{trainingFilter}, \texttt{dateFrom}, \texttt{dateTo}.
-Le filtrage est effectué côté client (JavaScript) sur le tableau complet retourné par l'API.
+Historique de toutes les sessions avec filtres multi-critères~: \texttt{companyFilter},
+\texttt{trainingFilter}, \texttt{dateFrom}, \texttt{dateTo}. Le filtrage est effectué
+côté client (JavaScript) sur le tableau complet retourné par l'API.
 
 \placeholder{Capture SessionsPage avec filtres (à insérer)}
 
 \subsubsection{StatisticsPage}
 
-Visualisation des statistiques agrégées par formation et par entreprise,
-calculées via les pipelines d'agrégation MongoDB.
+Visualisation des statistiques agrégées par formation et par entreprise, calculées
+via les pipelines d'agrégation MongoDB.
 
 \placeholder{Capture StatisticsPage (à insérer)}
 
@@ -193,9 +214,9 @@ calculées via les pipelines d'agrégation MongoDB.
 
 \subsubsection{EmployeesPage}
 
-Page centrale du dashboard Company~: CRUD complet des employés, affichage de l'accessCode
-(lecture seule après création), saisie du PIN lors de la création, et consultation
-des milestones de chaque employé.
+Page centrale du dashboard Company~: CRUD complet des employés, affichage de
+l'accessCode (lecture seule après création), saisie du PIN lors de la création, et
+consultation des milestones de chaque employé.
 
 \placeholder{Capture EmployeesPage (à insérer)}
 
@@ -270,6 +291,6 @@ filtrage par employé ou par formation.
 \section{Conclusion}
 
 Ce deuxième sprint a livré les deux dashboards web de \tynassit{}, déployés sur Vercel~:
-\url{admin-dashbord-mypfe.vercel.app} et \texttt{company-dashbord-mypfe.vercel.app}.
-Les 13 user stories couvertes sont toutes en état \textit{done}. Le chapitre suivant
+\texttt{admin-dashbord-mypfe.vercel.app} et \texttt{company-dashbord-mypfe.vercel.app}.
+Les 8 user stories couvertes sont toutes en état \textit{done}. Le chapitre suivant
 présente le développement de l'application VR Unity~6.

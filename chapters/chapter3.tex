@@ -1,3 +1,27 @@
+% ================================================================
+% chapters/chapter3.tex --- RECONSTRUCTION (v2, remarques encadrant)
+% ----------------------------------------------------------------
+% APPLIQUÉ ICI :
+%   - "3.2.2 Backlog du sprint 1" -> "3.2.2 Tâches et estimations du
+%     sprint 1" (le mot "Backlog" était barré)
+%   - Tableau 3.1 : colonne "Titre" ajoutée, colonne "Charge (j/h)"
+%     ajoutée, colonne "Statut" retirée + phrase de synthèse en
+%     dessous ("Toutes les user stories ont été livrées.")
+%   - 3.3 : phrase d'introduction ajoutée
+%   - 3.3.1.1 "Choix de MongoDB" : sous-titre retiré, fusionné dans 3.3.1
+%   - 3.3.1.2 "Modèles de données" : sous-titre retiré, fusionné dans 3.3.1
+%   - "TABLEAU pas table" : gérée globalement dans main.tex, rien ici
+%
+% ATTENTION --- Charge (j/h) : ce sont des ESTIMATIONS DE MA PART,
+% basées sur la complexité technique relative de chaque tâche (ex.
+% US-04 plus lourde car c'est la fonctionnalité la plus originale du
+% backend). Je n'ai aucune donnée réelle sur le temps que tu as
+% effectivement passé --- remplace ces chiffres par tes vraies
+% estimations si tu les as, ou par le temps réellement constaté.
+% Nécessaire aussi pour les tableaux similaires des chapitres 4/5/6
+% si l'encadrant demande la même colonne partout (à vérifier).
+% ================================================================
+
 \chapter{Sprint~1 --- Backend Core et Architecture de Sécurité}
 
 \section{Introduction}
@@ -21,30 +45,40 @@ et d'enregistrer les sessions de formation.
   \item Calculer les statistiques de performance par formation et par entreprise.
 \end{itemize}
 
-\subsection{Backlog du sprint~1}
+\subsection{Tâches et estimations du sprint~1}
 
 \begin{table}[H]
   \centering
-  \caption{Backlog du sprint~1}
+  \caption{Tâches et estimations --- Sprint~1}
   \label{tab:backlog_s1}
-  \begin{tabularx}{\textwidth}{llXl}
+  \begin{tabularx}{\textwidth}{llXcc}
     \toprule
-    \textbf{ID} & \textbf{MoSCoW} & \textbf{Tâches principales} & \textbf{Statut} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
     \midrule
-    US-01 & \must{} & Modèle Admin + routes auth + JWT admin & \checkmark \\
-    US-02 & \must{} & Modèle Company + CRUD + routes admin & \checkmark \\
-    US-03 & \must{} & Modèle Training + CRUD + sceneName & \checkmark \\
-    US-04 & \must{} & Modèle Device + activation (Meta User ID) + SHA-256 & \checkmark \\
-    US-05 & \should{} & Agrégations MongoDB pour statistiques & \checkmark \\
+    US-01 & Authentification admin &
+      Modèle Admin + routes auth + JWT admin & \must{} & 2 \\
+    US-02 & Gestion des entreprises &
+      Modèle Company + CRUD + routes admin & \must{} & 2 \\
+    US-03 & Gestion des formations &
+      Modèle Training + CRUD + sceneName & \must{} & 1,5 \\
+    US-04 & Activation des casques &
+      Modèle Device + activation (Meta User ID) + SHA-256 & \must{} & 3 \\
+    US-05 & Statistiques globales &
+      Agrégations MongoDB pour statistiques & \should{} & 2 \\
+    \midrule
+    \multicolumn{4}{r}{\textbf{Total}} & \textbf{10,5} \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
+\noindent Toutes les user stories de ce sprint ont été livrées.
+
 \section{Conception du sprint~1}
 
-\subsection{Conception de la base de données}
+Cette section détaille les choix de conception retenus pour le backend~: modélisation
+de la base de données et architecture de sécurité à quatre couches.
 
-\subsubsection{Choix de MongoDB}
+\subsection{Conception de la base de données}
 
 Le choix de \textbf{MongoDB} comme système de gestion de base de données repose sur
 les caractéristiques spécifiques des données de \tynassit{}~:
@@ -89,8 +123,6 @@ architecturales du backend avec leurs justifications.
   \end{tabularx}
 \end{table}
 
-\subsubsection{Modèles de données}
-
 \tynassit{} utilise \textbf{7 modèles MongoDB}~:
 
 \begin{itemize}
@@ -110,44 +142,45 @@ architecturales du backend avec leurs justifications.
   \textbf{Règle reference vs embedded}~: les données qui n'ont pas d'existence
   indépendante (milestones d'un employé, evaluationCriteria d'une session)
   sont \textbf{embedded}. Les données accédées indépendamment (Company, Training,
-  Employee référencés dans Session) sont des \textbf{références ObjectId}.
+  Employee référencés dans Session) sont des références ObjectId.
 \end{notebox}
 
 \placeholder{Diagramme de classes --- 7 modèles MongoDB (à insérer)}
 
 \subsection{Architecture de sécurité à 4 couches}
 
-\tynassit{} implémente une architecture de sécurité organisée en \textbf{4 couches
-complémentaires}, illustrée par la figure ci-dessous.
+\tynassit{} implémente une architecture de sécurité organisée en 4 couches
+complémentaires, illustrée par la figure ci-dessous.
 
 \placeholder{Schéma architecture sécurité 4 couches (à insérer)}
 
-\subsubsection{Couche~1 --- Authentification JWT différenciée}
+\subsubsection{Couche 1 --- Authentification JWT différenciée}
 
-Le payload JWT encode le type d'acteur~: \texttt{\{id, type: 'admin'|'company'|'device',
-role?\}}. Cette différenciation garantit qu'un token de type \texttt{device} ne peut jamais
-accéder aux routes réservées aux admins, même en cas d'interception.
+Le payload JWT encode le type d'acteur~: \texttt{\{id, type: 'admin'|'company'|'device', role?\}}.
+Cette différenciation garantit qu'un token de type \texttt{device} ne peut jamais accéder
+aux routes réservées aux admins, même en cas d'interception.
 
 \begin{table}[H]
   \centering
   \caption{Tokens JWT par acteur}
-  \label{tab:jwt}
+  \label{tab:jwt_tokens}
   \begin{tabular}{lll}
     \toprule
     \textbf{Acteur} & \textbf{Type} & \textbf{Durée} \\
     \midrule
-    Admin (superadmin / staff) & \texttt{admin} & 7 jours \\
-    Company (dashboard)        & \texttt{company} & 7 jours \\
-    Device (casque Meta Quest~3)& \texttt{device} & 1 an \\
+    Admin (superadmin / staff) & admin   & 7 jours \\
+    Company (dashboard)        & company & 7 jours \\
+    Device (casque Meta Quest~3) & device & 1 an \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 Le token device a une durée d'un an car le casque est un device fixe appartenant à
-l'entreprise (pas à l'employé individuel). Supprimer le token à chaque changement d'employé
-forcerait une réactivation à chaque session, ce qui est opérationnellement absurde.
+l'entreprise (pas à l'employé individuel). Supprimer le token à chaque changement
+d'employé forcerait une réactivation à chaque session, ce qui est opérationnellement
+absurde.
 
-\subsubsection{Couche~2 --- Autorisation RBAC}
+\subsubsection{Couche 2 --- Autorisation RBAC}
 
 Les middlewares Express forment une chaîne de contrôle d'accès~:
 
@@ -159,25 +192,26 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
   \item \texttt{deviceOnly()}~: vérifie \texttt{type === 'device'}.
 \end{itemize}
 
-\subsubsection{Couche~3 --- Protection des données sensibles}
+\subsubsection{Couche 3 --- Protection des données sensibles}
 
 \begin{itemize}
   \item \textbf{bcrypt 10 rounds}~: appliqué aux mots de passe Company/Admin et aux
     PINs des employés. 10 rounds $\approx$ 100~ms, délai intentionnel rendant les
     attaques brute force coûteuses en temps.
   \item \textbf{SHA-256 pour les tokens device}~: le token brut (plain) est exposé
-    \textbf{une seule fois}, pendant 60~secondes. Seul son hash est stocké en base.
-    En cas de compromission de la BDD, les tokens hachés sont inutilisables.
-  \item \textbf{SHA-256 pour le reset password}~: même logique, avec expiration de 30~min.
+    une seule fois, pendant 60 secondes. Seul son hash est stocké en base. En cas
+    de compromission de la BDD, les tokens hachés sont inutilisables.
+  \item \textbf{SHA-256 pour le reset password}~: même logique, avec expiration de
+    30 min.
 \end{itemize}
 
-\subsubsection{Couche~4 --- Sécurité du device physique}
+\subsubsection{Couche 4 --- Sécurité du device physique}
 
 \begin{itemize}
   \item \textbf{Meta User ID}~: identifiant matériel unique fourni par le SDK Oculus,
     stable et impossible à falsifier (contrairement à \texttt{deviceUniqueIdentifier}
     qui peut changer après un factory reset).
-  \item \textbf{Code d'activation}~: 6 chiffres aléatoires, expire après 15~minutes.
+  \item \textbf{Code d'activation}~: 6 chiffres aléatoires, expire après 15 minutes.
     Saisi manuellement par l'admin dans le dashboard.
 \end{itemize}
 
@@ -189,12 +223,12 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
     \textbf{Acteur}         & Staff Admin Tynass. \\
     \textbf{Scénario}       &
       1. Unity envoie le Meta User ID à \texttt{POST /request-activation}. \newline
-      2. Backend génère un code 6 chiffres aléatoire (expire 15~min). \newline
+      2. Backend génère un code 6 chiffres aléatoire (expire 15 min). \newline
       3. Admin saisit le code dans la DevicesPage du dashboard. \newline
-      4. Backend génère un JWT device (1~an) + stocke le hash SHA-256. \newline
+      4. Backend génère un JWT device (1 an) + stocke le hash SHA-256. \newline
       5. Unity appelle \texttt{POST /check} et reçoit le token brut (60~s). \newline
-      6. Token stocké dans \texttt{PlayerPrefs} (permanent). \\
-    \textbf{Exceptions}     & Code expiré (15~min) → admin régénère un nouveau code. \\
+      6. Token stocké dans PlayerPrefs (permanent). \\
+    \textbf{Exceptions}     & Code expiré (15 min) → admin régénère un nouveau code. \\
     \textbf{Post-conditions}& Casque actif en BDD, token persistant sur le casque. \\
   \end{tabular}
 \end{ucbox}
@@ -207,13 +241,16 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
     \textbf{Acteur}         & Employé (via Meta Quest~3). \\
     \textbf{Scénario}       &
       1. Employé saisit son accessCode (format XX-001) via le panel. \newline
-      2. Unity valide le format (Regex \texttt{\^[A-Z]\{2\}-\textbackslash d\{3\}\$}). \newline
+      2. Unity valide le format (Regex \texttt{\^{}[A-Z]\{2\}-\textbackslash d\{3\}\$}). \newline
       3. Employé saisit son PIN 4 chiffres via le numpad. \newline
-      4. Unity envoie \texttt{POST /api/company/employees/login} avec device\_token. \newline
-      5. Backend vérifie le PIN (bcrypt.compare) et retourne employee + auth\_token. \newline
+      4. Unity envoie \texttt{POST /api/company/employees/login} avec
+         \texttt{device\_token}. \newline
+      5. Backend vérifie le PIN (\texttt{bcrypt.compare}) et retourne
+         \texttt{employee + auth\_token}. \newline
       6. AppSession stocke les données employé. \\
     \textbf{Exceptions}     & Code invalide → message d'erreur. PIN incorrect → rejet. \\
-    \textbf{Post-conditions}& Employé connecté, AppSession initialisée, ModulesPanel chargé. \\
+    \textbf{Post-conditions}& Employé connecté, AppSession initialisée, ModulesPanel
+                              chargé. \\
   \end{tabular}
 \end{ucbox}
 
@@ -227,7 +264,7 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
       1. SimulationManager calcule le score final. \newline
       2. AppSession contient~: trainingId, employeeId, startedAt, score, criteria[]. \newline
       3. Unity appelle \texttt{POST /api/sessions/submit} (auth\_token dans le header). \newline
-      4. Backend calcule durationSeconds (côté serveur, horloge fiable). \newline
+      4. Backend calcule \texttt{durationSeconds} (côté serveur, horloge fiable). \newline
       5. Backend incrémente \texttt{attemptNumber} via le pre-save hook. \newline
       6. Session stockée en BDD, visible dans le dashboard admin. \\
     \textbf{Exceptions}     & Perte Wi-Fi → retry automatique via TynassApiClient. \\
@@ -247,62 +284,62 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
 
 \placeholder{Arborescence des dossiers (à insérer)}
 
-Le projet backend est organisé selon le pattern \textbf{MVC}~:
+Le projet backend est organisé selon le pattern MVC~:
 
 \begin{itemize}
   \item \texttt{models/}~: 7 schémas Mongoose (Company, Admin, Training, Session,
     Employee, Device, Counter).
-  \item \texttt{controllers/}~: logique métier séparée par domaine
-    (admin.auth, company.auth, admin.companies, admin.trainings,
-    session, employee, device).
+  \item \texttt{controllers/}~: logique métier séparée par domaine (admin.auth,
+    company.auth, admin.companies, admin.trainings, session, employee, device).
   \item \texttt{routes/}~: points d'entrée REST groupés par acteur.
-  \item \texttt{middleware/}~: auth.middleware.js avec les 5 guards.
-  \item \texttt{utils/}~: sendEmail.js (Nodemailer).
+  \item \texttt{middleware/}~: \texttt{auth.middleware.js} avec les 5 guards.
+  \item \texttt{utils/}~: \texttt{sendEmail.js} (Nodemailer).
 \end{itemize}
 
 \subsection{API REST --- Tableau des endpoints}
 
+Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'API.
+
 \begin{table}[H]
   \centering
   \caption{Endpoints API --- extrait des routes principales}
-  \label{tab:api_endpoints}
+  \label{tab:endpoints}
   \begin{tabularx}{\textwidth}{llXl}
     \toprule
     \textbf{Méthode} & \textbf{Route} & \textbf{Description} & \textbf{Auth} \\
     \midrule
     \multicolumn{4}{l}{\textit{Authentification Admin}} \\
-    POST & \texttt{/api/admin/auth/setup}   & Créer le 1er superadmin & Public \\
-    POST & \texttt{/api/admin/auth/login}   & Login admin             & Public \\
-    GET  & \texttt{/api/admin/auth/me}      & Profil admin courant    & Admin \\
+    POST & \texttt{/api/admin/auth/setup} & Créer le 1er superadmin & Public \\
+    POST & \texttt{/api/admin/auth/login} & Login admin & Public \\
+    GET  & \texttt{/api/admin/auth/me} & Profil admin courant & Admin \\
     \midrule
     \multicolumn{4}{l}{\textit{Gestion Entreprises}} \\
-    GET  & \texttt{/api/admin/companies}    & Lister toutes les entreprises & Admin \\
-    POST & \texttt{/api/admin/companies}    & Créer une entreprise          & Admin \\
-    PATCH& \texttt{/api/admin/companies/:id}& Modifier une entreprise       & Admin \\
+    GET  & \texttt{/api/admin/companies} & Lister toutes les entreprises & Admin \\
+    POST & \texttt{/api/admin/companies} & Créer une entreprise & Admin \\
+    PATCH& \texttt{/api/admin/companies/:id} & Modifier une entreprise & Admin \\
     POST & \texttt{/api/admin/companies/:id/trainings} & Assigner une formation & Admin \\
     \midrule
     \multicolumn{4}{l}{\textit{Activation Casque}} \\
     POST & \texttt{/api/company/devices/request-activation} & Générer code 6 chiffres & Device \\
-    POST & \texttt{/api/company/devices/activate}           & Activer avec le code    & Admin \\
-    POST & \texttt{/api/company/devices/check}              & Récupérer device token  & Device \\
+    POST & \texttt{/api/company/devices/activate} & Activer avec le code & Admin \\
+    POST & \texttt{/api/company/devices/check} & Récupérer device token & Device \\
     \midrule
     \multicolumn{4}{l}{\textit{Login Employé}} \\
     POST & \texttt{/api/company/employees/login} & Login code + PIN & Device \\
     GET  & \texttt{/api/company/devices/trainings} & Formations du casque & Device \\
     \midrule
     \multicolumn{4}{l}{\textit{Sessions}} \\
-    POST & \texttt{/api/sessions/submit}            & Soumettre une session     & Auth \\
-    GET  & \texttt{/api/sessions/stats/trainings}   & Stats par formation       & Admin \\
-    GET  & \texttt{/api/sessions/stats/companies}   & Stats par entreprise      & Admin \\
+    POST & \texttt{/api/sessions/submit} & Soumettre une session & Device \\
+    GET  & \texttt{/api/sessions/stats} & Statistiques agrégées & Admin/Company \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
 \subsection{Fonctionnalité clé --- Système d'activation du casque}
 
-Le système d'activation est la fonctionnalité la plus originale du backend. Il repose sur
-l'identifiant hardware \textbf{Meta User ID}, fourni par le SDK Oculus Platform et impossible
-à falsifier. Le flow complet est le suivant~:
+Le système d'activation est la fonctionnalité la plus originale du backend. Il repose
+sur l'identifiant hardware Meta User ID, fourni par le SDK Oculus Platform et
+impossible à falsifier. Le flow complet est le suivant~:
 
 \begin{enumerate}
   \item L'application Unity envoie le Meta User ID au backend via
@@ -310,16 +347,16 @@ l'identifiant hardware \textbf{Meta User ID}, fourni par le SDK Oculus Platform 
   \item Le backend génère un code aléatoire de 6 chiffres, le stocke haché (SHA-256)
     avec une expiration de 15 minutes, et retourne le code à l'affichage (pour l'admin).
   \item L'admin saisit ce code dans la DevicesPage du dashboard.
-  \item Le backend vérifie le code, génère un JWT device (1~an), stocke le hash SHA-256
-    en BDD et expose le token brut pendant 60~secondes maximum.
-  \item Unity appelle \texttt{POST /check}, récupère le token brut et le stocke dans
-    \texttt{PlayerPrefs}. Le token brut est immédiatement effacé côté serveur.
+  \item Le backend vérifie le code, génère un JWT device (1 an), stocke le hash
+    SHA-256 en BDD et expose le token brut pendant 60 secondes maximum.
+  \item Unity appelle \texttt{POST /check}, récupère le token brut et le stocke
+    dans PlayerPrefs. Le token brut est immédiatement effacé côté serveur.
 \end{enumerate}
 
 \subsection{Fonctionnalité clé --- Compteur atomique (accessCode)}
 
-L'accessCode des employés suit le format \textbf{XX-001} (2 lettres initiales de
-l'entreprise + numéro auto-incrémenté). Pour éviter les race conditions lors de créations
+L'accessCode des employés suit le format XX-001 (2 lettres initiales de l'entreprise
++ numéro auto-incrémenté). Pour éviter les race conditions lors de créations
 simultanées, le backend utilise la commande MongoDB
 \texttt{findOneAndUpdate(\{key\}, \{\$inc: \{seq: 1\}\}, \{upsert: true, new: true\})},
 garantissant une incrémentation atomique sans doublons.
@@ -334,19 +371,18 @@ garantissant une incrémentation atomique sans doublons.
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
     \midrule
-    Race condition & Deux employés créés simultanément pouvaient
-                     recevoir le même accessCode (countDocuments
-                     non atomique). &
-                     Migration vers Counter + \texttt{\$inc} MongoDB~:
-                     opération atomique garantissant l'unicité. \\
+    Race condition & Deux employés créés simultanément pouvaient recevoir le même
+                     accessCode (\texttt{countDocuments} non atomique). &
+                     Migration vers Counter + \texttt{\$inc} MongoDB~: opération
+                     atomique garantissant l'unicité. \\
     \midrule
-    Sécurité token device & Stocker le device token en clair en BDD
-                            représentait un risque en cas de compromission. &
-                            SHA-256 permanent pour le stockage, token brut
-                            exposé 60~s uniquement puis effacé. \\
+    Sécurité token device & Stocker le device token en clair en BDD représentait
+                            un risque en cas de compromission. &
+                            SHA-256 permanent pour le stockage, token brut exposé
+                            60~s uniquement puis effacé. \\
     \midrule
-    UnityWebRequest 4xx & Unity traitait les réponses HTTP 4xx comme des
-                          erreurs réseau sans lire le body JSON. &
+    UnityWebRequest 4xx & Unity traitait les réponses HTTP 4xx comme des erreurs
+                          réseau sans lire le body JSON. &
                           Restructuration des réponses backend~: toujours
                           retourner un body JSON lisible même sur les erreurs. \\
     \midrule

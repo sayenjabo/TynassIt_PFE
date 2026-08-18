@@ -53,24 +53,33 @@ découvrir les départements, présenter les règles internes et vivre des mises
   \item Afficher les résultats dans le panel QuizResult.
 \end{itemize}
 
-\subsection{Backlog du sprint~4}
+\subsection{Tâches et estimations du sprint~4}
 
 \begin{table}[H]
   \centering
-  \caption{Backlog du sprint~4}
+  \caption{Tâches et estimations --- Sprint~4}
   \label{tab:backlog_s4}
-  \begin{tabularx}{\textwidth}{llXl}
+  \begin{tabularx}{\textwidth}{lp{2.8cm}Xcc}
     \toprule
-    \textbf{ID} & \textbf{MoSCoW} & \textbf{Description} & \textbf{Statut} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
     \midrule
-    US-19 & \must{}   & Environnement 3D Indigo (Blender + optimisation Quest~3) & \checkmark \\
-    US-20 & \must{}   & Simulation~: exploration + mise en situation + quiz & \checkmark \\
-    US-21 & \must{}   & SubmitSession → backend → visible dashboard & \checkmark \\
-    US-22 & \must{}   & Panel QuizResult (score + critères) & \checkmark \\
-    US-23 & \could{}  & Scroll VR joystick dans ModulesPanel & En cours \\
+    US-19 & Exploration des locaux &
+      Environnement 3D Indigo (Blender + optimisation Quest~3) & \must{} & 8 \\
+    US-20 & Quiz de fin de simulation &
+      Simulation~: exploration + quiz & \must{} & 5 \\
+    US-21 & Soumission automatique des résultats &
+      SubmitSession → backend → visible dashboard & \must{} & 2 \\
+    US-22 & Affichage des résultats &
+      Panel QuizResult (score + critères) & \must{} & 1,5 \\
+    US-23 & Navigation dans la liste des formations &
+      Scroll VR joystick dans ModulesPanel & \could{} & 1 \\
+    \midrule
+    \multicolumn{4}{r}{\textbf{Total}} & \textbf{17,5} \\
     \bottomrule
   \end{tabularx}
 \end{table}
+
+\noindent US-19 à US-22 ont été livrées~; US-23 reste en cours.
 
 \section{Conception du sprint~4}
 
@@ -149,6 +158,8 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
 \end{table}
 
 \subsection{Cas d'utilisation --- Descriptions textuelles}
+
+\clearpage
 
 \begin{ucbox}{Vivre la simulation intigo}
   \begin{tabular}{lp{9cm}}

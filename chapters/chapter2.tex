@@ -1,23 +1,35 @@
 % ================================================================
-% chapters/chapter2.tex --- RECONSTRUCTION
+% chapters/chapter2.tex --- RECONSTRUCTION (v2, remarques encadrant)
 % ----------------------------------------------------------------
-% Assemblé à partir des fragments retrouvés dans le project knowledge
-% (recherches successives, plusieurs se recoupant), PAS une copie
-% directe d'un fichier source unique. Confiance élevée : chaque
-% section a été retrouvée et confirmée, la table du backlog (23 US)
-% a été retrouvée en entier en une seule recherche. Recommandation :
-% fais un diff rapide contre ton fichier réel avant d'écraser
-% l'original, par sécurité.
+% APPLIQUÉ ICI :
+%   - "à/au la plateforme" -> "sur/sur le" (Superadmin, Staff Admin, Company)
+%   - "PIN bcrypt" reformulé (clarté)
+%   - "Vivre" -> "Lancer" ; "Voir" -> "Consulter" (cohérent avec le
+%     reste du tableau qui utilise déjà "Consulter" pour Company/
+%     Staff Admin --- À CONFIRMER, l'annotation originale était
+%     ambiguë entre les deux mots)
+%   - "2.2.3 Besoins non-fonctionnels selon ISO/IEC 25010" ->
+%     "2.2.3 Besoins non-fonctionnels" (retrait du qualificatif)
+%   - Sous-titres ISO 25010 traduits en français (terme FR d'abord,
+%     original anglais entre parenthèses), exactement les termes
+%     donnés par l'encadrant
+%   - Backlog produit (23 US) : colonne "Titre" ajoutée, chaque User
+%     Story reformatée en 3 parties (En tant que / Je veux / Afin de)
+%     + critères d'acceptation (DOD), colonne "Épic" retirée du
+%     tableau (déjà visible via les séparateurs multicolonnes EP-0X)
+%   - "TABLEAU pas table" : gérée globalement dans main.tex
+%     (\renewcommand{\tablename}{Tableau}), rien à changer ici
 %
-% CE QUI EST CORRIGÉ ICI (déjà appliqué, rien à recoller) :
-%   - \subsubsection{Usability (Learnability)} --- le bullet
-%     "Interface VR simple" ne prétend plus l'absence de clavier
-%     virtuel (contredit par le code ET par ton propre chapitre 5).
-%
-% RIEN D'AUTRE N'A ÉTÉ MODIFIÉ. Toutes les autres sections (besoins
-% fonctionnels/non-fonctionnels, modélisation, architecture, backlog,
-% sprints) sont reproduites telles que retrouvées, placeholders
-% inclus (diagrammes UML, figures --- toujours à insérer par toi).
+% VOLONTAIREMENT PAS AJOUTÉ / EN ATTENTE :
+%   - Fonctionnalité "Ajouter un casque" (Company) : question de
+%     l'encadrant sur une fonctionnalité potentiellement manquante,
+%     pas encore confirmée comme existante côté code --- non ajoutée
+%     pour ne pas décrire une fonctionnalité qui n'existe pas
+%   - Remarques employé post-simulation : même chose, question
+%     ouverte, pas ajoutée
+%   - Tableau épics/sprints (2.5.3) : je propose ici une résolution
+%     légère (notebox explicatif) plutôt qu'une refonte complète,
+%     À VALIDER avec toi
 % ================================================================
 
 \chapter{Spécification et pilotage du projet}
@@ -59,13 +71,13 @@ Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par a
     \textbf{Acteur} & \textbf{Besoins fonctionnels} \\
     \midrule
     \multirow{4}{*}{\textbf{Superadmin}} &
-      S'authentifier à la plateforme web. \\
+      S'authentifier sur la plateforme web. \\
     & Gérer les comptes Staff Admin (créer, activer, désactiver). \\
     & Accéder à toutes les fonctionnalités du Staff Admin. \\
     & Créer le premier compte Superadmin via l'endpoint \texttt{/setup}. \\
     \midrule
     \multirow{6}{*}{\textbf{Staff Admin}} &
-      S'authentifier à la plateforme web. \\
+      S'authentifier sur la plateforme web. \\
     & Gérer les entreprises clientes (CRUD, activation/désactivation). \\
     & Gérer le catalogue de formations VR (CRUD, sceneName). \\
     & Activer un casque Meta Quest~3 via le système Meta User ID. \\
@@ -73,29 +85,32 @@ Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par a
     & Consulter les statistiques et sessions de toutes les entreprises. \\
     \midrule
     \multirow{4}{*}{\textbf{Company}} &
-      S'authentifier au dashboard entreprise. \\
-    & Gérer les employés (CRUD, génération accessCode, PIN bcrypt). \\
+      S'authentifier sur le dashboard entreprise. \\
+    & Gérer les employés (CRUD, génération accessCode, définition d'un
+      PIN sécurisé haché en base). \\
     & Révoquer un casque Meta Quest~3. \\
     & Consulter les sessions et performances de ses employés. \\
     \midrule
     \multirow{5}{*}{\textbf{Employé}} &
       Se connecter au casque (accessCode XX-001 + PIN 4 chiffres). \\
     & Accéder aux formations assignées à son entreprise. \\
-    & Suivre le tutoriel d'introduction aux contrôleurs (scène trailler). \\
-    & Vivre la simulation VR (scène intigo). \\
-    & Voir ses résultats envoyés automatiquement à \tynassit{}. \\
+    & Suivre le tutoriel d'initiation à l'utilisation des contrôleurs
+      (scène trailler). \\
+    & Lancer la simulation VR (scène intigo). \\
+    & Consulter ses résultats envoyés automatiquement à \tynassit{}. \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-\subsection{Besoins non-fonctionnels selon ISO/IEC~25010}
+\subsection{Besoins non-fonctionnels}
 
 L'analyse des besoins non-fonctionnels s'appuie sur le modèle de qualité logicielle
-\textbf{ISO/IEC~25010}~\cite{iso25010}, qui définit huit caractéristiques de qualité.
+ISO/IEC~25010~\cite{iso25010}, qui définit huit caractéristiques de qualité.
 
 \placeholder{Modèle ISO/IEC 25010 (figure)}
 
-\subsubsection{Performance Efficiency (Time Behaviour)}
+\subsubsection{Efficience de la performance --- Comportement temporel (Performance
+  Efficiency, Time Behaviour)}
 
 Le système doit garantir des temps de réponse acceptables sur toutes ses composantes~:
 
@@ -107,7 +122,7 @@ Le système doit garantir des temps de réponse acceptables sur toutes ses compo
   \item \textbf{Chargement scènes Unity}~: inférieur à \textbf{5 secondes}.
 \end{itemize}
 
-\subsubsection{Security}
+\subsubsection{Sécurité (Security)}
 
 Conformément au principe de défense en profondeur, la sécurité est organisée en
 \textbf{quatre couches} complémentaires (détaillées au chapitre~3).
@@ -118,14 +133,14 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
     tokens sensibles, validation des entrées côté Unity et backend.
 \end{itemize}
 
-\subsubsection{Reliability (Availability)}
+\subsubsection{Fiabilité (Disponibilité) --- Reliability (Availability)}
 
 \begin{itemize}
   \item \textbf{MongoDB Atlas}~: SLA de 99,9\%, sauvegardes automatiques, accès global.
   \item \textbf{Render + Vercel}~: déploiements continus avec rollback automatique.
 \end{itemize}
 
-\subsubsection{Maintainability (Modifiability)}
+\subsubsection{Maintenabilité (Modifiabilité) --- Maintainability (Modifiability)}
 
 \begin{itemize}
   \item \textbf{sceneName dynamique}~: l'ajout d'une nouvelle formation VR ne nécessite
@@ -135,7 +150,7 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
   \item \textbf{AppSession statique}~: état global Unity accessible sans instanciation.
 \end{itemize}
 
-\subsubsection{Usability (Learnability)}
+\subsubsection{Utilisabilité (Apprentissage) --- Usability (Learnability)}
 
 \begin{itemize}
   \item \textbf{Tutoriel VR}~: scène trailler avec 3 leçons couvrant les interactions
@@ -187,7 +202,8 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
 
 \begin{itemize}
   \item \textbf{MongoDB Atlas}~: base de données cloud, accessible depuis tous les composants.
-  \item \textbf{Render}~: hébergement du backend Node.js avec déploiement continu depuis GitHub.
+  \item \textbf{Render}~: hébergement du backend Node.js avec déploiement continu depuis
+    GitHub.
   \item \textbf{Vercel}~: hébergement des deux dashboards React avec CI/CD automatique.
   \item \textbf{Meta Quest~3}~: application Unity déployée en APK via Meta Developer Hub.
 \end{itemize}
@@ -201,53 +217,302 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
 \subsection{Backlog produit}
 
 Le backlog produit regroupe \textbf{23 user stories} organisées en \textbf{5 épics},
-priorisées selon la méthode \textbf{MoSCoW}~\cite{moscow2009}.
+priorisées selon la méthode \textbf{MoSCoW}~\cite{moscow2009}. Chaque user story suit
+le format~: \textit{« En tant que [rôle], je veux [action], afin de [bénéfice]. »},
+accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done}).
 
-\begin{longtable}{llp{7cm}c}
-  \caption{Backlog produit --- TynassIt}
+\begin{longtable}{lp{2.8cm}p{8cm}l}
+  \caption{Backlog produit --- \tynassit{}}
   \label{tab:backlog} \\
   \toprule
-  \textbf{ID} & \textbf{Épic} & \textbf{User Story} & \textbf{MoSCoW} \\
+  \textbf{ID} & \textbf{Titre} & \textbf{User Story} & \textbf{MoSCoW} \\
   \midrule
   \endfirsthead
   \toprule
-  \textbf{ID} & \textbf{Épic} & \textbf{User Story} & \textbf{MoSCoW} \\
+  \textbf{ID} & \textbf{Titre} & \textbf{User Story} & \textbf{MoSCoW} \\
   \midrule
   \endhead
   \bottomrule
   \endfoot
-  \multicolumn{4}{l}{\textit{EP-01 --- Backend \& Sécurité}} \\
-  US-01 & EP-01 & En tant qu'admin, je veux me connecter à la plateforme. & \must{} \\
-  US-02 & EP-01 & En tant qu'admin, je veux créer et gérer les entreprises. & \must{} \\
-  US-03 & EP-01 & En tant qu'admin, je veux créer des formations (+ sceneName). & \must{} \\
-  US-04 & EP-01 & En tant qu'admin, je veux activer un casque via Meta User ID. & \must{} \\
-  US-05 & EP-01 & En tant qu'admin, je veux consulter les statistiques globales. & \should{} \\
-  \midrule
-  \multicolumn{4}{l}{\textit{EP-02 --- Dashboard Admin}} \\
-  US-06 & EP-02 & En tant qu'admin, je veux me connecter au dashboard. & \must{} \\
-  US-07 & EP-02 & En tant qu'admin, je veux voir les KPIs (Total Companies, Sessions...). & \must{} \\
-  US-08 & EP-02 & En tant qu'admin, je veux gérer les entreprises (CRUD + assign). & \must{} \\
-  US-09 & EP-02 & En tant qu'admin, je veux activer et révoquer les casques. & \must{} \\
-  US-10 & EP-02 & En tant qu'admin, je veux filtrer les sessions par company/training. & \should{} \\
-  \midrule
-  \multicolumn{4}{l}{\textit{EP-03 --- Dashboard Company}} \\
-  US-11 & EP-03 & En tant qu'entreprise, je veux me connecter au dashboard. & \must{} \\
-  US-12 & EP-03 & En tant qu'entreprise, je veux gérer mes employés (CRUD + PIN). & \must{} \\
-  US-13 & EP-03 & En tant qu'entreprise, je veux consulter les sessions de mes employés. & \should{} \\
-  \midrule
-  \multicolumn{4}{l}{\textit{EP-04 --- Application VR Unity}} \\
-  US-14 & EP-04 & En tant qu'employé, je veux apprendre à utiliser les contrôleurs VR. & \must{} \\
-  US-15 & EP-04 & En tant qu'employé, je veux activer le casque (Meta User ID). & \must{} \\
-  US-16 & EP-04 & En tant qu'employé, je veux me connecter (code + PIN 4 chiffres). & \must{} \\
-  US-17 & EP-04 & En tant qu'employé, je veux voir les formations disponibles. & \must{} \\
-  US-18 & EP-04 & En tant qu'employé, je veux configurer l'audio et la langue. & \should{} \\
-  \midrule
-  \multicolumn{4}{l}{\textit{EP-05 --- Simulation VR Indigo}} \\
-  US-19 & EP-05 & En tant qu'employé, je veux explorer virtuellement les locaux d'Indigo. & \must{} \\
-  US-20 & EP-05 & En tant qu'employé, je veux vivre une mise en situation (quiz). & \must{} \\
-  US-21 & EP-05 & En tant que système, je veux soumettre automatiquement les résultats. & \must{} \\
-  US-22 & EP-05 & En tant qu'employé, je veux voir mon score et mes résultats. & \must{} \\
-  US-23 & EP-05 & En tant qu'employé, je veux scroller la liste des formations. & \could{} \\
+
+  \multicolumn{4}{l}{\textit{EP-01 --- Backend \& Sécurité}} \\[2pt]
+
+  US-01 & Authentification sécurisée (admin) &
+    En tant qu'admin, je veux m'authentifier sur la plateforme, afin
+    d'accéder aux fonctionnalités de gestion réservées à mon rôle.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Le système vérifie l'email et le mot de passe.
+      \item Un message d'erreur s'affiche en cas d'identifiants incorrects.
+      \item Un token JWT est généré au succès.
+      \item Le mot de passe est haché en base (bcrypt).
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-02 & Gestion des entreprises clientes &
+    En tant qu'admin, je veux créer et gérer les entreprises clientes,
+    afin de leur donner accès à la plateforme.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item CRUD complet (création, modification, désactivation).
+      \item Le nom et l'email de l'entreprise sont obligatoires et validés.
+      \item Une entreprise désactivée ne peut plus se connecter.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-03 & Gestion du catalogue de formations &
+    En tant qu'admin, je veux créer des formations VR avec leur scène
+    associée, afin de les rendre disponibles aux entreprises clientes.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Le champ \texttt{sceneName} est obligatoire à la création.
+      \item La formation est visible dans le catalogue dès sa création.
+      \item Sa modification ne nécessite aucun redéploiement Unity.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-04 & Activation d'un casque via Meta User ID &
+    En tant qu'admin, je veux activer un casque Meta Quest~3 via un
+    code généré par le système, afin de sécuriser l'accès physique à
+    la plateforme.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Un code à 6 chiffres est généré et expire après 15 minutes.
+      \item Un token device est généré au succès et haché SHA-256 en base.
+      \item Le casque est associé à une entreprise précise.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-05 & Consultation des statistiques globales &
+    En tant qu'admin, je veux consulter les statistiques globales de
+    la plateforme, afin de suivre l'usage et la performance des
+    formations.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Les données sont agrégées par formation et par entreprise.
+      \item Les statistiques sont recalculées à chaque requête.
+      \item L'accès est réservé au rôle admin.
+    \end{itemize}
+    & \should{} \\[4pt]
+
+  \multicolumn{4}{l}{\textit{EP-02 --- Dashboard Admin}} \\[2pt]
+
+  US-06 & Connexion au dashboard Admin &
+    En tant qu'admin, je veux me connecter au dashboard web, afin
+    d'accéder à l'interface de gestion.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Formulaire email et mot de passe.
+      \item Le token est conservé côté client entre les pages.
+      \item Redirection automatique vers la connexion si la session expire.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-07 & Visualisation des KPIs &
+    En tant qu'admin, je veux voir les indicateurs clés (entreprises,
+    sessions, taux de réussite) sur mon tableau de bord, afin d'avoir
+    une vue d'ensemble de l'activité.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item 4 KPIs sont affichés à l'ouverture du dashboard.
+      \item Le top 5 des entreprises et formations les plus actives
+        est visible.
+      \item La page se charge en moins de 2 secondes.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-08 & Gestion des entreprises depuis le dashboard &
+    En tant qu'admin, je veux gérer les entreprises et leur assigner
+    des formations depuis le dashboard, afin de configurer l'accès de
+    chaque client.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item CRUD complet accessible depuis l'interface.
+      \item L'assignation de formation se fait via un dialog dédié.
+      \item Le changement est visible immédiatement côté entreprise.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-09 & Activation et révocation des casques &
+    En tant qu'admin, je veux activer ou révoquer un casque depuis le
+    dashboard, afin de contrôler les appareils actifs sur la
+    plateforme.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item L'activation se fait via le code à 6 chiffres affiché sur
+        le casque.
+      \item La révocation invalide le token immédiatement.
+      \item Un casque révoqué ne peut plus s'authentifier.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-10 & Filtrage des sessions &
+    En tant qu'admin, je veux filtrer les sessions par entreprise,
+    formation ou date, afin de retrouver rapidement une information
+    précise.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Les filtres sont combinables entre eux.
+      \item Les résultats se mettent à jour sans rechargement de page.
+      \item Les filtres peuvent être réinitialisés en un clic.
+    \end{itemize}
+    & \should{} \\[4pt]
+
+  \multicolumn{4}{l}{\textit{EP-03 --- Dashboard Company}} \\[2pt]
+
+  US-11 & Connexion au dashboard Company &
+    En tant qu'entreprise, je veux me connecter à mon dashboard, afin
+    de gérer mes employés et consulter mes résultats.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Authentification par email et mot de passe propres à
+        l'entreprise.
+      \item L'accès est limité aux seules données de cette entreprise.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-12 & Gestion des employés &
+    En tant qu'entreprise, je veux gérer mes employés (créer,
+    modifier, définir un PIN), afin de leur donner accès aux
+    formations sur le casque.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item L'accessCode est généré automatiquement (format XX-001).
+      \item Le PIN saisi est haché avant stockage en base.
+      \item Un employé désactivé ne peut plus se connecter au casque.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-13 & Consultation des sessions employés &
+    En tant qu'entreprise, je veux consulter les sessions de mes
+    employés, afin de suivre leur progression et leurs résultats.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Liste paginée des sessions.
+      \item Filtrage par employé ou par formation.
+      \item Score et statut (réussi/échoué) visibles pour chaque session.
+    \end{itemize}
+    & \should{} \\[4pt]
+
+  \multicolumn{4}{l}{\textit{EP-04 --- Application VR Unity}} \\[2pt]
+
+  US-14 & Tutoriel des contrôleurs VR &
+    En tant qu'employé, je veux apprendre à utiliser les contrôleurs
+    VR via un tutoriel, afin d'être à l'aise avant ma première
+    formation.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item 3 leçons couvrant déplacement, manipulation et interaction UI.
+      \item Possibilité de passer le tutoriel.
+      \item Transition automatique vers l'écran de connexion à la fin.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-15 & Activation du casque &
+    En tant qu'employé, je veux que le casque s'active automatiquement
+    via son identifiant matériel, afin de ne pas ressaisir un code à
+    chaque session.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Le Meta User ID est envoyé au backend au démarrage.
+      \item Un casque déjà activé est reconnu directement.
+      \item Un casque non activé affiche l'écran d'attente.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-16 & Connexion employé sur le casque &
+    En tant qu'employé, je veux me connecter avec mon code d'accès et
+    mon PIN, afin d'accéder à mes formations de façon sécurisée.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Le code est validé au format XX-001 en temps réel.
+      \item Le PIN à 4 chiffres est masqué à la saisie.
+      \item Un message d'erreur s'affiche en cas d'identifiants incorrects.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-17 & Consultation des formations disponibles &
+    En tant qu'employé, je veux voir la liste des formations assignées
+    à mon entreprise, afin de choisir celle à suivre.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Les formations sont affichées en grille.
+      \item Seules les formations assignées à l'entreprise sont visibles.
+      \item La sélection lance directement la scène correspondante.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-18 & Configuration des paramètres &
+    En tant qu'employé, je veux configurer l'audio, la langue et les
+    contrôleurs, afin d'adapter l'expérience à mes préférences.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Les réglages sont sauvegardés localement.
+      \item Ils sont appliqués immédiatement.
+      \item Ils sont conservés entre les sessions.
+    \end{itemize}
+    & \should{} \\[4pt]
+
+  \multicolumn{4}{l}{\textit{EP-05 --- Simulation VR Indigo}} \\[2pt]
+
+  US-19 & Exploration des locaux &
+    En tant qu'employé, je veux explorer virtuellement les locaux
+    d'Indigo et ses différents départements, afin de me familiariser
+    avec l'environnement avant ma prise de poste.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Les 7 départements sont accessibles dans la scène.
+      \item Un panneau d'information est disponible à chaque zone.
+      \item Une narration audio accompagne chaque département.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-20 & Quiz de fin de simulation &
+    En tant qu'employé, je veux répondre à un quiz sur ce que j'ai
+    appris pendant l'exploration, afin de vérifier ma compréhension.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Une question par département visité.
+      \item Le score est calculé en pourcentage.
+      \item Le seuil de réussite est fixé à 70\%.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-21 & Soumission automatique des résultats &
+    En tant que système, je veux soumettre automatiquement les
+    résultats de la simulation au backend, afin que l'entreprise
+    puisse suivre la progression de l'employé.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item L'envoi est déclenché automatiquement à la fin du quiz.
+      \item La session est liée à l'employé et à la formation.
+      \item Le numéro de tentative est incrémenté automatiquement.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-22 & Affichage des résultats &
+    En tant qu'employé, je veux voir mon score et le détail de mes
+    résultats à la fin de la simulation, afin de savoir si j'ai
+    réussi.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Le score est affiché en pourcentage.
+      \item Le statut réussi/échoué est visible.
+      \item Un retour vers la liste des formations est possible.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-23 & Navigation dans la liste des formations &
+    En tant qu'employé, je veux faire défiler la liste des formations
+    avec le joystick, afin de naviguer confortablement quand il y en
+    a beaucoup.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Le défilement au joystick est fluide.
+      \item Il fonctionne avec plus de 10 formations affichées.
+      \item Il n'entre pas en conflit avec la sélection tactile.
+    \end{itemize}
+    & \could{} \\
 \end{longtable}
 
 \subsection{Planification des sprints}
@@ -267,6 +532,17 @@ priorisées selon la méthode \textbf{MoSCoW}~\cite{moscow2009}.
     \bottomrule
   \end{tabular}
 \end{table}
+
+\begin{notebox}
+  La durée d'un sprint (3, 3, 4 et 5 semaines) a été fixée au début du projet et
+  maintenue constante dans son principe de \textit{timeboxing}~: chaque sprint
+  regroupe les user stories d'un même épic parce qu'elles présentent une forte
+  dépendance technique séquentielle (le dashboard ne peut pas être développé avant
+  que le backend existe, par exemple), et non parce qu'un épic correspondrait par
+  définition à un seul sprint --- ce n'est pas le cas en général, et cela reste ici
+  une simplification propre à la petite échelle de ce projet (un seul développeur,
+  quatre sprints).
+\end{notebox}
 
 \section{Conclusion}
 
