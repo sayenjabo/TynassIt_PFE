@@ -30,15 +30,13 @@
 %     vraies mesures une fois testé sur casque
 % ================================================================
 
-\chapter{Sprint~4 --- Simulation VR Indigo Company (Scène intigo)}
+\chapter{Sprint~4 --- Simulation VR d'intégration Indigo Company}
 
 \section{Introduction}
 
 Ce quatrième sprint représente le cœur fonctionnel de \tynassit{}~: la simulation VR
-d'intégration des nouveaux employés d'\textbf{Indigo Company}. La scène \textbf{intigo}
-plonge le nouvel employé dans un environnement 3D fidèle aux locaux d'Indigo, lui fait
-découvrir les départements, présenter les règles internes et vivre des mises en situation.
-À la fin de la simulation, les résultats sont automatiquement soumis à la plateforme \tynassit{}.
+d'intégration des nouveaux employés d'\textbf{Indigo Company}. Cette scène plonge le nouvel employé dans un environnement 3D fidèle aux locaux d'Indigo, lui fait découvrir les différents départements accompagnés de narrations audio, puis évalue sa compréhension par un quiz. À la fin de la simulation,
+les résultats sont automatiquement soumis à la plateforme \tynassit{}.
 
 \section{Planification du sprint~4}
 
@@ -112,10 +110,8 @@ Les optimisations appliquées pour Meta Quest~3~:
 La simulation intigo est organisée en \textbf{2 phases séquentielles}~:
 
 \begin{enumerate}
-  \item \textbf{Phase 1 --- Exploration des locaux}~: l'employé navigue librement
-    dans les locaux d'Indigo Company, découvre les différents espaces (accueil,
-    open space, salles de réunion, zone de stockage) et les 7 départements via
-    des panneaux interactifs et narrations.
+  \item \textbf{Phase 1 --- Exploration des locaux}~: l'employé navigue librement dans les locaux d'Indigo Company et découvre huit zones interactives~--- les sept départements ainsi qu'une zone dédiée au responsable de département ---, chacune
+présentée par un panneau d'information et une narration audio.
   \item \textbf{Phase 2 --- Quiz}~: questions à choix multiples évaluant la
     compréhension des informations présentées lors de l'exploration, une
     question par département visité.
@@ -125,17 +121,19 @@ La simulation intigo est organisée en \textbf{2 phases séquentielles}~:
 
 \subsection{Système de quiz}
 
-Le quiz fonctionne en questions séquentielles à choix multiples. Chaque bonne réponse
-incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
+Les questions du quiz et leur nombre sont définis par l'entreprise cliente depuis son tableau de bord~; ils ne sont pas figés dans l'application. Le casque transmet les réponses de l'employé au backend via \texttt{POST /company/quiz/submit}~; le backend
+les valide 
+--- les bonnes réponses ne sont jamais envoyées au casque, ce qui empêche toute triche 
+--- puis renvoie le score et le statut de réussite. Le score est calculé selon~:
 
 \[
   \text{Score} = \frac{\text{QuizCorrect}}{\text{QuizTotal}} \times 100
 \]
 
 \[
-  \text{passed} = \text{Score} \geq 70
+  \text{passed} = \text{Score} \geq \text{passingScore}
 \]
-
+où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fixé à 70% par défaut.
 \subsection{Mapping AppSession → SessionSubmitPayload}
 
 \begin{table}[H]
@@ -150,8 +148,8 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
     \texttt{employeeId}       & \texttt{AppSession.EmployeeId} \\
     \texttt{startedAt}        & \texttt{DateTime.UtcNow} au chargement de la scène \\
     \texttt{completedAt}      & \texttt{DateTime.UtcNow} à la fin du quiz \\
-    \texttt{score}            & \texttt{AppSession.QuizScore} (calculé localement) \\
-    \texttt{passed}           & \texttt{AppSession.QuizScore} $\geq 70$ \\
+    \texttt{score}            & \texttt{AppSession.QuizScore} (retourné par le backend) \\
+    \texttt{passed}           & \texttt{AppSession.QuizPassed} (retourné par le backend) \\
     \texttt{evaluationCriteria[]} & Actions évaluées pendant la simulation \\
     \bottomrule
   \end{tabularx}
@@ -161,13 +159,13 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
 
 \clearpage
 
-\begin{ucbox}{Vivre la simulation intigo}
+\begin{ucbox}{Vivre la simulation d'intégration Indigo}
   \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Employé connecté, formation intigo sélectionnée. \\
+    \textbf{Pré-conditions} & Employé connecté, formation d'intégration Indigo sélectionnée. \\
     \textbf{Acteur}         & Employé (via Meta Quest~3). \\
     \textbf{Scénario}       &
-      1. SceneManager charge la scène intigo. \newline
-      2. SimulationManager enregistre \texttt{startedAt = DateTime.UtcNow}. \newline
+      1. La scène d'intégration Indigo est chargée via \texttt{LoadingScreen}. \newline
+      2. \texttt{OnboardingManager} enregistre \texttt{startedAt = DateTime.UtcNow}. \newline
       3. Phase 1~: Employé explore les locaux et les 7 départements
          (navigation + panneaux + narrations). \newline
       4. Phase 2~: Quiz séquentiel (une question par département visité). \newline
@@ -197,7 +195,7 @@ incrémente \texttt{AppSession.QuizCorrect}. Le score final est calculé selon~:
 
 \placeholder{Diagramme de séquence --- SubmitSession (à insérer)}
 
-\section{Implémentation du sprint~4}
+\section{Implémentation de l'iteration~4}
 
 \subsection{SimulationManager.cs et QuizManager.cs}
 
@@ -308,10 +306,11 @@ Le panel QuizResult affiche~:
 
 \section{Conclusion}
 
-Ce quatrième sprint constitue le cœur du module de formation Indigo~: modélisation
-complète de l'environnement 3D, système de quiz et intégration \texttt{SubmitSession}
-en cours de finalisation. Une fois les narrations enregistrées et les tests sur casque
-validés, la simulation d'intégration Indigo Company fonctionnera de bout en bout~: de
-l'exploration immersive des locaux jusqu'à la soumission automatique des résultats au
-dashboard Tynass. Le chapitre suivant présente la conclusion générale et les perspectives
-du projet.
+Ce quatrième sprint constitue le cœur du module de formation Indigo~:
+modélisation complète de l'environnement 3D, narrations intégrées à la scène, système
+de quiz fonctionnel et soumission automatique des résultats via \texttt{SubmitSession}.
+Restent à finaliser la validation des tests sur casque et la mesure des métriques de
+performance. Une fois ces vérifications effectuées, la simulation d'intégration d'Indigo
+Company couvrira l'intégralité du parcours~: de l'exploration immersive des locaux
+jusqu'à la remontée automatique des résultats dans le dashboard d'administration. Le
+chapitre suivant présente la conclusion générale et les perspectives du projet.
