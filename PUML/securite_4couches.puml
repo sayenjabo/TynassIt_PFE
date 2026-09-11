@@ -1,0 +1,30 @@
+@startuml Securite_4_couches
+' Architecture de sécurité à 4 couches --- Immersio
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #2B4B6F
+skinparam rectangle {
+  BorderColor #183D5D
+  FontColor #FFFFFF
+}
+
+title Architecture de sécurité en profondeur --- 4 couches
+
+rectangle "Requête entrante\n(Dashboard / Casque)" as Req #7A8794
+
+rectangle "Couche 1 --- Authentification JWT différenciée\nJWT signé HS256, type: admin | company | device" as C1 #183D5D
+rectangle "Couche 2 --- Autorisation RBAC\nprotect() -> adminOnly / superAdminOnly / companyOnly / deviceOnly" as C2 #183D5D
+rectangle "Couche 3 --- Protection des données sensibles\nbcrypt (mots de passe, PIN) -- SHA-256 (tokens device, reset)" as C3 #183D5D
+rectangle "Couche 4 --- Sécurité du device physique\nMeta User ID (non falsifiable) + code d'activation à usage unique" as C4 #183D5D
+
+rectangle "Accès autorisé\n(ressource protégée)" as OK #2E7D32
+
+Req  --> C1
+C1 --> C2 : token valide
+C2 --> C3 : rôle autorisé
+C3 --> C4 : données protégées
+C4 --> OK : casque authentifié
+
+note right of C1 : Un token device ne peut jamais\naccéder aux routes admin.
+note right of C3 : En cas de fuite de la BDD,\nles hachages restent inutilisables.
+@enduml

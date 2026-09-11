@@ -1,0 +1,49 @@
+@startuml Diagramme_de_deploiement
+' Diagramme de déploiement --- Immersio / Tynass IT
+skinparam shadowing false
+skinparam ArrowColor #2B4B6F
+skinparam defaultFontName Helvetica
+skinparam node {
+  BackgroundColor #183D5D
+  FontColor #FFFFFF
+  BorderColor #0E2740
+}
+skinparam database {
+  BackgroundColor #54545E
+  FontColor #FFFFFF
+  BorderColor #33333A
+}
+skinparam cloud {
+  BackgroundColor #E8EEF4
+  BorderColor #183D5D
+  FontColor #000000
+}
+
+node "Meta Quest 3\n(APK Unity)" as Quest
+
+cloud "Vercel" as Vercel {
+  node "Dashboard Admin" as Admin
+  node "Dashboard Company" as Company
+}
+
+cloud "Render" as Render {
+  node "Backend REST\nNode.js / Express" as API
+}
+
+cloud "MongoDB Atlas" as Atlas {
+  database "Base de données\n8 collections" as DB
+}
+
+node "Service Email\n(Nodemailer / SMTP)" as Mail
+node "UptimeRobot\n(monitoring)" as Uptime
+
+Admin   --> API : HTTPS (REST)
+Company --> API : HTTPS (REST)
+Quest   --> API : HTTPS (REST + device_token)
+API     --> DB  : Mongoose (TLS)
+API     --> Mail : réinitialisation\ndu mot de passe
+Uptime  ..> API : ping de disponibilité
+
+note right of Render : Déploiement continu\ndepuis GitHub
+note bottom of Mail : Mailtrap en développement,\nSMTP réel en production
+@enduml

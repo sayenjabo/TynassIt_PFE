@@ -1,0 +1,47 @@
+@startuml Sequence_activation_casque
+' Diagramme de séquence --- Activation d'un casque Meta Quest 3
+' Basé sur les routes réelles du backend Immersio.
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #183D5D
+skinparam ParticipantFontColor #FFFFFF
+skinparam ActorBackgroundColor #183D5D
+skinparam ActorFontColor #FFFFFF
+skinparam SequenceLifeLineBorderColor #2B4B6F
+skinparam ArrowColor #2B4B6F
+skinparam NoteBackgroundColor #FDF6D8
+skinparam NoteBorderColor #C9A227
+
+actor "Admin\n(Staff Tynass)" as Admin
+participant "Application VR\n(Meta Quest 3)" as Unity
+participant "Backend REST\n(Node.js/Express)" as API
+database "MongoDB\nAtlas" as DB
+
+== Demande d'activation (côté casque) ==
+Unity -> API : POST /company/devices/request-activation\n{ metaUserId }
+API -> DB : rechercher / créer Device(metaUserId)
+API -> API : générer code à 6 chiffres\n(expire dans 15 min)
+API -> DB : enregistrer activationCode + expiration
+API --> Unity : { activationCode, expiresIn }
+Unity -> Unity : afficher le code à l'écran
+
+== Validation (côté dashboard admin) ==
+Admin -> API : POST /company/devices/activate\n{ code, companyId, label }
+API -> DB : vérifier code + expiration
+alt code valide
+  API -> API : générer JWT device (1 an)\n+ hash SHA-256
+  API -> DB : stocker deviceToken (hash)\n+ deviceTokenPlain (60 s)
+  API --> Admin : 200 -- casque activé
+else code expiré / invalide
+  API --> Admin : 400 -- régénérer un code
+end
+
+== Récupération du token (côté casque) ==
+Unity -> API : POST /company/devices/check\n{ metaUserId }
+API -> DB : lire deviceTokenPlain (si < 60 s)
+API -> DB : effacer deviceTokenPlain
+API --> Unity : { status: "activated", deviceToken }
+Unity -> Unity : stocker le token dans PlayerPrefs\n(persistant)
+
+note over Unity, DB : Le token brut n'est exposé que 60 secondes.\nSeul son hash SHA-256 reste en base.
+@enduml

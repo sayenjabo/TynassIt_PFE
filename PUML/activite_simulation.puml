@@ -1,0 +1,42 @@
+@startuml Activite_simulation
+' Diagramme d'activité --- 2 phases de la simulation Indigo
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #2B4B6F
+skinparam activity {
+  BackgroundColor #183D5D
+  FontColor #FFFFFF
+  BorderColor #0E2740
+  DiamondBackgroundColor #E8EEF4
+  DiamondFontColor #000000
+  DiamondBorderColor #183D5D
+  StartColor #2E7D32
+  EndColor #7A2E2E
+}
+
+title Déroulement de la simulation d'intégration Indigo
+
+start
+:Chargement de la scène\n(enregistrement de startedAt);
+:Lecture de la narration d'accueil;
+
+partition "Phase 1 --- Exploration des locaux" {
+  repeat
+    :Se rendre à la zone suivante;
+    :Lire le panneau d'information\n+ écouter la narration;
+  repeat while (Toutes les zones visitées ?) is (non)
+  -> oui;
+}
+
+partition "Phase 2 --- Quiz" {
+  :Démarrer le quiz\n(questions définies par l'entreprise);
+  :Répondre aux questions;
+  :Soumettre les réponses au backend;
+  :Recevoir le score et le statut\n(calculés côté serveur);
+}
+
+:Afficher le panneau de résultats;
+:Soumettre la session (SubmitSession);
+:Retour à la scène d'authentification;
+stop
+@enduml

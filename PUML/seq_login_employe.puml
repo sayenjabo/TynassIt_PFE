@@ -1,0 +1,40 @@
+@startuml Sequence_login_employe
+' Diagramme de séquence --- Login employé sur le casque
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #183D5D
+skinparam ParticipantFontColor #FFFFFF
+skinparam ActorBackgroundColor #183D5D
+skinparam ActorFontColor #FFFFFF
+skinparam SequenceLifeLineBorderColor #2B4B6F
+skinparam ArrowColor #2B4B6F
+skinparam NoteBackgroundColor #FDF6D8
+skinparam NoteBorderColor #C9A227
+
+actor "Employé" as Emp
+participant "Application VR\n(Meta Quest 3)" as Unity
+participant "Backend REST" as API
+database "MongoDB\nAtlas" as DB
+
+Emp -> Unity : saisir accessCode (format XX-001)
+Unity -> Unity : valider le format en local\n(Regex ^[A-Z]{2}-\\d{3}$)
+Emp -> Unity : saisir le PIN (4 chiffres)
+
+Unity -> API : POST /company/employees/login\n{ accessCode, pin } + device_token
+API -> DB : rechercher Employee(accessCode)
+alt employé trouvé et actif
+  API -> API : bcrypt.compare(pin, employee.pin)
+  alt PIN correct
+    API -> API : générer auth_token (JWT employé)
+    API --> Unity : { employee, auth_token }
+    Unity -> Unity : AppSession.SaveEmployeeSession()
+    Unity -> Unity : afficher ModulesPanel (formations)
+  else PIN incorrect
+    API --> Unity : 401 -- identifiants incorrects
+  end
+else employé introuvable / inactif
+  API --> Unity : 404 / 403 -- accès refusé
+end
+
+note over Unity, DB : Le PIN n'est jamais stocké en clair :\ncomparaison bcrypt côté serveur uniquement.
+@enduml

@@ -39,9 +39,12 @@
 Ce chapitre cadre le périmètre fonctionnel et technique de \tynassit{}. Nous identifions
 les acteurs, détaillons les besoins fonctionnels et non-fonctionnels selon le modèle
 \textbf{ISO/IEC 25010}, présentons la modélisation UML du système, l'architecture retenue,
-puis le backlog produit avec priorisation \textbf{MoSCoW} et la planification des sprints.
+puis le backlog produit avec priorisation \textbf{MoSCoW} et la planification des itérations.
 
 \section{Analyse des besoins}
+
+Cette section identifie les acteurs du système puis détaille leurs besoins fonctionnels
+et non-fonctionnels.
 
 \subsection{Identification des acteurs}
 
@@ -64,53 +67,55 @@ Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par a
 
 \begin{table}[H]
   \centering
-  \caption{Description des besoins fonctionnels par acteur}
-  \label{tab:besoins_fonctionnels}
-  \begin{tabularx}{\textwidth}{lX}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.6cm}X}
     \toprule
     \textbf{Acteur} & \textbf{Besoins fonctionnels} \\
     \midrule
-    \multirow{4}{*}{\textbf{Superadmin}} &
+     \multirow{4}{=}{\textbf{Superadmin}} &
       S'authentifier sur la plateforme web. \\
-    & Gérer les comptes Staff Admin (créer, activer, désactiver). \\
+    & Gérer les comptes Staff Admin (créer, modifier, activer, désactiver). \\
     & Accéder à toutes les fonctionnalités du Staff Admin. \\
-    & Créer le premier compte Superadmin via l'endpoint \texttt{/setup}. \\
+    & Supprimer des entreprises et des formations (action réservée au Superadmin).\\
     \midrule
-    \multirow{6}{*}{\textbf{Staff Admin}} &
+    \multirow{6}{=}{\textbf{Staff Admin}} &
       S'authentifier sur la plateforme web. \\
-    & Gérer les entreprises clientes (CRUD, activation/désactivation). \\
-    & Gérer le catalogue de formations VR (CRUD, sceneName). \\
-    & Activer un casque Meta Quest~3 via le système Meta User ID. \\
+    & Gérer les entreprises clientes (créer, modifier, activer, désactiver). \\
+    & Gérer le catalogue de formations VR (créer, modifier ; champ \texttt{sceneName}). \\
+    & Activer un casque Meta Quest~3 en saisissant le code à 6 chiffres affiché sur le casque. \\
     & Assigner des formations à une entreprise. \\
     & Consulter les statistiques et sessions de toutes les entreprises. \\
     \midrule
-    \multirow{4}{*}{\textbf{Company}} &
+    \multirow{6}{=}{\textbf{Company}} &
       S'authentifier sur le dashboard entreprise. \\
-    & Gérer les employés (CRUD, génération accessCode, définition d'un
-      PIN sécurisé haché en base). \\
+    & Gérer les employés (créer, modifier, supprimer), générer leur code d'accès et définir un code PIN protégé par hachage en base. \\
+    & Créer et gérer un quiz par formation (questions, choix, seuil de réussite). \\
+    & Définir des objectifs (\textit{milestones}) de formation par employé. \\
     & Révoquer un casque Meta Quest~3. \\
     & Consulter les sessions et performances de ses employés. \\
     \midrule
-    \multirow{5}{*}{\textbf{Employé}} &
-      Se connecter au casque (accessCode XX-001 + PIN 4 chiffres). \\
+    \multirow{5}{=}{\textbf{Employé}} &
+      Se connecter au casque (code d'accès au format XX-001 + PIN à 4 chiffres). \\
     & Accéder aux formations assignées à son entreprise. \\
-    & Suivre le tutoriel d'initiation à l'utilisation des contrôleurs
-      (scène trailler). \\
-    & Lancer la simulation VR (scène intigo). \\
-    & Consulter ses résultats envoyés automatiquement à \tynassit{}. \\
+    & Suivre le tutoriel d'initiation à l'utilisation des contrôleurs. \\
+    & Lancer la simulation d'intégration Indigo. \\
+    & Consulter ses résultats, envoyés automatiquement à \tynassit{}. \\
     \bottomrule
   \end{tabularx}
+  \caption{Description des besoins fonctionnels par acteur}
+  \label{tab:besoins_fonctionnels}
 \end{table}
 
 \subsection{Besoins non-fonctionnels}
 
 L'analyse des besoins non-fonctionnels s'appuie sur le modèle de qualité logicielle
-ISO/IEC~25010~\cite{iso25010}, qui définit huit caractéristiques de qualité.
+ISO/IEC~25010~\cite{iso25010}, qui définit huit caractéristiques de qualité,
+parmi lesquelles nous retenons celles les plus pertinentes pour ce projet.
 
 \placeholder{Modèle ISO/IEC 25010 (figure)}
 
-\subsubsection{Efficience de la performance --- Comportement temporel (Performance
-  Efficiency, Time Behaviour)}
+Les caractéristiques retenues pour \tynassit{} sont détaillées ci-dessous.
+
+\subsubsection{Efficience de la performance --- Comportement temporel}
 
 Le système doit garantir des temps de réponse acceptables sur toutes ses composantes~:
 
@@ -122,7 +127,7 @@ Le système doit garantir des temps de réponse acceptables sur toutes ses compo
   \item \textbf{Chargement scènes Unity}~: inférieur à \textbf{5 secondes}.
 \end{itemize}
 
-\subsubsection{Sécurité (Security)}
+\subsubsection{Sécurité}
 
 Conformément au principe de défense en profondeur, la sécurité est organisée en
 \textbf{quatre couches} complémentaires (détaillées au chapitre~3).
@@ -133,14 +138,14 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
     tokens sensibles, validation des entrées côté Unity et backend.
 \end{itemize}
 
-\subsubsection{Fiabilité (Disponibilité) --- Reliability (Availability)}
+\subsubsection{Fiabilité --- Disponibilité}
 
 \begin{itemize}
   \item \textbf{MongoDB Atlas}~: SLA de 99,9\%, sauvegardes automatiques, accès global.
   \item \textbf{Render + Vercel}~: déploiements continus avec rollback automatique.
 \end{itemize}
 
-\subsubsection{Maintenabilité (Modifiabilité) --- Maintainability (Modifiability)}
+\subsubsection{Maintenabilité --- Modifiabilité}
 
 \begin{itemize}
   \item \textbf{sceneName dynamique}~: l'ajout d'une nouvelle formation VR ne nécessite
@@ -150,10 +155,10 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
   \item \textbf{AppSession statique}~: état global Unity accessible sans instanciation.
 \end{itemize}
 
-\subsubsection{Utilisabilité (Apprentissage) --- Usability (Learnability)}
+\subsubsection{Utilisabilité --- Apprentissage}
 
 \begin{itemize}
-  \item \textbf{Tutoriel VR}~: scène trailler avec 3 leçons couvrant les interactions
+  \item \textbf{Tutoriel VR}~: un tutoriel de trois leçons couvrant les interactions
     fondamentales (mouvement, manipulation, interface UI).
   \item \textbf{Interface VR simple}~: login en 2 étapes~--- un clavier virtuel
     simplifié et à saisie minimale pour le code d'accès alphanumérique
@@ -163,23 +168,42 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
 
 \section{Modélisation du système}
 
+La modélisation du système s'appuie sur le langage UML et se décline en trois vues
+complémentaires~: fonctionnelle, structurelle et dynamique.
+
 \subsection{Vue fonctionnelle --- Diagramme de cas d'utilisation}
 
-\placeholder{Diagramme de cas d'utilisation global (à insérer)}
+Le diagramme de cas d'utilisation de la figure~\ref{fig:cas_utilisation} présente les
+quatre acteurs du système et les fonctionnalités accessibles à chacun. Le Superadmin
+hérite de toutes les capacités du Staff Admin, auxquelles s'ajoutent la gestion des
+comptes administrateurs et la suppression d'entreprises et de formations.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/casUtilisation.png}
+  \caption{Diagramme de cas d'utilisation global}
+  \label{fig:cas_utilisation}
+\end{figure}
 
 \subsection{Vue structurelle --- Diagramme de classes}
 
-\placeholder{Diagramme de classes --- 7 modèles MongoDB (à insérer)}
+La figure~\ref{fig:classes} présente le diagramme de classes des huit modèles de données
+de la plateforme. Il distingue les entités principales, référencées entre elles par des
+identifiants (\texttt{ObjectId}), des sous-documents imbriqués (\textit{embedded}) qui
+n'ont pas d'existence indépendante, comme les objectifs d'un employé ou les critères
+d'évaluation d'une session.
 
-\subsection{Vue dynamique --- Diagrammes de séquence}
-
-\placeholder{Diagramme de séquence --- Activation casque (à insérer)}
-
-\placeholder{Diagramme de séquence --- Login employé VR (à insérer)}
-
-\placeholder{Diagramme de séquence --- SubmitSession (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/diagramClasses.png}
+  \caption{Diagramme de classes des huit modèles de données}
+  \label{fig:classes}
+\end{figure}
 
 \section{Architecture du système}
+
+L'architecture de \tynassit{} est présentée sous deux angles~: une vue logique en
+couches, puis une vue physique décrivant le déploiement des composants.
 
 \subsection{Architecture logique}
 
@@ -189,16 +213,37 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
   \item \textbf{Couche présentation}~: dashboards React (Admin et Company) et application
     VR Unity~6 sur Meta Quest~3.
   \item \textbf{Couche métier}~: API REST Node.js/Express avec contrôleurs MVC.
-  \item \textbf{Couche données}~: MongoDB Atlas avec 7 collections.
+  \item \textbf{Couche données}~: MongoDB Atlas avec 8 collections.
 \end{itemize}
 
-\placeholder{Architecture logique --- diagramme en couches (à insérer)}
+La figure~\ref{fig:archi_couches} illustre l'architecture logique de la plateforme,
+organisée en trois couches.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../images/archiCouches.png}
+  \caption{Architecture logique en trois couches}
+  \label{fig:archi_couches}
+\end{figure}
+
+Cette séparation en couches garantit que la couche présentation (dashboards et application
+VR) ne communique jamais directement avec la base de données, mais uniquement à travers
+l'API métier, qui centralise la logique et les contrôles de sécurité.
 
 \subsection{Architecture physique --- Diagramme de déploiement}
 
-\placeholder{Diagramme de déploiement (à insérer)}
+La figure~\ref{fig:deploiement} présente le diagramme de déploiement, décrivant la
+répartition physique des composants sur les différents services d'hébergement cloud.
 
-\noindent Le système est déployé sur trois environnements cloud~:
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../images/deploiement.png}
+  \caption{Diagramme de déploiement}
+  \label{fig:deploiement}
+\end{figure}
+
+\noindent Le système s'appuie sur trois environnements cloud, l'application VR
+étant déployée directement sur le casque~:
 
 \begin{itemize}
   \item \textbf{MongoDB Atlas}~: base de données cloud, accessible depuis tous les composants.
@@ -208,22 +253,32 @@ Conformément au principe de défense en profondeur, la sécurité est organisé
   \item \textbf{Meta Quest~3}~: application Unity déployée en APK via Meta Developer Hub.
 \end{itemize}
 
-\section{Pilotage du projet avec Scrum}
+\section{Pilotage et planification du projet}
 
-\subsection{Application de Scrum}
+Cette section décrit la démarche de développement adoptée, le backlog produit priorisé
+selon la méthode MoSCoW, et la répartition du travail sur les quatre itérations.
 
-\placeholder{Processus Scrum adapté au projet (figure)}
+\subsection{Démarche itérative et incrémentale}
+
+La figure~\ref{fig:processus_iteratif} illustre le cycle appliqué à chaque itération~:
+une phase d'analyse et de conception, le développement de l'incrément, une phase de test
+et de correction, puis la livraison, avant de passer à l'itération suivante.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../images/processusIteratif.png}
+  \caption{Processus de développement itératif et incrémental}
+  \label{fig:processus_iteratif}
+\end{figure}
 
 \subsection{Backlog produit}
 
-Le backlog produit regroupe \textbf{23 user stories} organisées en \textbf{5 épics},
+Le backlog produit regroupe \textbf{25 user stories} organisées en \textbf{5 épics},
 priorisées selon la méthode \textbf{MoSCoW}~\cite{moscow2009}. Chaque user story suit
 le format~: \textit{« En tant que [rôle], je veux [action], afin de [bénéfice]. »},
 accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done}).
 
 \begin{longtable}{lp{2.8cm}p{8cm}l}
-  \caption{Backlog produit --- \tynassit{}}
-  \label{tab:backlog} \\
   \toprule
   \textbf{ID} & \textbf{Titre} & \textbf{User Story} & \textbf{MoSCoW} \\
   \midrule
@@ -232,8 +287,11 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
   \textbf{ID} & \textbf{Titre} & \textbf{User Story} & \textbf{MoSCoW} \\
   \midrule
   \endhead
-  \bottomrule
   \endfoot
+  \bottomrule
+  \caption{Backlog produit --- \tynassit{}}
+  \label{tab:backlog}
+  \endlastfoot
 
   \multicolumn{4}{l}{\textit{EP-01 --- Backend \& Sécurité}} \\[2pt]
 
@@ -392,6 +450,29 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
       \item Filtrage par employé ou par formation.
       \item Score et statut (réussi/échoué) visibles pour chaque session.
     \end{itemize}
+   & \should{} \\[4pt]
+
+  US-24 & Gestion des quiz &
+    En tant qu'entreprise, je veux créer et configurer un quiz par
+    formation, afin d'évaluer la compréhension de mes employés.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item CRUD complet des questions, choix et bonne réponse.
+      \item Définition d'un seuil de réussite (\textit{passing score}).
+      \item La bonne réponse n'est jamais transmise au casque.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-25 & Objectifs de formation (milestones) &
+    En tant qu'entreprise, je veux définir des objectifs de formation
+    par employé, afin de suivre leur progression individuelle.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Création d'objectifs par employé (titre, type, module).
+      \item Passage automatique de « en attente » à « atteint » après une
+        session réussie.
+      \item Objectifs visibles sur la fiche de l'employé.
+    \end{itemize}
     & \should{} \\[4pt]
 
   \multicolumn{4}{l}{\textit{EP-04 --- Application VR Unity}} \\[2pt]
@@ -461,7 +542,7 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     avec l'environnement avant ma prise de poste.
     \newline\textbf{Critères d'acceptation}~:
     \begin{itemize}
-      \item Les 7 départements sont accessibles dans la scène.
+      \item Les sept départements et la zone du responsable sont accessibles (huit zones).
       \item Un panneau d'information est disponible à chaque zone.
       \item Une narration audio accompagne chaque département.
     \end{itemize}
@@ -472,9 +553,9 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     appris pendant l'exploration, afin de vérifier ma compréhension.
     \newline\textbf{Critères d'acceptation}~:
     \begin{itemize}
-      \item Une question par département visité.
-      \item Le score est calculé en pourcentage.
-      \item Le seuil de réussite est fixé à 70\%.
+      \item Le nombre de questions et leur contenu sont définis par l'entreprise depuis son tableau de bord.
+      \item Le score est calculé côté serveur et exprimé en pourcentage.
+      \item Le seuil de réussite (70\% par défaut) est défini par l'entreprise.
     \end{itemize}
     & \must{} \\[4pt]
 
@@ -515,38 +596,39 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     & \could{} \\
 \end{longtable}
 
-\subsection{Planification des sprints}
+\subsection{Planification des itérations}
 
 \begin{table}[H]
   \centering
-  \caption{Planification des sprints}
-  \label{tab:sprint_plan}
   \begin{tabular}{llll}
     \toprule
-    \textbf{Sprint} & \textbf{Titre} & \textbf{Durée} & \textbf{US couvertes} \\
+    \textbf{Itération} & \textbf{Titre} & \textbf{Durée} & \textbf{US couvertes} \\
     \midrule
-    Sprint 1 & Backend Core \& Sécurité          & 3 semaines & US-01 à US-05 \\
-    Sprint 2 & Dashboards Admin \& Company        & 3 semaines & US-06 à US-13 \\
-    Sprint 3 & Application VR Unity (Auth)        & 4 semaines & US-14 à US-18 \\
-    Sprint 4 & Simulation VR Indigo (intigo)      & 5 semaines & US-19 à US-23 \\
+    Itération 1 & Backend Core \& Sécurité          & 3 semaines & US-01 à US-05 \\
+    Itération 2 & Dashboards Admin \& Company        & 3 semaines & US-06 à US-13 \\
+    Itération 3 & Application VR Unity (Auth)        & 4 semaines & US-14 à US-18 \\
+    Itération 4 & Simulation VR d'intégration Indigo & 5 semaines & US-19 à US-25 \\
     \bottomrule
   \end{tabular}
+  \caption{Planification des itérations}
+  \label{tab:sprint_plan}
 \end{table}
 
 \begin{notebox}
-  La durée d'un sprint (3, 3, 4 et 5 semaines) a été fixée au début du projet et
-  maintenue constante dans son principe de \textit{timeboxing}~: chaque sprint
-  regroupe les user stories d'un même épic parce qu'elles présentent une forte
-  dépendance technique séquentielle (le dashboard ne peut pas être développé avant
-  que le backend existe, par exemple), et non parce qu'un épic correspondrait par
-  définition à un seul sprint --- ce n'est pas le cas en général, et cela reste ici
-  une simplification propre à la petite échelle de ce projet (un seul développeur,
-  quatre sprints).
+  Le projet suit une approche \textbf{itérative et incrémentale}~: chaque itération
+  livre un incrément fonctionnel exploitable, en s'appuyant sur les livrables des
+  itérations précédentes (l'application VR ne peut être développée avant que le backend
+  existe, par exemple). Les durées (3, 3, 4 et 5 semaines) sont fixées par
+  \textit{timeboxing}. Le regroupement des user stories par itération suit leurs
+  dépendances techniques, et non une correspondance stricte avec les épics du backlog.
+  Ainsi, les fonctionnalités de quiz et d'objectifs (US-24 et US-25), bien que rattachées
+  à l'épic du dashboard Company, ont été développées lors de la quatrième itération, en
+  complément de la simulation Indigo qui les exploite.
 \end{notebox}
 
 \section{Conclusion}
 
 Ce chapitre a établi les bases de \tynassit{}~: identification des acteurs, besoins
 fonctionnels et non-fonctionnels (structurés selon ISO/IEC~25010), modélisation UML,
-architecture déployée et backlog MoSCoW de 23 user stories. Le chapitre suivant présente
-la réalisation du premier sprint~: le backend core et son architecture de sécurité.
+architecture déployée et backlog MoSCoW de 25 user stories. Le chapitre suivant présente
+la réalisation de la première itération~: le backend core et son architecture de sécurité.

@@ -1,0 +1,50 @@
+@startuml Composants_Unity
+' Diagramme de composants --- scripts principaux Unity (Immersio)
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #2B4B6F
+skinparam component {
+  BackgroundColor #183D5D
+  FontColor #FFFFFF
+  BorderColor #0E2740
+}
+skinparam package {
+  BackgroundColor #E8EEF4
+  BorderColor #183D5D
+  FontColor #000000
+}
+
+title Composants principaux de l'application Unity
+
+package "Communication & état" {
+  [TynassApiClient] as API
+  [AppSession] as Session
+}
+
+package "Navigation & UI" {
+  [PanelManager] as Panel
+  [EmployeeSignInPanel] as SignIn
+  [ModulesPanel] as Modules
+  [SettingsPanel] as Settings
+}
+
+package "Activation & scènes" {
+  [LoadingManager] as Loading
+  [DeviceActivationManager] as Device
+}
+
+API --> Session : lit / écrit l'état global
+Device -> Loading : attend l'écran de chargement
+Device -> API : check / activation casque
+SignIn ----> API : login employé
+SignIn ----> Session : sauvegarde la session
+Modules ---> API : charge les formations
+Modules -> Loading : charge la scène choisie
+Panel --> SignIn
+Panel --> Modules
+Panel --> Settings
+Settings ---> Session : réglages persistants (PlayerPrefs)
+
+
+note bottom of Session : Classe statique globale :\ntoken, employé, formation, quiz.
+@enduml

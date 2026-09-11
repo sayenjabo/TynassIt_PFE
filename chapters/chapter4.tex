@@ -7,16 +7,16 @@
 % Rien d'autre n'est modifié dans ce chapitre.
 % ================================================================
 
-\chapter{Sprint~2 --- Dashboards Web Admin et Company}
+\chapter{Itération~2 --- Dashboards Web Admin et Company}
 
 \section{Introduction}
 
-Ce sprint couvre le développement des deux interfaces web de \tynassit{}~:
+Cette itération couvre le développement des deux interfaces web de \tynassit{}~:
 le \textbf{dashboard Admin} destiné aux équipes Tynass, et le \textbf{dashboard Company}
 destiné aux entreprises clientes. Les deux dashboards sont développés avec React,
 TypeScript et déployés séparément sur Vercel pour garantir une isolation totale.
 
-\section{Planification du sprint~2}
+\section{Planification de l'itération~2}
 
 \subsection{Objectifs}
 
@@ -27,15 +27,13 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
   \item Déployer les deux dashboards en production sur Vercel.
 \end{itemize}
 
-\subsection{Tâches et estimations du sprint~2}
+\subsection{Tâches et estimations de l'itération~2}
 
 \begin{table}[H]
   \centering
-  \caption{Tâches et estimations --- Sprint~2}
-  \label{tab:backlog_s2}
   \begin{tabularx}{\textwidth}{llXcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
     \midrule
     US-06 & Connexion Admin &
       LoginPage admin + AuthProvider + JWT localStorage & \must{} & 1,5 \\
@@ -54,21 +52,24 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
     US-13 & Historique Company &
       SessionsPage company --- historique + pagination & \should{} & 1,5 \\
     \midrule
-    \multicolumn{4}{r}{\textbf{Total}} & \textbf{14} \\
+    \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{14} \\
     \bottomrule
   \end{tabularx}
+  \caption{Tâches et estimations --- Itération~2}
+  \label{tab:backlog_s2}
 \end{table}
 
-\noindent Toutes les user stories de ce sprint ont été livrées.
+\noindent Toutes les user stories de cette itération ont été livrées.
 
-\section{Conception du sprint~2}
+\section{Conception de l'itération~2}
+
+Cette section présente les choix technologiques retenus pour les deux dashboards web
+ainsi que le système d'authentification mis en place.
 
 \subsection{Décisions architecturales --- Frontend}
 
 \begin{table}[H]
   \centering
-  \caption{Décisions architecturales --- Dashboards React}
-  \label{tab:archi_frontend}
   \begin{tabularx}{\textwidth}{lllX}
     \toprule
     \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
@@ -92,6 +93,8 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
     Déploiement & Vercel     & Netlify        & CI/CD automatique depuis GitHub \\
     \bottomrule
   \end{tabularx}
+  \caption{Décisions architecturales --- Dashboards React}
+  \label{tab:archi_frontend}
 \end{table}
 
 \subsection{Pourquoi deux projets séparés~?}
@@ -110,7 +113,12 @@ ont été préférés pour les raisons suivantes~:
 
 \subsection{Système d'authentification}
 
-\placeholder{Séquence --- Login admin (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/seqLoginAdmin.png}
+  \caption{Diagramme de séquence --- login administrateur}
+  \label{fig:seq_login_admin}
+\end{figure}
 
 Le JWT admin est stocké dans \texttt{localStorage("admin\_token")}. Au chargement de
 l'application, le hook \texttt{useAuth()} appelle \texttt{api.getMe()} pour valider
@@ -152,9 +160,15 @@ l'efface automatiquement et redirige vers la page de connexion.
   \end{tabular}
 \end{ucbox}
 
-\section{Implémentation du sprint~2}
+\section{Implémentation de l'itération~2}
+
+Cette section détaille les pages développées pour chacun des deux dashboards, en
+commençant par le dashboard Admin destiné aux équipes Tynass, puis le dashboard Company
+destiné aux entreprises clientes.
 
 \subsection{Dashboard Admin --- Pages implémentées}
+
+Le dashboard Admin regroupe sept pages, décrites ci-dessous.
 
 \subsubsection{LoginPage}
 
@@ -212,6 +226,9 @@ via les pipelines d'agrégation MongoDB.
 
 \subsection{Dashboard Company --- Pages implémentées}
 
+Le dashboard Company regroupe les pages permettant à l'entreprise de gérer ses employés
+et de suivre leurs sessions.
+
 \subsubsection{EmployeesPage}
 
 Page centrale du dashboard Company~: CRUD complet des employés, affichage de
@@ -231,8 +248,6 @@ filtrage par employé ou par formation.
 
 \begin{table}[H]
   \centering
-  \caption{Difficultés rencontrées et solutions --- Sprint~2}
-  \label{tab:dificultes_s2}
   \begin{tabularx}{\textwidth}{lXX}
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
@@ -266,31 +281,33 @@ filtrage par employé ou par formation.
            routes, avec origines explicites. \\
     \bottomrule
   \end{tabularx}
+  \caption{Difficultés rencontrées et solutions --- Itération~2}
+  \label{tab:dificultes_s2}
 \end{table}
 
-\section{Évaluation du sprint~2}
+\section{Évaluation de l'itération~2}
 
 \begin{table}[H]
   \centering
-  \caption{Métriques d'évaluation --- Sprint~2}
-  \label{tab:eval_s2}
-  \begin{tabular}{lll}
+  \begin{tabular}{ll}
     \toprule
-    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \textbf{Élément validé} & \textbf{Statut} \\
     \midrule
-    Pages admin livrées              & 7/7      & 7 \\
-    Pages company livrées            & 6/6      & 6 \\
-    Temps chargement DashboardPage   & --- ms   & $<$ 2~s \\
-    Tests manuels passés             & ---/---  & 100\% \\
+    Pages du dashboard Admin livrées   & 7 / 7 \\
+    Pages du dashboard Company livrées & 6 / 6 \\
+    Connexion des dashboards à l'API REST & Fonctionnel \\
+    Déploiement en production sur Vercel & Fonctionnel \\
     \bottomrule
   \end{tabular}
+  \caption{Validation fonctionnelle --- Itération~2}
+  \label{tab:eval_s2}
 \end{table}
 
 \placeholder{Captures des deux dashboards déployés sur Vercel (à insérer)}
 
 \section{Conclusion}
 
-Ce deuxième sprint a livré les deux dashboards web de \tynassit{}, déployés sur Vercel~:
+Cette deuxième itération a livré les deux dashboards web de \tynassit{}, déployés sur Vercel~:
 \texttt{admin-dashbord-mypfe.vercel.app} et \texttt{company-dashbord-mypfe.vercel.app}.
-Les 8 user stories couvertes sont toutes en état \textit{done}. Le chapitre suivant
-présente le développement de l'application VR Unity~6.
+Les 8 user stories couvertes ont toutes été livrées. Le chapitre suivant
+présente le développement de l'application VR.

@@ -1,0 +1,39 @@
+@startuml Architecture_en_couches
+' Architecture logique en 3 couches --- Immersio / Tynass IT
+skinparam shadowing false
+skinparam ArrowColor #2B4B6F
+skinparam defaultFontName Helvetica
+skinparam rectangle {
+  BorderColor #183D5D
+  FontColor #000000
+}
+skinparam node {
+  BackgroundColor #183D5D
+  FontColor #FFFFFF
+  BorderColor #0E2740
+}
+skinparam database {
+  BackgroundColor #54545E
+  FontColor #FFFFFF
+  BorderColor #33333A
+}
+
+rectangle "Couche présentation" as C1 #E8EEF4 {
+  node "Dashboard Admin\n(React + TypeScript)" as Admin
+  node "Dashboard Company\n(React + TypeScript)" as Comp
+  node "Application VR\n(Unity 6 -- Meta Quest 3)" as VR
+}
+
+rectangle "Couche métier" as C2 #E8EEF4 {
+  node "API REST -- Node.js / Express\nContrôleurs MVC + Middlewares (JWT, RBAC)" as API
+}
+
+rectangle "Couche données" as C3 #E8EEF4 {
+  database "MongoDB Atlas\n8 collections" as DB
+}
+
+Admin --> API : HTTPS / JSON
+Comp  --> API : HTTPS / JSON
+VR    --> API : HTTPS / JSON\n(device_token)
+API   --> DB  : Mongoose (ODM)
+@enduml

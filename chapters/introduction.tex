@@ -2,57 +2,50 @@
 \addcontentsline{toc}{chapter}{Introduction générale}
 \markboth{Introduction générale}{}
 
-\section*{Contexte général}
+Dans un contexte de transformation numérique accélérée, les entreprises cherchent à
+moderniser leurs processus de formation professionnelle. Les méthodes traditionnelles
+~--- formations présentielles coûteuses, modules e-learning peu engageants~--- peinent à
+répondre aux exigences d'efficacité et de standardisation des organisations modernes.
+La Réalité Virtuelle (VR) émerge comme une réponse concrète à ces limites~: des études
+empiriques indiquent que la formation en VR améliore la rétention des informations de
+70~\% et rend les apprenants 4~fois plus rapides qu'une formation classique~\cite{pwc2020},
+ce qui justifie son intégration dans les parcours de formation professionnelle B2B.
 
-Dans un contexte de transformation numérique accélérée, les entreprises cherchent à moderniser
-leurs processus de formation professionnelle. Les méthodes traditionnelles~--- formations
-présentielles coûteuses, modules e-learning peu engageants~--- peinent à répondre aux exigences
-d'efficacité et de standardisation des organisations modernes.
+Le potentiel pédagogique de la VR étant établi, son adoption effective par les entreprises
+se heurte toutefois à des obstacles concrets. Les solutions immersives disponibles sont
+soit trop génériques~--- conçues indépendamment des procédures réelles d'une organisation
+donnée~---, soit développées sur mesure pour un client unique, sans plateforme de gestion
+permettant à l'entreprise de déployer la formation, d'en contrôler les accès et d'en
+mesurer objectivement les résultats. Dans les deux cas, l'entreprise cliente reste sans
+visibilité sur la progression réelle de ses collaborateurs, ce qui prive la formation de
+la standardisation et de la traçabilité qu'elle devrait apporter. Le défi ne consiste
+donc pas seulement à produire une expérience VR convaincante, mais à l'intégrer dans une
+chaîne complète, de la gestion administrative des entreprises clientes jusqu'à la
+restitution mesurable des performances de chaque employé~: comment concevoir une plateforme
+B2B qui propose des formations professionnelles immersives en Réalité Virtuelle tout en
+offrant aux entreprises les moyens de gérer leurs employés et de suivre objectivement leurs
+performances~?
 
-La Réalité Virtuelle (VR) émerge comme une réponse concrète à ces limites. Des études empiriques
-confirment que la formation en VR améliore la rétention des informations de \textbf{70\%} et
-rend les apprenants \textbf{4 fois plus rapides} qu'une formation classique~\cite{pwc2020}. Ces
-résultats justifient l'intégration de la VR dans les parcours de formation professionnelle B2B.
+C'est à cette question que répond \tynassit{}, développée par Tynass~IT dans le cadre de
+ce projet de fin d'études~: une plateforme B2B permettant aux entreprises clientes d'accéder
+à des formations professionnelles immersives sur le casque Meta~Quest~3. Elle repose sur
+trois composantes complémentaires. Un backend REST (Node.js, Express, MongoDB~Atlas) assure
+l'authentification sécurisée, la gestion des accès et le suivi des sessions de formation.
+Deux tableaux de bord web (React, TypeScript) offrent, l'un aux équipes Tynass la gestion
+des entreprises et des modules VR, l'autre aux entreprises clientes la gestion de leurs
+employés et la consultation des résultats. Enfin, une application VR déployée sur
+Meta~Quest~3 permet aux employés d'effectuer des simulations immersives avec suivi
+automatique des performances. Le premier module développé concerne l'intégration des
+nouveaux employés d'Indigo~Company, leader tunisien du prêt-à-porter.
 
-\section*{Problématique}
-
-\section*{Solution proposée}
-
-Face à ces défis, \tynassit{}, développée par \textbf{Tynass IT} dans le cadre de ce projet de
-fin d'études, propose une plateforme B2B complète permettant aux entreprises clientes d'accéder
-à des formations professionnelles immersives sur le casque \textbf{Meta Quest~3}.
-
-La plateforme repose sur trois composantes :
-
-\begin{itemize}
-  \item Un \textbf{backend REST} (Node.js, Express, MongoDB Atlas) assurant l'authentification
-    sécurisée, la gestion des accès et le suivi des sessions de formation.
-  \item Deux \textbf{dashboards web} (React, TypeScript) : l'un pour les équipes Tynass
-    (gestion des entreprises et des modules VR), l'autre pour les entreprises clientes
-    (gestion des employés et consultation des résultats).
-  \item Une \textbf{application VR Unity~6} déployée sur Meta Quest~3, permettant aux
-    employés de vivre des simulations immersives avec suivi automatique des performances.
-\end{itemize}
-
-Le premier module développé concerne l'intégration des nouveaux employés d'\textbf{Indigo Company},
-leader tunisien du prêt-à-porter.
-
-\section*{Plan du rapport}
-
-Ce rapport est organisé en six chapitres~:
-
-\begin{itemize}
-  \item \textbf{Chapitre~1 --- Contexte général~:} présentation de Tynass, du projet, de l'étude
-    de l'existant, de la méthodologie adoptée et de l'environnement de développement.
-  \item \textbf{Chapitre~2 --- Spécification et pilotage~:} analyse des besoins fonctionnels et
-    non-fonctionnels, modélisation du système, architecture et planification Scrum.
-  \item \textbf{Chapitre~3 --- Sprint~1~:} développement du backend core avec l'architecture
-    de sécurité et le système d'activation des casques.
-  \item \textbf{Chapitre~4 --- Sprint~2~:} développement des dashboards web Admin et Company.
-  \item \textbf{Chapitre~5 --- Sprint~3~:} développement de l'application VR Unity~6
-    (scènes trailler et Companys).
-  \item \textbf{Chapitre~6 --- Sprint~4~:} développement de la simulation VR Indigo Company
-    (scène intigo).
-\end{itemize}
+Ce rapport est organisé en six chapitres. Le premier présente le contexte général du
+projet, une étude des solutions existantes, le choix de la méthodologie de travail~---
+une approche Agile, itérative et incrémentale~--- ainsi que l'environnement de
+développement. Le deuxième chapitre est consacré à la spécification des besoins et au
+pilotage du projet. Les quatre chapitres suivants détaillent les quatre itérations de
+développement réalisées, chacune apportant de nouvelles fonctionnalités à la plateforme~:
+le backend et son architecture de sécurité, les tableaux de bord web, l'application VR de
+base, puis la simulation d'intégration d'Indigo~Company. Une conclusion générale présente
+enfin les résultats obtenus et les perspectives d'évolution du projet.
 
 \clearpage

@@ -1,0 +1,39 @@
+@startuml Sequence_login_admin
+' Diagramme de séquence --- Login admin (dashboard web)
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #183D5D
+skinparam ParticipantFontColor #FFFFFF
+skinparam ActorBackgroundColor #183D5D
+skinparam ActorFontColor #FFFFFF
+skinparam SequenceLifeLineBorderColor #2B4B6F
+skinparam ArrowColor #2B4B6F
+skinparam NoteBackgroundColor #FDF6D8
+skinparam NoteBorderColor #C9A227
+
+actor "Admin" as Admin
+participant "Dashboard Admin\n(React)" as UI
+participant "Backend REST" as API
+database "MongoDB" as DB
+
+Admin -> UI : saisir email + mot de passe
+UI -> API : POST /api/admin/auth/login\n{ email, password }
+API -> DB : rechercher Admin(email)
+alt admin trouvé et actif
+  API -> API : bcrypt.compare(password)
+  alt mot de passe correct
+    API -> API : générer JWT admin (7 jours)
+    API --> UI : { admin, token }
+    UI -> UI : stocker le token (localStorage)
+    UI -> API : GET /api/admin/auth/me (token)
+    API --> UI : profil admin
+    UI --> Admin : redirection vers le dashboard
+  else mot de passe incorrect
+    API --> UI : 401 -- identifiants incorrects
+  end
+else admin introuvable / inactif
+  API --> UI : 403 -- accès refusé
+end
+
+note over UI, DB : Au rechargement, useAuth() revalide le token\nvia /me ; s'il est expiré, il est effacé.
+@enduml

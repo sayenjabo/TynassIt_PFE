@@ -1,0 +1,32 @@
+@startuml Processus_iteratif
+' Processus de développement itératif et incrémental --- Immersio
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #2B4B6F
+
+' ============ Partie 1 : le cycle des phases ============
+skinparam activity {
+  BackgroundColor #183D5D
+  FontColor #FFFFFF
+  BorderColor #0E2740
+  DiamondBackgroundColor #E8EEF4
+  DiamondFontColor #000000
+  DiamondBorderColor #183D5D
+}
+
+title Processus de développement itératif et incrémental
+
+partition "Cycle d'une itération" {
+  start
+  :Analyse & conception;
+  :Développement de l'incrément;
+  :Test & correction\n(casque / navigateur);
+  :Livraison de l'incrément;
+  if (Itération suivante ?) then (oui)
+    :Nouvelle itération;
+    detach
+  else (non)
+    stop
+  endif
+}
+@enduml

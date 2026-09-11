@@ -7,42 +7,43 @@
 % Rien d'autre n'est modifié dans ce chapitre.
 % ================================================================
 
-\chapter{Sprint~3 --- Application VR Meta Quest~3 (Scènes Auth)}
+\chapter{Itération~3 --- Application VR Meta Quest~3 (scènes d'authentification)}
 
 \section{Introduction}
 
-Ce sprint couvre le développement de l'application Unity~6 pour Meta Quest~3, incluant
-les deux premières scènes~: \textit{trailler} (tutoriel des contrôleurs) et
-\textit{Companys} (authentification et sélection des formations). À l'issue de ce sprint,
+ Cette itération couvre le développement de l'application VR pour Meta Quest~3, incluant
+les deux premières scènes~: la scène tutoriel (\texttt{trainingscene}, initiation aux contrôleurs) et
+la scène d'authentification (\texttt{Companys}, connexion et sélection des formations). À l'issue de cette itération,
 un employé peut activer le casque, se connecter, voir les formations disponibles
 et accéder aux paramètres.
 
-\section{Planification du sprint~3}
+\section{Planification de l'itération~3}
+
+Cette section définit les objectifs de la troisième itération, les tâches associées et
+leur charge estimée.
 
 \subsection{Objectifs}
 
 \begin{itemize}
-  \item Implémenter le flow complet d'activation du casque (Meta User ID).
+  \item Implémenter le flow complet d'activation du casque (Meta User ID matériel + code d'activation à 6 chiffres).
   \item Permettre le login employé (accessCode + PIN) via une interface VR intuitive.
   \item Charger et afficher les formations assignées à l'entreprise.
   \item Livrer un tutoriel d'introduction aux contrôleurs Meta Quest~3.
   \item Permettre la configuration des paramètres (audio, langue, contrôleurs).
 \end{itemize}
 
-\subsection{Tâches et estimations du sprint~3}
+\subsection{Tâches et estimations de l'itération~3}
 
 \begin{table}[H]
   \centering
-  \caption{Tâches et estimations --- Sprint~3}
-  \label{tab:backlog_s3}
   \begin{tabularx}{\textwidth}{llXcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée  (j/h)} \\
     \midrule
     US-14 & Tutoriel des contrôleurs &
-      Scène trailler --- tutoriel 3 leçons & \must{} & 4 \\
+      Scène tutoriel (\texttt{trainingscene}) --- 3 leçons & \must{} & 4 \\
     US-15 & Activation du casque &
-      DeviceActivationManager (Meta User ID) & \must{} & 2 \\
+      DeviceActivationManager (Meta User ID + code d'activation) & \must{} & 2 \\
     US-16 & Connexion employé &
       EmployeeSignInPanel (code + PIN numpad) & \must{} & 3 \\
     US-17 & Liste des formations &
@@ -50,21 +51,24 @@ et accéder aux paramètres.
     US-18 & Paramètres persistants &
       SettingsPanel (audio, langue, contrôleurs) & \should{} & 3 \\
     \midrule
-    \multicolumn{4}{r}{\textbf{Total}} & \textbf{14,5} \\
+    \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{14,5} \\
     \bottomrule
   \end{tabularx}
+  \caption{Tâches et estimations --- Itération~3}
+  \label{tab:backlog_s3}
 \end{table}
 
-\noindent Toutes les user stories de ce sprint ont été livrées.
+\noindent Toutes les user stories de cette itération ont été livrées.
 
-\section{Conception du sprint~3}
+\section{Conception de l'itération~3}
+
+Cette section présente la configuration du projet Unity pour Meta Quest~3, les décisions
+architecturales de l'application et l'organisation de ses scripts principaux.
 
 \subsection{Configuration Unity~6 pour Meta Quest~3}
 
 \begin{table}[H]
   \centering
-  \caption{Configuration Unity~6 pour Meta Quest~3}
-  \label{tab:unity_config}
   \begin{tabularx}{\textwidth}{lX}
     \toprule
     \textbf{Paramètre} & \textbf{Valeur} \\
@@ -78,6 +82,8 @@ et accéder aux paramètres.
     Niveau API minimum   & Android 10 (API 29) \\
     \bottomrule
   \end{tabularx}
+  \caption{Configuration Unity~6 pour Meta Quest~3}
+  \label{tab:unity_config}
 \end{table}
 
 \subsection{Décisions architecturales --- Unity}
@@ -113,7 +119,12 @@ et accéder aux paramètres.
 
 \subsection{Architecture Unity --- Scripts principaux}
 
-\placeholder{Diagramme de composants Unity --- 8 scripts (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/composantsUnity.png}
+  \caption{Diagramme de composants des scripts principaux de l'application Unity}
+  \label{fig:composants_unity}
+\end{figure}
 
 Les 8 scripts principaux de l'application Unity~:
 
@@ -139,13 +150,13 @@ Les 8 scripts principaux de l'application Unity~:
   \item \textbf{SettingsPanel.cs}~: audio (master/sfx/narration/spatial), langue
     (FR/EN/AR), contrôleurs (main, dwell time, haptic). Persistance via
     \texttt{PlayerPrefs}.
-  \item \textbf{TrainingSceneManager.cs}~: orchestre la scène trailler (leçons,
-    narration audio, NarrationManager).
+  \item \textbf{TrainingSceneManager.cs}~: orchestre la scène tutoriel
+    (\texttt{trainingscene})~: leçons, narration audio, NarrationManager.
 \end{itemize}
 
 \subsection{Cas d'utilisation --- Descriptions textuelles}
 
-\begin{ucbox}{Tutoriel d'introduction (scène trailler)}
+\begin{ucbox}{Tutoriel d'introduction (scène \texttt{trainingscene})}
   \begin{tabular}{lp{9cm}}
     \textbf{Pré-conditions} & Casque démarré, utilisateur novice en VR. \\
     \textbf{Acteur}         & Employé. \\
@@ -181,9 +192,17 @@ Les 8 scripts principaux de l'application Unity~:
 
 \subsection{Diagramme de séquence}
 
-\placeholder{Séquence --- Flow complet trailler → Companys → intigo (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/flowComplet.png}
+  \caption{Diagramme de séquence --- flux complet entre les trois scènes}
+  \label{fig:flow_complet}
+\end{figure}
 
-\section{Implémentation du sprint~3}
+\section{Implémentation de l'itération~3}
+
+Cette section détaille la mise en œuvre des principaux composants de l'application~: le
+client HTTP, l'activation du casque, le login employé et les panneaux de l'interface.
 
 \subsection{TynassApiClient.cs --- Client HTTP centralisé}
 
@@ -265,8 +284,6 @@ Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
 
 \begin{table}[H]
   \centering
-  \caption{Difficultés rencontrées et solutions --- Sprint~3}
-  \label{tab:dificultes_s3}
   \begin{tabularx}{\textwidth}{lXX}
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
@@ -293,34 +310,36 @@ Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
                           à zéro avant de réactiver le mouvement. \\
     \bottomrule
   \end{tabularx}
+  \caption{Difficultés rencontrées et solutions --- Itération~3}
+  \label{tab:dificultes_s3}
 \end{table}
 
-\section{Évaluation du sprint~3}
+\section{Évaluation de l'itération~3}
 
 \begin{table}[H]
   \centering
-  \caption{Métriques d'évaluation --- Sprint~3}
-  \label{tab:eval_s3}
-  \begin{tabular}{lll}
+  \begin{tabularx}{\textwidth}{Xl}
     \toprule
-    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \textbf{Élément validé} & \textbf{Statut} \\
     \midrule
-    FPS scène Companys                & --- fps  & 72~fps \\
-    Temps chargement panels           & --- sec  & $<$ 3~sec \\
-    Succès activation casque (tests)  & ---/---  & 100\% \\
-    Succès login employé (tests)      & ---/---  & 100\% \\
-    Leçons tutoriel fonctionnelles    & 3/3      & 3 \\
+    Activation du casque sur Meta Quest~3 & Fonctionnel \\
+    Login employé (code d'accès + PIN) sur le casque & Fonctionnel \\
+    Affichage des formations assignées & Fonctionnel \\
+    Tutoriel des contrôleurs (3 leçons) & 3 / 3 \\
+    Persistance des paramètres (audio, langue, contrôleurs) & Fonctionnel \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
+  \caption{Validation fonctionnelle --- Itération~3}
+  \label{tab:eval_s3}
 \end{table}
 
-\placeholder{Capture scène trailler --- Leçon 2 (grip) (à insérer)}
+\placeholder{Capture scène tutoriel --- Leçon 2 (grip) (à insérer)}
 
 \placeholder{Capture flow complet sur Meta Quest~3 (à insérer)}
 
 \section{Conclusion}
 
-Ce troisième sprint a livré l'application VR Unity~6 avec les deux premières scènes~:
-tutoriel contrôleurs (trailler) et authentification (Companys). Le flow complet
+Cette troisième itération a livré l'application VR avec ses deux premières scènes~:
+le tutoriel des contrôleurs et l'authentification. Le flow complet
 fonctionne sur le casque physique Meta Quest~3~: activation, login employé, affichage
-des formations. Le chapitre suivant présente la simulation VR Indigo Company.
+des formations. Le chapitre suivant présente la simulation d'intégration d'Indigo Company.

@@ -30,15 +30,18 @@
 %     vraies mesures une fois testé sur casque
 % ================================================================
 
-\chapter{Sprint~4 --- Simulation VR d'intégration Indigo Company}
+\chapter{Itération~4 --- Simulation VR d'intégration Indigo Company}
 
 \section{Introduction}
 
-Ce quatrième sprint représente le cœur fonctionnel de \tynassit{}~: la simulation VR
+Cette quatrième itération représente le cœur fonctionnel de \tynassit{}~: la simulation VR
 d'intégration des nouveaux employés d'\textbf{Indigo Company}. Cette scène plonge le nouvel employé dans un environnement 3D fidèle aux locaux d'Indigo, lui fait découvrir les différents départements accompagnés de narrations audio, puis évalue sa compréhension par un quiz. À la fin de la simulation,
 les résultats sont automatiquement soumis à la plateforme \tynassit{}.
 
-\section{Planification du sprint~4}
+\section{Planification de l'itération~4}
+
+Cette section définit les objectifs de la dernière itération, les tâches associées et
+leur charge estimée.
 
 \subsection{Objectifs}
 
@@ -51,15 +54,13 @@ les résultats sont automatiquement soumis à la plateforme \tynassit{}.
   \item Afficher les résultats dans le panel QuizResult.
 \end{itemize}
 
-\subsection{Tâches et estimations du sprint~4}
+\subsection{Tâches et estimations de l'itération~4}
 
 \begin{table}[H]
   \centering
-  \caption{Tâches et estimations --- Sprint~4}
-  \label{tab:backlog_s4}
   \begin{tabularx}{\textwidth}{lp{2.8cm}Xcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
     \midrule
     US-19 & Exploration des locaux &
       Environnement 3D Indigo (Blender + optimisation Quest~3) & \must{} & 8 \\
@@ -69,17 +70,27 @@ les résultats sont automatiquement soumis à la plateforme \tynassit{}.
       SubmitSession → backend → visible dashboard & \must{} & 2 \\
     US-22 & Affichage des résultats &
       Panel QuizResult (score + critères) & \must{} & 1,5 \\
-    US-23 & Navigation dans la liste des formations &
+     US-23 & Navigation dans la liste des formations &
       Scroll VR joystick dans ModulesPanel & \could{} & 1 \\
+    US-24 & Gestion des quiz &
+      Interface entreprise~: création de quiz par formation & \must{} & 3 \\
+    US-25 & Objectifs de formation &
+      Milestones par employé (statut auto après session) & \should{} & 2 \\
     \midrule
-    \multicolumn{4}{r}{\textbf{Total}} & \textbf{17,5} \\
+    \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{22,5} \\
     \bottomrule
   \end{tabularx}
+  \caption{Tâches et estimations --- Itération~4}
+  \label{tab:backlog_s4}
 \end{table}
 
-\noindent US-19 à US-22 ont été livrées~; US-23 reste en cours.
+\noindent US-19 à US-22, US-24 et US-25 ont été livrées~; US-23 reste en cours.
 
-\section{Conception du sprint~4}
+\section{Conception de l'itération~4}
+
+Cette section présente la conception de la simulation~: la modélisation 3D de
+l'environnement Indigo, la structure des deux phases, le système de quiz et la
+correspondance des données transmises au backend.
 
 \subsection{Modélisation 3D --- Blender}
 
@@ -107,17 +118,22 @@ Les optimisations appliquées pour Meta Quest~3~:
 
 \subsection{Structure de la simulation}
 
-La simulation intigo est organisée en \textbf{2 phases séquentielles}~:
+ La simulation d'intégration Indigo (\texttt{indigo\_onboarding}) est organisée en \textbf{2 phases séquentielles}~:
 
 \begin{enumerate}
   \item \textbf{Phase 1 --- Exploration des locaux}~: l'employé navigue librement dans les locaux d'Indigo Company et découvre huit zones interactives~--- les sept départements ainsi qu'une zone dédiée au responsable de département ---, chacune
 présentée par un panneau d'information et une narration audio.
-  \item \textbf{Phase 2 --- Quiz}~: questions à choix multiples évaluant la
-    compréhension des informations présentées lors de l'exploration, une
-    question par département visité.
+ \item \textbf{Phase 2 --- Quiz}~: questions à choix multiples évaluant la
+    compréhension des informations présentées lors de l'exploration. Le nombre
+    et le contenu des questions sont définis par l'entreprise depuis son tableau de bord.
 \end{enumerate}
 
-\placeholder{Diagramme d'activité --- 2 phases de la simulation (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../images/activiteSimulation.png}
+  \caption{Diagramme d'activité --- déroulement de la simulation en deux phases}
+  \label{fig:activite_simulation}
+\end{figure}
 
 \subsection{Système de quiz}
 
@@ -133,13 +149,11 @@ les valide
 \[
   \text{passed} = \text{Score} \geq \text{passingScore}
 \]
-où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fixé à 70% par défaut.
+où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fixé à 70~\% par défaut.
 \subsection{Mapping AppSession → SessionSubmitPayload}
 
 \begin{table}[H]
   \centering
-  \caption{Correspondance AppSession --- SessionSubmitPayload}
-  \label{tab:session_mapping}
   \begin{tabularx}{\textwidth}{lX}
     \toprule
     \textbf{Champ SessionSubmitPayload} & \textbf{Source dans AppSession / Unity} \\
@@ -153,6 +167,8 @@ où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fi
     \texttt{evaluationCriteria[]} & Actions évaluées pendant la simulation \\
     \bottomrule
   \end{tabularx}
+  \caption{Correspondance AppSession --- SessionSubmitPayload}
+  \label{tab:session_mapping}
 \end{table}
 
 \subsection{Cas d'utilisation --- Descriptions textuelles}
@@ -166,9 +182,9 @@ où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fi
     \textbf{Scénario}       &
       1. La scène d'intégration Indigo est chargée via \texttt{LoadingScreen}. \newline
       2. \texttt{OnboardingManager} enregistre \texttt{startedAt = DateTime.UtcNow}. \newline
-      3. Phase 1~: Employé explore les locaux et les 7 départements
-         (navigation + panneaux + narrations). \newline
-      4. Phase 2~: Quiz séquentiel (une question par département visité). \newline
+       3. Phase 1~: Employé explore les locaux et les huit zones
+         (sept départements + responsable~; navigation + panneaux + narrations). \newline
+      4. Phase 2~: Quiz séquentiel (questions définies par l'entreprise). \newline
       5. À la fin~: QuizManager appelle \texttt{SubmitSession()}. \newline
       6. PanelManager.GoQuizResult() affiche les résultats. \\
     \textbf{Post-conditions}& Session stockée en BDD, visible dans dashboard admin. \\
@@ -193,13 +209,21 @@ où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fi
   \end{tabular}
 \end{ucbox}
 
-\placeholder{Diagramme de séquence --- SubmitSession (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/seqSubmit.png}
+  \caption{Diagramme de séquence --- soumission d'une session}
+  \label{fig:seq_submit}
+\end{figure}
 
-\section{Implémentation de l'iteration~4}
+\section{Implémentation de l'itération~4}
 
-\subsection{SimulationManager.cs et QuizManager.cs}
+Cette section détaille la mise en œuvre de la simulation~: les gestionnaires
+d'orchestration et de quiz, puis le panneau d'affichage des résultats.
 
-\texttt{SimulationManager} orchestre l'exploration des 7 départements (Phase~1). À la
+\subsection{OnboardingManager.cs et QuizManager.cs}
+
+\texttt{OnboardingManager} orchestre l'exploration des huit zones (Phase~1). À la
 fin de cette séquence, il délègue au \texttt{QuizManager} le déclenchement du quiz
 (Phase~2) et la soumission finale des résultats~:
 
@@ -211,7 +235,7 @@ private async Task EndQuizAsync() {
     // Pourcentage, jamais le nombre brut de bonnes reponses
     AppSession.QuizScore = Mathf.RoundToInt(
         AppSession.QuizCorrect * 100f / AppSession.QuizTotal);
-    bool passed = AppSession.QuizScore >= 70;
+    bool passed = AppSession.QuizScore >= AppSession.PassingScore;
 
     string deviceToken = AppSession.DeviceToken;
     if (string.IsNullOrEmpty(deviceToken))
@@ -251,8 +275,6 @@ Le panel QuizResult affiche~:
 
 \begin{table}[H]
   \centering
-  \caption{Difficultés rencontrées et solutions --- Sprint~4}
-  \label{tab:dificultes_s4}
   \begin{tabularx}{\textwidth}{lXX}
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
@@ -276,26 +298,28 @@ Le panel QuizResult affiche~:
                  \texttt{Time.deltaTime} indépendant des transitions. \\
     \bottomrule
   \end{tabularx}
+  \caption{Difficultés rencontrées et solutions --- Itération~4}
+  \label{tab:dificultes_s4}
 \end{table}
 
-\section{Évaluation du sprint~4}
+\section{Évaluation de l'itération~4}
 
 \begin{table}[H]
   \centering
-  \caption{Métriques d'évaluation --- Sprint~4}
-  \label{tab:eval_s4}
-  \begin{tabular}{lll}
+  \begin{tabularx}{\textwidth}{Xl}
     \toprule
-    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \textbf{Élément validé} & \textbf{Statut} \\
     \midrule
-    FPS moyen scène intigo            & --- fps  & 72~fps \\
-    Temps chargement scène            & --- sec  & $<$ 5~sec \\
-    Taille APK final                  & --- MB   & $<$ 1~GB \\
-    Durée simulation complète         & --- min  & 25--35~min \\
-    Succès SubmitSession (tests)      & ---/---  & 100\% \\
-    Session visible dashboard admin   & ---      & \checkmark \\
+    Exploration des 8 zones (7 départements + responsable) & Fonctionnel \\
+    Narrations audio intégrées à la scène & Fonctionnel \\
+    Quiz à choix multiples, score calculé côté backend & Fonctionnel \\
+    Soumission automatique de session (\texttt{SubmitSession}) & Validé \\
+    Session visible dans le dashboard d'administration & Validé \\
+    Taille de l'APK & 2,4~Go \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
+  \caption{Validation fonctionnelle --- Itération~4}
+  \label{tab:eval_s4}
 \end{table}
 
 \placeholder{Capture environnement 3D Indigo dans Unity (à insérer)}
@@ -306,7 +330,7 @@ Le panel QuizResult affiche~:
 
 \section{Conclusion}
 
-Ce quatrième sprint constitue le cœur du module de formation Indigo~:
+Cette quatrième itération constitue le cœur du module de formation Indigo~:
 modélisation complète de l'environnement 3D, narrations intégrées à la scène, système
 de quiz fonctionnel et soumission automatique des résultats via \texttt{SubmitSession}.
 Restent à finaliser la validation des tests sur casque et la mesure des métriques de

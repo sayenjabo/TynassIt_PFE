@@ -1,0 +1,146 @@
+@startuml Diagramme_de_classes
+' ============================================================
+'  Diagramme de classes --- 8 modèles MongoDB (Immersio / Tynass IT)
+'  Généré à partir des schémas Mongoose réels du backend.
+'  Rendu : coller sur https://www.plantuml.com/plantuml
+'  puis Export PNG ou SVG.
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #FFFFFF
+skinparam classHeaderBackgroundColor #183D5D
+skinparam classFontColor #FFFFFF
+skinparam classAttributeFontColor #000000
+skinparam classBorderColor #183D5D
+skinparam ArrowColor #2B4B6F
+skinparam shadowing false
+skinparam linetype ortho
+hide circle
+
+' ---------------- Entités principales ----------------
+
+class Admin {
+  - name : String
+  - email : String «unique»
+  - password : String «bcrypt»
+  - role : superadmin | staff
+  - isActive : Boolean
+}
+
+class Company {
+  - companyName : String
+  - email : String «unique»
+  - password : String «bcrypt»
+  - assignedTrainings : ObjectId[] «ref Training»
+  - isActive : Boolean
+  - resetPasswordToken : String
+  - resetPasswordExpires : Date
+}
+
+class Training {
+  - title : String
+  - description : String
+  - category : String
+  - thumbnailUrl : String
+  - sceneName : String
+  - isActive : Boolean
+}
+
+class Employee {
+  - company : ObjectId «ref Company»
+  - name : String
+  - jobTitle : String
+  - department : String
+  - accessCode : String «XX-001, unique»
+  - pin : String «bcrypt»
+  - isActive : Boolean
+}
+
+class Device {
+  - metaUserId : String «unique»
+  - company : ObjectId «ref, nullable»
+  - label : String
+  - activationCode : String
+  - activationCodeExpires : Date
+  - deviceToken : String «hash SHA-256»
+  - deviceTokenPlain : String «60s»
+  - deviceTokenPlainExpires : Date
+  - isActive : Boolean
+  - activatedAt : Date
+  - revokedAt : Date
+}
+
+class Session {
+  - company : ObjectId «ref Company»
+  - training : ObjectId «ref Training»
+  - employee : ObjectId «ref, nullable»
+  - startedAt : Date
+  - completedAt : Date
+  - durationSeconds : Number
+  - score : Number
+  - passed : Boolean
+  - attemptNumber : Number
+  - notes : String
+}
+
+class Quiz {
+  - training : ObjectId «ref, unique»
+  - company : ObjectId «ref Company»
+  - passingScore : Number «défaut 70»
+  - isActive : Boolean
+}
+
+class Counter {
+  - key : String «employee_<companyId>»
+  - seq : Number «atomic $inc»
+}
+
+' ---------------- Sous-documents «embedded» ----------------
+
+class Milestone <<embedded>> {
+  - title : String
+  - description : String
+  - type : training | task
+  - status : pending | in_progress | completed
+  - module : String
+  - score : Number
+  - completedAt : Date
+}
+
+class EvaluationCriteria <<embedded>> {
+  - criteriaName : String
+  - passed : Boolean
+  - score : Number
+  - notes : String
+}
+
+class Question <<embedded>> {
+  - text : String
+  - choices : Choice[]
+  - correctIndex : Number
+}
+
+class Choice <<embedded>> {
+  - text : String
+}
+
+' ---------------- Relations (références) ----------------
+
+Company "1" --> "0..*" Training : assignedTrainings
+Employee "0..*" -> "1" Company
+Device   "0..*" ..> "0..1" Company
+Session  "0..*" -> "1" Company
+Session  "0..*" --> "1" Training
+Session  "0..*" ..> "0..1" Employee
+Quiz     "1" --> "1" Training
+Quiz     "0..*" --> "1" Company
+
+' ---------------- Compositions (embedded) ----------------
+
+Employee "1" *-- "0..*" Milestone
+Session  "1" *-- "0..*" EvaluationCriteria
+Quiz     "1" *-- "1..*" Question
+Question "1" *-- "2..4" Choice
+
+@enduml

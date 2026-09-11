@@ -55,6 +55,9 @@ développement d'expériences immersives en Réalité Étendue (XR).
 
 \section{Organisme d'accueil --- Tynass IT}
 
+Ce projet a été réalisé au sein de Tynass IT. Cette section présente l'entreprise
+d'accueil et les projets qu'elle a menés dans le domaine des expériences immersives.
+
 \subsection{Présentation de Tynass IT}
 
 Tynass IT est une entreprise tunisienne fondée en \textbf{2020}, spécialisée dans le
@@ -62,7 +65,12 @@ développement d'expériences immersives en XR (Réalité Virtuelle, Augmentée 
 Sa devise~: \og~\textit{Elevating Ideas, Creating Experiences}~\fg, traduit son engagement
 à transformer des idées complexes en expériences numériques mémorables.
 
-\placeholder{Logo Tynass IT}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.35\textwidth]{../images/logo_tynass.jpg}
+  \caption{Logo de Tynass IT}
+  \label{fig:logo_tynass}
+\end{figure}
 
 Tynass accompagne des institutions culturelles, des entreprises et des organismes
 publics dans leur transition vers des expériences numériques immersives, en exploitant
@@ -88,6 +96,9 @@ Avant ce PFE, Tynass a développé plusieurs projets XR remarquables~:
 \end{itemize}
 
 \section{Présentation du projet}
+
+Cette section expose la problématique à l'origine du projet, puis les objectifs fixés
+pour y répondre.
 
 \subsection{Problématique}
 
@@ -127,10 +138,6 @@ autonome.
 
 En réponse à cette problématique, et à travers ce cas d'usage, \tynassit{} vise à~:
 
-\subsection{Objectifs}
-
-En réponse à cette problématique, \tynassit{} vise à~:
-
 \begin{itemize}
   \item Concevoir et développer un \textbf{backend REST sécurisé} gérant les entreprises
     clientes, les formations VR et le suivi des sessions.
@@ -166,7 +173,7 @@ environnements 3D~\cite{dalgarnolee2010} convergent~: le sentiment de présence 
 environnement virtuel immersif améliore la mémorisation spatiale, l'engagement et la
 rétention de connaissances, en particulier pour des tâches procédurales et
 situées~--- exactement le cas d'usage de l'intégration de nouveaux employés visé par
-la scène \textit{intigo}.
+la simulation d'intégration d'Indigo.
 
 \begin{notebox}
   Il convient de nuancer~: l'efficacité de la VR n'est pas uniforme selon le type de
@@ -174,8 +181,8 @@ la scène \textit{intigo}.
   situées~--- se repérer dans un lieu, suivre une procédure, réagir à une
   situation~--- et moins systématiquement supérieure aux supports électroniques
   classiques pour l'acquisition de connaissances purement déclaratives. C'est ce
-  périmètre précis (repérage, procédures, mise en situation) que cible la scène
-  \textit{intigo}, plutôt qu'une prétention à remplacer tout support de formation.
+  périmètre précis (repérage, procédures, mise en situation) que cible cette
+  simulation d'intégration, plutôt qu'une prétention à remplacer tout support de formation.
 \end{notebox}
 
 \section{Étude de l'existant}
@@ -271,15 +278,13 @@ l'éducation, via son studio de production et sa plateforme \textbf{Oncio}.
     méthodologie publique vérifiable.
 \end{itemize}
 
-\subsection{Etude comparative}
+\subsection{Étude comparative}
 
 Le tableau~\ref{tab:comparatif} présente une synthèse comparative des solutions existantes
 par rapport à \tynassit{}.
 
 \begin{table}[H]
   \centering
-  \caption{Synthèse comparative des solutions existantes}
-  \label{tab:comparatif}
   \begin{tabularx}{\textwidth}{Xccccc}
     \toprule
     \textbf{Critère} & \textbf{TalentLMS} & \textbf{BCG} & \textbf{ClassVR}
@@ -293,6 +298,8 @@ par rapport à \tynassit{}.
     PME Tunisie       & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
     \bottomrule
   \end{tabularx}
+  \caption{Synthèse comparative des solutions existantes}
+  \label{tab:comparatif}
 \end{table}
 
 L'analyse des solutions existantes révèle un vide significatif~: aucune solution ne combine
@@ -304,6 +311,10 @@ l'immersion et l'interactivité.
 
 \section{Méthodologie de développement}
 
+Le déroulement du projet repose sur une méthodologie de travail structurée. Cette section
+compare les grandes familles de méthodologies, justifie l'approche retenue, décrit
+l'organisation du travail et présente le planning global.
+
 \subsection{Comparaison des méthodologies}
 
 Le choix d'une méthodologie de gestion de projet constitue une décision structurante pour
@@ -312,79 +323,129 @@ les approches traditionnelles et agiles~\cite{agile2020}.
 
 \begin{table}[H]
   \centering
-  \caption{Comparaison des méthodologies traditionnelles et agiles}
-  \label{tab:methodo}
   \begin{tabularx}{\textwidth}{lXX}
     \toprule
-    \textbf{Critère} & \textbf{Traditionnel (Waterfall)} & \textbf{Agile (Scrum)} \\
+    \textbf{Critère} & \textbf{Traditionnel (Waterfall)} & \textbf{Agile (itératif / incrémental)} \\
     \midrule
     Cycle de développement & Séquentiel et linéaire & Itératif et incrémental \\
-    Gestion des besoins & Définis en amont & Évolutifs à chaque sprint \\
+    Gestion des besoins & Définis en amont & Évolutifs à chaque itération \\
     Flexibilité & Faible & Forte \\
     Livraisons & Une seule livraison finale & Incréments fréquents \\
     Adaptation & Difficile & Naturelle \\
     \bottomrule
   \end{tabularx}
+  \caption{Comparaison des méthodologies traditionnelles et agiles}
+  \label{tab:methodo}
 \end{table}
 
-\subsection{Choix de Scrum}
+\subsection{Choix de l'approche itérative et incrémentale}
 
-La nature de ce projet~--- évolutif, avec un client réel (Indigo Company) dont les besoins
-peuvent changer, et développé par un seul ingénieur~--- impose une approche flexible. Scrum
-a été retenu pour les raisons suivantes~:
-
-\begin{itemize}
-  \item Itérations courtes (sprints) permettant des validations régulières avec le
-    Product Owner.
-  \item Adaptation facile aux changements de priorités (règlement intérieur Indigo, retours terrain).
-  \item Livraisons incrémentales permettant de tester chaque composante sur le casque physique.
-  \item Backlog produit structurant clairement les priorités via la méthode MoSCoW.
-\end{itemize}
-
-\subsection{Rôles Scrum}
+La nature de ce projet~--- évolutif, avec un client pilote (Indigo Company) dont les
+besoins peuvent évoluer, et mené par un développeur unique~--- appelle une approche
+flexible. Une démarche \textbf{itérative et incrémentale}, inspirée des principes agiles,
+a été retenue pour les raisons suivantes~:
 
 \begin{itemize}
-  \item \textbf{Product Owner}~: encadrant professionnel Tynass~--- définit les priorités
-    et valide les livrables de chaque sprint.
-  \item \textbf{Scrum Master et Développeur}~: [Nom Prénom]~--- planifie, développe,
-    teste et livre chaque incrément.
+  \item Des itérations courtes permettant de valider régulièrement l'avancement.
+  \item Une adaptation facile aux changements de priorités (règlement intérieur Indigo, retours terrain).
+  \item Des livraisons incrémentales permettant de tester chaque composante sur le casque physique.
+  \item Un backlog produit structurant clairement les priorités via la méthode MoSCoW.
 \end{itemize}
 
-% NOTE : section ci-dessus VOLONTAIREMENT pas corrigée --- attend le nom du
-% représentant Indigo pour le rôle de Product Owner, et le rôle de Scrum
-% Master doit revenir à l'encadrant professionnel une fois ça tranché.
+\subsection{Organisation du travail}
+
+Le projet a été mené par un \textbf{développeur unique}~: nous avons assuré la conception, le
+développement, les tests et la livraison de chaque incrément. Nous nous sommes appuyés
+sur un encadrement à trois niveaux~: un \textbf{encadrement technique} assuré par le
+Lead Tech de Tynass~IT (choix d'architecture, revue technique, déblocage), un
+\textbf{encadrement stratégique} assuré par la direction de l'entreprise (vision
+produit, priorités), et un \textbf{encadrement académique} assuré par l'enseignant
+référent.
+
 
 \subsection{Planning global du projet}
 
-\placeholder{Diagramme de Gantt --- 6 mois (à insérer)}
+\begin{figure}[H]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{ganttchart}[
+    hgrid, vgrid,
+    bar/.append style={fill=coverblue!70},
+    bar height=0.5,
+    group/.append style={fill=coverblue},
+    group peaks tip position=0,
+    title/.append style={fill=coverblue!15},
+    title label font=\small\bfseries,
+    bar label font=\small,
+    group label font=\small\bfseries,
+    milestone/.append style={fill=covergray}
+  ]{1}{24}
+    \ganttset{calendar week text = S\currentweek{}}
+    \gantttitle{Mars}{4} \gantttitle{Avril}{4} \gantttitle{Mai}{4}
+    \gantttitle{Juin}{4} \gantttitle{Juillet}{4} \gantttitle{Août}{4} \\
 
-Le tableau~\ref{tab:sprints_global} présente la répartition horizontale des épics sur
-les quatre sprints de développement.
+        \ganttgroup{Phase amont}{1}{8} \\
+    \ganttbar{Brainstorming \& cadrage}{1}{4} \\
+    \ganttbar{Recherche du partenaire (Indigo)}{5}{8} \\
+
+    \ganttgroup{Itération 1 --- Backend}{9}{11} \\
+    \ganttbar{Modèles de données}{9}{9} \\
+    \ganttbar{Authentification \& sécurité}{9}{10} \\
+    \ganttbar{Activation des casques}{10}{11} \\
+    \ganttbar{Statistiques}{11}{11} \\
+
+    \ganttgroup{Itération 2 --- Dashboards}{12}{14} \\
+    \ganttbar{Dashboard Admin}{12}{13} \\
+    \ganttbar{Dashboard Company}{13}{14} \\
+    \ganttbar{Intégration API \& déploiement}{14}{14} \\
+
+    \ganttgroup{Itération 3 --- Application VR}{15}{18} \\
+    \ganttbar{Configuration Unity / Quest~3}{15}{15} \\
+    \ganttbar{Montage des vidéos tutoriels}{15}{16} \\
+    \ganttbar{Tutoriel \& login employé VR}{16}{17} \\
+    \ganttbar{Formations \& paramètres}{17}{18} \\
+
+    \ganttgroup{Modélisation 3D (Blender)}{15}{22} \\
+    \ganttbar{Espace du tutoriel}{15}{16} \\
+    \ganttbar{Locaux d'Indigo (départements)}{16}{20} \\
+    \ganttbar{Optimisation Meta Quest~3}{20}{22} \\
+
+    \ganttgroup{Itération 4 --- Simulation Indigo}{19}{23} \\
+    \ganttbar{Intégration Unity de l'environnement}{19}{20} \\
+    \ganttbar{Quiz \& milestones}{21}{22} \\
+    \ganttbar{SubmitSession \& résultats}{22}{23} \\
+
+    \ganttgroup{Rédaction du rapport}{18}{24} \\
+    \ganttbar{Rédaction \& mise en forme}{18}{24} \\
+  \end{ganttchart}%
+  }
+  \caption{Diagramme de Gantt du projet}
+  \label{fig:gantt}
+\end{figure}
+
+Le développement a été découpé en quatre itérations, chacune livrant un incrément
+fonctionnel exploitable de la plateforme. Le tableau~\ref{tab:sprints_global} présente
+ces itérations, l'incrément livré par chacune et sa durée.
 
 \begin{table}[H]
   \centering
-  \caption{Répartition des épics sur les sprints}
-  \label{tab:sprints_global}
-  \begin{tabular}{lccccc}
+  \begin{tabularx}{\textwidth}{lXll}
     \toprule
-    \textbf{Épic} & \textbf{Description} & \textbf{S1} & \textbf{S2}
-                  & \textbf{S3} & \textbf{S4} \\
+    \textbf{Itération} & \textbf{Incrément livré} & \textbf{User stories} & \textbf{Durée} \\
     \midrule
-    EP-01 & Backend \& Sécurité      & \checkmark &            &            &            \\
-    EP-02 & Dashboard Admin          &            & \checkmark &            &            \\
-    EP-03 & Dashboard Company        &            & \checkmark &            &            \\
-    EP-04 & Unity Auth \& Scènes     &            &            & \checkmark &            \\
-    EP-05 & Simulation Indigo        &            &            &            & \checkmark \\
-    \midrule
-    \textbf{Durée} & & 3 semaines & 3 semaines & 4 semaines & 5 semaines \\
+    Itération~1 & Backend core et architecture de sécurité & US-01 à US-05 & 3 semaines \\
+    Itération~2 & Tableaux de bord web Admin et Company & US-06 à US-13 & 3 semaines \\
+    Itération~3 & Application VR~: authentification et scènes de base & US-14 à US-18 & 4 semaines \\
+    Itération~4 & Simulation d'intégration d'Indigo Company & US-19 à US-23 & 5 semaines \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
+  \caption{Répartition des incréments sur les itérations}
+  \label{tab:sprints_global}
 \end{table}
 
-% NOTE : tableau ci-dessus VOLONTAIREMENT pas corrigé --- remarque de
-% l'encadrant : "un épic par définition ne peut pas tenir en 1 seul
-% sprint", donc ce mapping 1-pour-1 est méthodologiquement contestable.
-% Attend une vraie refonte, pas un simple changement de mot.
+Chaque itération s'appuie sur les livrables de la précédente~: le backend est développé
+en premier car les tableaux de bord et l'application VR en dépendent, et la simulation
+Indigo vient clore le cycle en exploitant l'ensemble des composantes.
 
 \section{Environnement de développement}
 
@@ -397,19 +458,20 @@ Le tableau~\ref{tab:hardware} présente le matériel utilisé pour le développe
 
 \begin{table}[H]
   \centering
-  \caption{Matériel utilisé durant le projet}
-  \label{tab:hardware}
   \begin{tabular}{ll}
     \toprule
     \textbf{Composant} & \textbf{Description} \\
     \midrule
-    Processeur       & [à compléter] \\
-    RAM              & [à compléter] \\
-    Stockage         & [à compléter] \\
+    Processeur       & AMD Ryzen 9 HX \\
+    RAM              & 32 Go \\
+    Carte graphique  & NVIDIA GeForce RTX 5070 Laptop (8 Go) \\
+    Stockage         & 1 To SSD \\
     Système d'exploitation & Windows 11 \\
     Casque VR        & Meta Quest 3 \\
     \bottomrule
   \end{tabular}
+  \caption{Matériel utilisé durant le projet}
+  \label{tab:hardware}
 \end{table}
 
 \subsection{Logiciels et outils}
@@ -418,8 +480,6 @@ Le tableau~\ref{tab:software} présente les logiciels et outils utilisés durant
 
 \begin{table}[H]
   \centering
-  \caption{Logiciels et outils utilisés}
-  \label{tab:software}
   \begin{tabularx}{\textwidth}{llX}
     \toprule
     \textbf{Outil} & \textbf{Version} & \textbf{Usage} \\
@@ -431,9 +491,15 @@ Le tableau~\ref{tab:software} présente les logiciels et outils utilisés durant
     Postman        & Latest           & Tests API \\
     Blender        & 5.1              & Modélisation 3D et environnements \\
     Figma          & Latest           & Conception UI/UX \\
+    DaVinci Resolve & Latest          & Montage vidéo et audio (narrations, démonstration) \\
     Git / GitHub   & Latest           & Versioning et collaboration \\
+    Render         & Cloud            & Hébergement et déploiement du backend \\
+    Vercel         & Cloud            & Hébergement et déploiement des dashboards web \\
+    UptimeRobot    & Cloud            & Surveillance de disponibilité du backend \\
     \bottomrule
   \end{tabularx}
+  \caption{Logiciels et outils utilisés}
+  \label{tab:software}
 \end{table}
 
 \subsection{Bibliothèques et frameworks}
@@ -443,8 +509,6 @@ utilisés dans le projet.
 
 \begin{table}[H]
   \centering
-  \caption{Bibliothèques et frameworks principaux}
-  \label{tab:frameworks}
   \begin{tabularx}{\textwidth}{llX}
     \toprule
     \textbf{Bibliothèque} & \textbf{Version} & \textbf{Usage} \\
@@ -471,11 +535,13 @@ utilisés dans le projet.
     Meta XR All-in-One SDK & Latest & Développement Quest 3 \\
     \bottomrule
   \end{tabularx}
+  \caption{Bibliothèques et frameworks principaux}
+  \label{tab:frameworks}
 \end{table}
 
 \section{Conclusion}
 
 Ce premier chapitre a présenté le contexte général du projet~: l'organisme d'accueil Tynass IT
 et ses réalisations XR, la problématique de la formation professionnelle B2B, l'analyse des
-solutions existantes, et la méthodologie Scrum retenue. Le chapitre suivant présente la
+solutions existantes, et l'approche itérative et incrémentale retenue. Le chapitre suivant présente la
 spécification détaillée du système et son pilotage.

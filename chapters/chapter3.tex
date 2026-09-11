@@ -22,38 +22,39 @@
 % si l'encadrant demande la même colonne partout (à vérifier).
 % ================================================================
 
-\chapter{Sprint~1 --- Backend Core et Architecture de Sécurité}
+\chapter{Itération~1 --- Backend Core et Architecture de Sécurité}
 
 \section{Introduction}
 
-Ce premier sprint couvre le développement du backend complet de \tynassit{}~: les 7 modèles
+Cette première itération couvre le développement du backend complet de \tynassit{}~: les 8 modèles
 de données, l'API REST de 30+ endpoints, et une architecture de sécurité à 4 couches.
-À l'issue de ce sprint, le système est capable d'authentifier les trois types d'acteurs
+À l'issue de cette itération, le système est capable d'authentifier les trois types d'acteurs
 (Admin, Company, Device), d'activer les casques Meta Quest~3, de gérer le login des employés
 et d'enregistrer les sessions de formation.
 
-\section{Planification du sprint~1}
+\section{Planification de l'itération~1}
+
+Cette section définit les objectifs de la première itération ainsi que les tâches
+associées et leur charge estimée.
 
 \subsection{Objectifs}
 
-À l'issue de ce sprint, le système doit être capable de~:
+À l'issue de cette itération, le système doit être capable de~:
 \begin{itemize}
   \item Authentifier un admin, une entreprise et un casque avec des tokens JWT différenciés.
-  \item Activer un casque Meta Quest~3 via le système Meta User ID.
+  \item Activer un casque Meta Quest~3 via un code d'activation à 6 chiffres.
   \item Permettre le login d'un employé (accessCode XX-001 + PIN bcrypt).
   \item Enregistrer et retourner les sessions de formation avec critères d'évaluation.
   \item Calculer les statistiques de performance par formation et par entreprise.
 \end{itemize}
 
-\subsection{Tâches et estimations du sprint~1}
+\subsection{Tâches et estimations de l'itération~1}
 
 \begin{table}[H]
   \centering
-  \caption{Tâches et estimations --- Sprint~1}
-  \label{tab:backlog_s1}
   \begin{tabularx}{\textwidth}{llXcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
     \midrule
     US-01 & Authentification admin &
       Modèle Admin + routes auth + JWT admin & \must{} & 2 \\
@@ -62,21 +63,23 @@ et d'enregistrer les sessions de formation.
     US-03 & Gestion des formations &
       Modèle Training + CRUD + sceneName & \must{} & 1,5 \\
     US-04 & Activation des casques &
-      Modèle Device + activation (Meta User ID) + SHA-256 & \must{} & 3 \\
+      Modèle Device + activation par code à 6 chiffres + jeton haché SHA-256 & \must{} & 3 \\
     US-05 & Statistiques globales &
       Agrégations MongoDB pour statistiques & \should{} & 2 \\
     \midrule
-    \multicolumn{4}{r}{\textbf{Total}} & \textbf{10,5} \\
+    \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{10,5} \\
     \bottomrule
   \end{tabularx}
+  \caption{Tâches et estimations --- Itération~1}
+  \label{tab:backlog_s1}
 \end{table}
 
-\noindent Toutes les user stories de ce sprint ont été livrées.
+\noindent Toutes les user stories de cette itération ont été livrées.
 
-\section{Conception du sprint~1}
+\section{Conception de l'itération~1}
 
-Cette section détaille les choix de conception retenus pour le backend~: modélisation
-de la base de données et architecture de sécurité à quatre couches.
+Cette section présente les choix de conception de l'itération~: le système de gestion
+de base de données retenu, les modèles de données, puis l'architecture de sécurité.
 
 \subsection{Conception de la base de données}
 
@@ -98,8 +101,6 @@ architecturales du backend avec leurs justifications.
 
 \begin{table}[H]
   \centering
-  \caption{Décisions architecturales --- Backend}
-  \label{tab:archi_decisions_backend}
   \begin{tabularx}{\textwidth}{lllX}
     \toprule
     \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
@@ -121,9 +122,11 @@ architecturales du backend avec leurs justifications.
     Déploiement & Render  & Railway      & CD automatique depuis GitHub, free tier \\
     \bottomrule
   \end{tabularx}
+  \caption{Décisions architecturales --- Backend}
+  \label{tab:archi_decisions_backend}
 \end{table}
 
-\tynassit{} utilise \textbf{7 modèles MongoDB}~:
+\tynassit{} utilise \textbf{8 modèles MongoDB}~:
 
 \begin{itemize}
   \item \textbf{Admin}~: staff Tynass avec rôles \texttt{superadmin} / \texttt{staff}.
@@ -136,6 +139,9 @@ architecturales du backend avec leurs justifications.
   \item \textbf{Session}~: résultats de simulation avec \texttt{evaluationCriteria}
     (embedded), \texttt{score}, \texttt{passed}, \texttt{attemptNumber}.
   \item \textbf{Counter}~: compteur atomique pour l'auto-incrémentation des accessCodes.
+  \item \textbf{Quiz}~: questions à choix multiples liées à une formation, avec seuil
+    de réussite (\texttt{passingScore}) et bonne réponse (\texttt{correctIndex}) jamais
+    transmise au casque.
 \end{itemize}
 
 \begin{notebox}
@@ -145,14 +151,17 @@ architecturales du backend avec leurs justifications.
   Employee référencés dans Session) sont des références ObjectId.
 \end{notebox}
 
-\placeholder{Diagramme de classes --- 7 modèles MongoDB (à insérer)}
-
 \subsection{Architecture de sécurité à 4 couches}
 
 \tynassit{} implémente une architecture de sécurité organisée en 4 couches
 complémentaires, illustrée par la figure ci-dessous.
 
-\placeholder{Schéma architecture sécurité 4 couches (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../images/securite4couches.png}
+  \caption{Architecture de sécurité en profondeur à quatre couches}
+  \label{fig:securite}
+\end{figure}
 
 \subsubsection{Couche 1 --- Authentification JWT différenciée}
 
@@ -162,8 +171,6 @@ aux routes réservées aux admins, même en cas d'interception.
 
 \begin{table}[H]
   \centering
-  \caption{Tokens JWT par acteur}
-  \label{tab:jwt_tokens}
   \begin{tabular}{lll}
     \toprule
     \textbf{Acteur} & \textbf{Type} & \textbf{Durée} \\
@@ -173,6 +180,8 @@ aux routes réservées aux admins, même en cas d'interception.
     Device (casque Meta Quest~3) & device & 1 an \\
     \bottomrule
   \end{tabular}
+  \caption{Tokens JWT par acteur}
+  \label{tab:jwt_tokens}
 \end{table}
 
 Le token device a une durée d'un an car le casque est un device fixe appartenant à
@@ -261,7 +270,7 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
     \textbf{Pré-conditions} & Simulation terminée, données collectées dans AppSession. \\
     \textbf{Acteur}         & Système Unity (automatique). \\
     \textbf{Scénario}       &
-      1. SimulationManager calcule le score final. \newline
+      1. \texttt{OnboardingManager} calcule le score final. \newline
       2. AppSession contient~: trainingId, employeeId, startedAt, score, criteria[]. \newline
       3. Unity appelle \texttt{POST /api/sessions/submit} (auth\_token dans le header). \newline
       4. Backend calcule \texttt{durationSeconds} (côté serveur, horloge fiable). \newline
@@ -274,11 +283,28 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
 
 \subsection{Diagrammes de séquence}
 
-\placeholder{Séquence --- Activation casque Meta Quest~3 (à insérer)}
+La figure~\ref{fig:seq_activation} illustre le déroulement complet de l'activation
+d'un casque, depuis la demande initiale envoyée par l'application Unity jusqu'à la
+récupération du jeton sécurisé.
 
-\placeholder{Séquence --- Login employé (code + PIN) (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/seqActivation.png}
+  \caption{Diagramme de séquence --- activation d'un casque}
+  \label{fig:seq_activation}
+\end{figure}
 
-\section{Implémentation du sprint~1}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/seqLogin.png}
+  \caption{Diagramme de séquence --- login employé}
+  \label{fig:seq_login}
+\end{figure}
+
+\section{Implémentation de l'itération~1}
+
+Cette section détaille la mise en œuvre du backend~: la structure du projet selon le
+patron MVC, les principales routes de l'API REST, et les fonctionnalités clés développées.
 
 \subsection{Structure du projet --- Architecture MVC}
 
@@ -287,8 +313,8 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
 Le projet backend est organisé selon le pattern MVC~:
 
 \begin{itemize}
-  \item \texttt{models/}~: 7 schémas Mongoose (Company, Admin, Training, Session,
-    Employee, Device, Counter).
+  \item \texttt{models/}~: 8 schémas Mongoose (Company, Admin, Training, Session,
+    Employee, Device, Counter, Quiz).
   \item \texttt{controllers/}~: logique métier séparée par domaine (admin.auth,
     company.auth, admin.companies, admin.trainings, session, employee, device).
   \item \texttt{routes/}~: points d'entrée REST groupés par acteur.
@@ -302,8 +328,6 @@ Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'
 
 \begin{table}[H]
   \centering
-  \caption{Endpoints API --- extrait des routes principales}
-  \label{tab:endpoints}
   \begin{tabularx}{\textwidth}{llXl}
     \toprule
     \textbf{Méthode} & \textbf{Route} & \textbf{Description} & \textbf{Auth} \\
@@ -333,6 +357,8 @@ Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'
     GET  & \texttt{/api/sessions/stats} & Statistiques agrégées & Admin/Company \\
     \bottomrule
   \end{tabularx}
+  \caption{Endpoints API --- extrait des routes principales}
+  \label{tab:endpoints}
 \end{table}
 
 \subsection{Fonctionnalité clé --- Système d'activation du casque}
@@ -365,8 +391,6 @@ garantissant une incrémentation atomique sans doublons.
 
 \begin{table}[H]
   \centering
-  \caption{Difficultés rencontrées et solutions --- Sprint~1}
-  \label{tab:dificultes_s1}
   \begin{tabularx}{\textwidth}{lXX}
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
@@ -393,26 +417,28 @@ garantissant une incrémentation atomique sans doublons.
                     les hooks async gèrent automatiquement la promesse. \\
     \bottomrule
   \end{tabularx}
+  \caption{Difficultés rencontrées et solutions --- Itération~1}
+  \label{tab:dificultes_s1}
 \end{table}
 
-\section{Évaluation du sprint~1}
+\section{Évaluation de l'itération~1}
 
 \begin{table}[H]
   \centering
-  \caption{Métriques d'évaluation --- Sprint~1}
-  \label{tab:eval_s1}
-  \begin{tabular}{lll}
+  \begin{tabularx}{\textwidth}{Xl}
     \toprule
-    \textbf{Métrique} & \textbf{Valeur mesurée} & \textbf{Cible} \\
+    \textbf{Élément validé} & \textbf{Statut} \\
     \midrule
-    Latence \texttt{POST /api/company/auth/login}   & --- ms & $<$ 500~ms \\
-    Latence \texttt{POST /api/sessions/submit}      & --- ms & $<$ 500~ms \\
-    Latence \texttt{GET /api/sessions/stats}        & --- ms & $<$ 500~ms \\
-    Tests Postman passés                            & ---/--- & 100\% \\
-    Succès activation casque (tests)                & ---/--- & 100\% \\
-    Succès login employé (tests)                    & ---/--- & 100\% \\
+    Authentification différenciée des trois acteurs (Admin, Company, Device) & Fonctionnel \\
+    Activation d'un casque via code à 6 chiffres + jeton haché SHA-256 & Fonctionnel \\
+    Login employé (code d'accès + PIN) & Fonctionnel \\
+    Enregistrement et restitution des sessions de formation & Fonctionnel \\
+    Agrégation des statistiques par formation et par entreprise & Fonctionnel \\
+    Tests des endpoints via Postman & Validé \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
+  \caption{Validation fonctionnelle --- Itération~1}
+  \label{tab:eval_s1}
 \end{table}
 
 \placeholder{Capture Postman --- Réponse POST /api/company/devices/check (à insérer)}
@@ -421,8 +447,8 @@ garantissant une incrémentation atomique sans doublons.
 
 \section{Conclusion}
 
-Ce premier sprint a livré le backend complet de \tynassit{}, déployé sur Render
+Cette première itération a livré le backend complet de \tynassit{}, déployé sur Render
 (\texttt{tynassit-backend-pfe.onrender.com}). L'architecture de sécurité à 4 couches
 garantit l'isolation des acteurs et la protection des données sensibles. Le système
-d'activation des casques via Meta User ID constitue la fonctionnalité la plus originale
-du projet. Le chapitre suivant présente le développement des dashboards web Admin et Company.
+d'activation des casques, combinant identifiant matériel Meta User ID et code
+d'activation à usage unique, constitue la fonctionnalité la plus originale du projet.

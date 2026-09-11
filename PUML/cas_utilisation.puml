@@ -1,0 +1,83 @@
+@startuml Cas_utilisation_global
+' Diagramme de cas d'utilisation global --- Immersio / Tynass IT
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #2B4B6F
+skinparam actorStyle awesome
+skinparam actor {
+  BackgroundColor #183D5D
+  FontColor #000000
+  BorderColor #0E2740
+}
+skinparam usecase {
+  BackgroundColor #E8EEF4
+  BorderColor #183D5D
+  FontColor #000000
+}
+left to right direction
+
+actor "Superadmin" as SA
+actor "Staff Admin" as ST
+actor "Company" as CO
+actor "Employé" as EM
+
+' Superadmin hérite de Staff Admin
+SA -|> ST
+
+rectangle "Plateforme Immersio" {
+
+  ' --- Superadmin (spécifique) ---
+  usecase "Gérer les comptes\nStaff Admin" as UC_admins
+  usecase "Supprimer entreprises\net formations" as UC_delete
+
+  ' --- Staff Admin ---
+  usecase "S'authentifier" as UC_auth
+  usecase "Gérer les\nentreprises" as UC_comp
+  usecase "Gérer le catalogue\nde formations" as UC_train
+  usecase "Activer / révoquer\nun casque" as UC_device
+  usecase "Assigner des\nformations" as UC_assign
+  usecase "Consulter\nstatistiques & sessions" as UC_stats
+
+  ' --- Company ---
+  usecase "Gérer ses\nemployés" as UC_emp
+  usecase "Créer / gérer\nles quiz" as UC_quiz
+  usecase "Définir des\nobjectifs (milestones)" as UC_mile
+  usecase "Consulter les\nsessions employés" as UC_sess
+
+  ' --- Employé ---
+  usecase "Se connecter\n(accessCode + PIN)" as UC_login
+  usecase "Suivre le\ntutoriel VR" as UC_tuto
+  usecase "Lancer une\nsimulation VR" as UC_sim
+  usecase "Passer le quiz" as UC_passquiz
+  usecase "Consulter ses\nrésultats" as UC_res
+}
+
+' --- Liens Superadmin ---
+SA --> UC_admins
+SA --> UC_delete
+
+' --- Liens Staff Admin ---
+ST --> UC_auth
+ST --> UC_comp
+ST --> UC_train
+ST --> UC_device
+ST --> UC_assign
+ST --> UC_stats
+
+' --- Liens Company ---
+CO --> UC_auth
+CO --> UC_emp
+CO --> UC_quiz
+CO --> UC_mile
+CO --> UC_sess
+
+' --- Liens Employé ---
+EM --> UC_login
+EM --> UC_tuto
+EM --> UC_sim
+EM --> UC_passquiz
+EM --> UC_res
+
+' Le quiz fait partie de la simulation
+UC_sim ..> UC_passquiz : <<include>>
+@enduml

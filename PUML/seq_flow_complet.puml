@@ -1,0 +1,41 @@
+@startuml Sequence_flow_complet
+' Flow complet --- tutoriel -> authentification -> simulation
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #2B4B6F
+skinparam ParticipantBackgroundColor #183D5D
+skinparam ParticipantFontColor #FFFFFF
+skinparam ActorBackgroundColor #183D5D
+skinparam ActorFontColor #FFFFFF
+skinparam SequenceLifeLineBorderColor #2B4B6F
+
+actor "Employé" as Emp
+participant "Scène tutoriel\n(trainingscene)" as Trail
+participant "Scène auth\n(Companys)" as Comp
+participant "Scène simulation\n(indigo_onboarding)" as Indigo
+participant "Backend REST" as API
+
+Emp -> Trail : démarrage de l'application
+activate Trail
+Trail -> Trail : tutoriel des contrôleurs (3 leçons)
+Trail -> Comp : transition (fin ou "passer")
+deactivate Trail
+
+activate Comp
+Comp -> API : activation du casque + login employé
+API --> Comp : device_token + données employé
+Comp -> API : charger les formations assignées
+API --> Comp : liste des formations
+Emp -> Comp : sélectionner la formation Indigo
+Comp -> Indigo : charger la scène de simulation
+deactivate Comp
+
+activate Indigo
+Indigo -> Indigo : exploration + quiz
+Indigo -> API : SubmitSession (résultats)
+API --> Indigo : 201 Created
+Indigo -> Comp : retour à l'authentification
+deactivate Indigo
+
+note over Trail, API : Chaque changement de scène passe par\nLoadingManager (écran de chargement).
+@enduml

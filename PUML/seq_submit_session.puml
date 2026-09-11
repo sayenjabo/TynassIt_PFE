@@ -1,0 +1,43 @@
+@startuml Sequence_submit_session
+' Diagramme de séquence --- Soumission d'une session de formation
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #183D5D
+skinparam ParticipantFontColor #FFFFFF
+skinparam ActorBackgroundColor #183D5D
+skinparam ActorFontColor #FFFFFF
+skinparam SequenceLifeLineBorderColor #2B4B6F
+skinparam ArrowColor #2B4B6F
+skinparam NoteBackgroundColor #FDF6D8
+skinparam NoteBorderColor #C9A227
+
+participant "QuizManager\n(Unity)" as Quiz
+participant "TynassApiClient\n(Unity)" as Client
+participant "Backend REST" as API
+database "MongoDB\nAtlas" as DB
+actor "Entreprise\n(Dashboard)" as Company
+
+== Fin du quiz ==
+Quiz -> Quiz : quiz terminé
+Quiz -> API : POST /company/quiz/submit\n{ quizId, answers[] } + device_token
+API -> DB : lire les bonnes réponses (correctIndex)
+API -> API : calculer le score + passed\n(seuil = passingScore)
+API --> Quiz : { score, passed, passingScore }
+Quiz -> Quiz : AppSession.QuizScore / QuizPassed
+
+== Soumission de la session ==
+Quiz -> Client : construire SessionSubmitPayload
+Client -> API : POST /sessions/submit\n{ trainingId, employeeId, score, passed... } + device_token
+API -> API : calculer durationSeconds\n(horloge serveur, fiable)
+API -> API : incrémenter attemptNumber\n(pre-save hook)
+API -> DB : enregistrer la Session
+API --> Client : 201 Created
+Client --> Quiz : succès -> GoQuizResult()
+
+== Consultation (asynchrone) ==
+Company -> API : GET /sessions (dashboard)
+API -> DB : lire les sessions de l'entreprise
+API --> Company : sessions + scores visibles
+
+note over Client, DB : Le score et "passed" viennent du backend,\njamais calculés côté casque (anti-triche).
+@enduml
