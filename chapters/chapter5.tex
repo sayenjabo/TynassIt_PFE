@@ -36,9 +36,11 @@ leur charge estimée.
 
 \begin{table}[H]
   \centering
-  \begin{tabularx}{\textwidth}{llXcc}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée  (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
     \midrule
     US-14 & Tutoriel des contrôleurs &
       Scène tutoriel (\texttt{trainingscene}) --- 3 leçons & \must{} & 4 \\
@@ -90,8 +92,6 @@ architecturales de l'application et l'organisation de ses scripts principaux.
 
 \begin{table}[H]
   \centering
-  \caption{Décisions architecturales --- Unity}
-  \label{tab:archi_unity}
   \begin{tabularx}{\textwidth}{lllX}
     \toprule
     \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
@@ -106,6 +106,8 @@ architecturales de l'application et l'organisation de ses scripts principaux.
                                                 sans instanciation, pas de cycle de vie \\
     \bottomrule
   \end{tabularx}
+  \caption{Décisions architecturales --- Unity}
+  \label{tab:archi_unity}
 \end{table}
 
 \begin{archbox}
@@ -118,6 +120,11 @@ architecturales de l'application et l'organisation de ses scripts principaux.
 \end{archbox}
 
 \subsection{Architecture Unity --- Scripts principaux}
+
+L'application Unity s'organise autour de huit scripts principaux, regroupés par
+responsabilité~: communication avec le backend, gestion de l'état global, navigation
+entre les interfaces, et activation du casque. La figure~\ref{fig:composants_unity}
+présente ces composants et leurs dépendances.
 
 \begin{figure}[H]
   \centering
@@ -192,6 +199,11 @@ Les 8 scripts principaux de l'application Unity~:
 
 \subsection{Diagramme de séquence}
 
+La figure~\ref{fig:flow_complet} retrace le flux complet vécu par un employé, depuis le
+tutoriel jusqu'au lancement d'une simulation, en passant par l'authentification et la
+sélection d'une formation. Elle montre l'enchaînement des trois scènes et leurs échanges
+avec le backend.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{../images/flowComplet.png}
@@ -211,40 +223,39 @@ Sa conception résout un problème fondamental de Unity~: \texttt{JsonUtility} n
 sérialise que les classes marquées \texttt{[Serializable]}. Tout objet anonyme
 produit un JSON vide (\texttt{\{\}}).
 
-\begin{lstlisting}[language={[Sharp]C}, caption={TynassApiClient -- methode typee}]
+ \begin{lstlisting}[language={[Sharp]C}, caption={TynassApiClient -- methode typee async}]
 [Serializable]
-public class LoginPayload {
+public class EmployeeLoginPayload {
     public string accessCode;
     public string pin;
 }
 
-public IEnumerator LoginEmployee(string code, string pin,
-    Action<EmployeeResponse> onSuccess,
-    Action<string> onError)
+public async Task<EmployeeLoginResponse> LoginEmployee(
+    string accessCode, string pin, string deviceToken)
 {
-    var payload = new LoginPayload { accessCode = code, pin = pin };
-    string body = JsonUtility.ToJson(payload);
-    // ... UnityWebRequest POST avec device_token dans header
+    var payload = new EmployeeLoginPayload { accessCode = accessCode, pin = pin };
+    // POST /company/employees/login avec le device_token dans l'en-tete
+    return await PostRequest<EmployeeLoginResponse>(
+        "/company/employees/login", payload, deviceToken);
 }
 \end{lstlisting}
 
 \subsection{DeviceActivationManager --- Meta User ID}
 
-\begin{lstlisting}[language={[Sharp]C}, caption={Meta User ID -- recuperation}]
-private void GetMetaUserId() {
-    Oculus.Platform.Users.GetLoggedInUser().OnComplete(msg => {
-        if (!msg.IsError) {
-            string metaUserId = msg.Data.ID.ToString();
-            StartCoroutine(ApiClient.CheckDevice(metaUserId,
-                onActivated: LoadEmployeePicker,
-                onNotActivated: ShowActivationPanel));
-        } else {
-            // Fallback editeur : deviceUniqueIdentifier
-            string fallback = SystemInfo.deviceUniqueIdentifier;
-            StartCoroutine(ApiClient.CheckDevice(fallback, ...));
-        }
-    });
-}
+\begin{lstlisting}[language={[Sharp]C}, caption={Meta User ID -- recuperation et verification}]
+Oculus.Platform.Users.GetLoggedInUser().OnComplete(async msg => {
+    string metaUserId;
+    if (!msg.IsError)
+        metaUserId = msg.Data.ID.ToString();
+    else
+        metaUserId = SystemInfo.deviceUniqueIdentifier; // fallback editeur
+
+    var response = await TynassApiClient.Instance.CheckDevice(metaUserId);
+    if (response != null && response.status == "activated")
+        ShowLoginPanel();
+    else
+        ShowActivationPanel();
+});
 \end{lstlisting}
 
 \subsection{EmployeeSignInPanel --- Login en 2 étapes}
@@ -259,9 +270,19 @@ private void GetMetaUserId() {
     masqué par des étoiles. Envoyé au backend pour vérification bcrypt.
 \end{enumerate}
 
-\placeholder{Capture EmployeeSignInPanel Step 1 --- accessCode (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../images/vr_signin_code.png}
+  \caption{Connexion employé --- saisie du code d'accès}
+  \label{fig:vr_signin_code}
+\end{figure}
 
-\placeholder{Capture EmployeeSignInPanel Step 2 --- PIN numpad (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../images/vr_signin_pin.png}
+  \caption{Connexion employé --- saisie du PIN}
+  \label{fig:vr_signin_pin}
+\end{figure}
 
 \subsection{ModulesPanel --- Grille des formations}
 
@@ -269,7 +290,12 @@ Les cartes de formation sont instanciées dynamiquement depuis un prefab dans un
 \textbf{Grid Layout Group}, qui calcule automatiquement la position de chaque enfant
 selon \texttt{Cell Size} et \texttt{Spacing}.
 
-\placeholder{Capture ModulesPanel avec 2 formations (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/vr_modules.png}
+  \caption{Liste des formations assignées (ModulesPanel)}
+  \label{fig:vr_modules}
+\end{figure}
 
 \subsection{SettingsPanel --- Paramètres persistants}
 
@@ -278,7 +304,12 @@ Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
 \texttt{spatial}, \texttt{ui\_lang}, \texttt{narr\_lang}, \texttt{hand},
 \texttt{dwell\_time}, \texttt{glow}, \texttt{haptic}.
 
-\placeholder{Capture SettingsPanel (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/vr_settings.png}
+  \caption{Panneau de configuration des paramètres}
+  \label{fig:vr_settings}
+\end{figure}
 
 \section{Difficultés et solutions}
 
@@ -333,9 +364,22 @@ Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
   \label{tab:eval_s3}
 \end{table}
 
-\placeholder{Capture scène tutoriel --- Leçon 2 (grip) (à insérer)}
+La figure~\ref{fig:vr_tuto} illustre la deuxième leçon du tutoriel, où
+l'employé apprend à saisir un objet.
 
-\placeholder{Capture flow complet sur Meta Quest~3 (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/vr_tutoriel_grip.png}
+  \caption{Scène tutoriel --- leçon de manipulation (grip)}
+  \label{fig:vr_tuto}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/vr_flow_casque.png}
+  \caption{Exécution du flux complet sur le casque Meta Quest~3}
+  \label{fig:vr_flow_casque}
+\end{figure}
 
 \section{Conclusion}
 

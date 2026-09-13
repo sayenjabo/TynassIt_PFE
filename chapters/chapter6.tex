@@ -58,9 +58,11 @@ leur charge estimée.
 
 \begin{table}[H]
   \centering
-  \begin{tabularx}{\textwidth}{lp{2.8cm}Xcc}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
     \midrule
     US-19 & Exploration des locaux &
       Environnement 3D Indigo (Blender + optimisation Quest~3) & \must{} & 8 \\
@@ -94,9 +96,27 @@ correspondance des données transmises au backend.
 
 \subsection{Modélisation 3D --- Blender}
 
-L'environnement 3D d'Indigo Company a été modélisé dans \textbf{Blender} sur la base
-des plans réels des locaux fournis par Indigo Company, puis exporté en FBX et importé
-dans Unity~6.
+ L'accès aux locaux d'Indigo Company étant limité, une série de photographies panoramiques à 360° a d'abord été réalisée sur site afin
+de disposer d'une référence visuelle fidèle de l'environnement réel.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.32\textwidth]{../images/photo360_indigo1.jpg}\hfill
+  \includegraphics[width=0.32\textwidth]{../images/photo360_indigo2.jpg}\hfill
+  \includegraphics[width=0.32\textwidth]{../images/photo360_indigo3.jpg}
+  \caption{Photographies panoramiques à 360° des locaux d'Indigo, utilisées comme référence pour la modélisation}
+  \label{fig:photo360}
+\end{figure}
+
+Sur cette base, l'environnement 3D a été \textbf{modélisé dans Blender}, en s'appuyant sur la
+bibliothèque d'assets \textbf{BlenderKit} pour des matériaux réalistes en rendu
+physiquement réaliste (\textit{PBR}), tout en \textbf{simplifiant volontairement les
+détails non essentiels}~: cette
+épuration limite la charge visuelle et évite de disperser l'attention de l'employé
+pendant la formation. Le modèle a ensuite été exporté au format \textbf{glTF} et intégré
+dans Unity~6 à l'aide du package \textbf{glTFast}. Le format glTF, standard ouvert conçu
+pour le temps réel, a été retenu pour sa légèreté et sa gestion native des matériaux PBR,
+deux atouts adaptés au déploiement sur Meta~Quest~3.
 
 Les optimisations appliquées pour Meta Quest~3~:
 
@@ -112,9 +132,27 @@ Les optimisations appliquées pour Meta Quest~3~:
     depuis la position courante.
 \end{itemize}
 
-\placeholder{Environnement Blender --- vue isométrique (à insérer)}
+La figure~\ref{fig:blender} présente l'environnement d'Indigo modélisé dans
+Blender, vue d'ensemble.
 
-\placeholder{Environnement importé dans Unity~6 (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.32\textwidth]{../images/blender_indigo1.png}\hfill
+  \includegraphics[width=0.32\textwidth]{../images/blender_indigo2.png}\hfill
+  \includegraphics[width=0.32\textwidth]{../images/blender_indigo3.png}
+  \caption{Vues de l'environnement d'Indigo Company modélisé dans Blender}
+  \label{fig:blender}
+\end{figure}
+
+Une fois exporté, l'environnement est intégré dans Unity, comme le montre la
+figure~\ref{fig:unity_import}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/unity_import.png}
+  \caption{Environnement importé et intégré dans Unity}
+  \label{fig:unity_import}
+\end{figure}
 
 \subsection{Structure de la simulation}
 
@@ -127,6 +165,20 @@ présentée par un panneau d'information et une narration audio.
     compréhension des informations présentées lors de l'exploration. Le nombre
     et le contenu des questions sont définis par l'entreprise depuis son tableau de bord.
 \end{enumerate}
+
+Dans chaque zone, un panneau d'information présentant le département et son rôle
+s'affiche lorsque l'employé appuie sur le bouton dédié du contrôleur, comme le montre
+la figure~\ref{fig:panneau}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/vr_panneau_departement.png}
+  \caption{Panneau d'information d'un département affiché en réalité virtuelle}
+  \label{fig:panneau}
+\end{figure}
+
+La figure~\ref{fig:activite_simulation} présente le déroulement complet de la simulation,
+de l'exploration des zones jusqu'à la soumission des résultats.
 
 \begin{figure}[H]
   \centering
@@ -209,6 +261,9 @@ où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fi
   \end{tabular}
 \end{ucbox}
 
+La figure~\ref{fig:seq_submit} détaille les échanges entre le casque, le backend et la
+base de données lors de la soumission d'une session.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{../images/seqSubmit.png}
@@ -269,7 +324,15 @@ Le panel QuizResult affiche~:
   \item Un bouton \og Retour aux formations \fg{} et un bouton \og Se déconnecter \fg{}.
 \end{itemize}
 
-\placeholder{Capture Panel QuizResult --- score et critères (à insérer)}
+La figure~\ref{fig:quizresult} montre le panneau de résultats affiché à la
+fin de la simulation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../images/vr_quizResult.png}
+  \caption{Panneau de résultats (QuizResult)}
+  \label{fig:quizresult}
+\end{figure}
 
 \section{Difficultés et solutions}
 
@@ -287,10 +350,15 @@ Le panel QuizResult affiche~:
                              objets distants. \\
     \midrule
     Artefacts lightmap & Les baked lightmaps calculées dans Blender
-                         n'étaient pas transférées correctement en
-                         FBX vers Unity. &
+                         n'étaient pas conservées à l'import
+                         dans Unity. &
                          Recalcul des lightmaps directement dans Unity
                          avec la Progressive Lightmapper. \\
+    \midrule
+    NavMesh sur GLB & Le bake du NavMesh échouait sur le mesh
+                      importé (Render Mesh non exploitable). &
+                      Utilisation de \textit{Physics Colliders}
+                      comme source de bake au lieu du Render Mesh. \\
     \midrule
     Timer quiz & La synchronisation entre QuizElapsedSecs et
                  les transitions de questions causait des décalages. &
@@ -322,19 +390,52 @@ Le panel QuizResult affiche~:
   \label{tab:eval_s4}
 \end{table}
 
-\placeholder{Capture environnement 3D Indigo dans Unity (à insérer)}
+La figure~\ref{fig:unity_indigo} présente plusieurs vues de l'environnement 3D
+d'Indigo Company modélisé dans Unity, illustrant les différents espaces reconstitués.
 
-\placeholder{Capture quiz en VR --- question à choix multiples (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../images/unity_indigo1.png}\hfill
+  \includegraphics[width=0.48\textwidth]{../images/unity_indigo2.png}
 
-\placeholder{Capture session visible dans le dashboard admin (à insérer)}
+  \vspace{2mm}
+  \includegraphics[width=0.48\textwidth]{../images/unity_indigo3.png}\hfill
+  \includegraphics[width=0.48\textwidth]{../images/unity_indigo4.png}
+
+  \vspace{2mm}
+  \includegraphics[width=0.48\textwidth]{../images/unity_indigo5.png}\hfill
+  \includegraphics[width=0.48\textwidth]{../images/unity_indigo6.png}
+  \caption{Vues de l'environnement 3D d'Indigo Company dans Unity}
+  \label{fig:unity_indigo}
+\end{figure}
+
+La figure~\ref{fig:vr_quiz} présente une question du quiz telle qu'elle
+apparaît en réalité virtuelle.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/vr_quiz_question.png}
+  \caption{Question du quiz en réalité virtuelle}
+  \label{fig:vr_quiz}
+\end{figure}
+
+Enfin, la figure~\ref{fig:session_admin} confirme que la session réalisée en
+VR remonte automatiquement dans le dashboard d'administration, démontrant le
+fonctionnement de bout en bout de la chaîne casque--backend--dashboard.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_sessionIndigo.png}
+  \caption{Session Indigo remontée dans le dashboard d'administration}
+  \label{fig:session_admin}
+\end{figure}
 
 \section{Conclusion}
 
 Cette quatrième itération constitue le cœur du module de formation Indigo~:
-modélisation complète de l'environnement 3D, narrations intégrées à la scène, système
-de quiz fonctionnel et soumission automatique des résultats via \texttt{SubmitSession}.
-Restent à finaliser la validation des tests sur casque et la mesure des métriques de
-performance. Une fois ces vérifications effectuées, la simulation d'intégration d'Indigo
-Company couvrira l'intégralité du parcours~: de l'exploration immersive des locaux
-jusqu'à la remontée automatique des résultats dans le dashboard d'administration. Le
+modélisation complète de l'environnement 3D, narrations intégrées à la scène, système de quiz fonctionnel et soumission automatique des résultats via \texttt{SubmitSession}.
+La simulation d'intégration d'Indigo Company couvre ainsi l'intégralité du parcours~:
+de l'exploration immersive des locaux jusqu'à la remontée automatique des résultats dans
+le dashboard d'administration. La mesure fine des métriques de performance (FPS, temps de
+chargement) constitue une perspective d'amélioration. Le
 chapitre suivant présente la conclusion générale et les perspectives du projet.

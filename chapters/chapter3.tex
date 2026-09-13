@@ -52,9 +52,11 @@ associées et leur charge estimée.
 
 \begin{table}[H]
   \centering
-  \begin{tabularx}{\textwidth}{llXcc}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabularx}{\textwidth}{cp{3.5cm}Xcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{\footnotesize Charge estimée (j/h)} \\
     \midrule
     US-01 & Authentification admin &
       Modèle Admin + routes auth + JWT admin & \must{} & 2 \\
@@ -154,7 +156,9 @@ architecturales du backend avec leurs justifications.
 \subsection{Architecture de sécurité à 4 couches}
 
 \tynassit{} implémente une architecture de sécurité organisée en 4 couches
-complémentaires, illustrée par la figure ci-dessous.
+complémentaires, illustrée par la figure~\ref{fig:securite}. Chaque couche filtre la
+requête à un niveau différent, de l'authentification du jeton jusqu'à la sécurité du
+casque physique.
 
 \begin{figure}[H]
   \centering
@@ -294,6 +298,10 @@ récupération du jeton sécurisé.
   \label{fig:seq_activation}
 \end{figure}
 
+La figure~\ref{fig:seq_login} détaille la séquence de connexion d'un employé sur le
+casque~: la saisie du code d'accès et du PIN, leur validation côté serveur, puis le
+retour des données de session.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{../images/seqLogin.png}
@@ -308,7 +316,52 @@ patron MVC, les principales routes de l'API REST, et les fonctionnalités clés 
 
 \subsection{Structure du projet --- Architecture MVC}
 
-\placeholder{Arborescence des dossiers (à insérer)}
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.75\textwidth}
+\ttfamily\small
+\begin{verbatim}
+backend/
+|-- index.js               point d'entree + montage des routes
+|-- models/                schemas Mongoose
+|   |-- admin.js
+|   |-- company.js
+|   |-- training.js
+|   |-- employee.js
+|   |-- device.js
+|   |-- session.js
+|   |-- quiz.js
+|   +-- counter.js
+|-- controllers/           logique metier par domaine
+|   |-- admin.auth.controller.js
+|   |-- company.auth.controller.js
+|   |-- admin.companies.controller.js
+|   |-- admin.trainings.controller.js
+|   |-- device.controller.js
+|   |-- employee.controller.js
+|   |-- session.controller.js
+|   +-- quiz.controller.js
+|-- routes/                points d'entree REST par acteur
+|   |-- admin.auth.routes.js
+|   |-- company.auth.routes.js
+|   |-- admin.companies.routes.js
+|   |-- admin.trainings.routes.js
+|   |-- admin.devices.routes.js
+|   |-- device.routes.js
+|   |-- device.sessions.routes.js
+|   |-- employee.routes.js
+|   |-- session.routes.js
+|   |-- quiz.routes.js
+|   +-- company.trainings.routes.js
+|-- middleware/
+|   +-- auth.middleware.js     protect, adminOnly, superAdminOnly,
+|                              companyOnly, deviceOnly
++-- .env                   variables d'environnement
+\end{verbatim}
+\end{minipage}
+\caption{Arborescence du projet backend (architecture MVC)}
+\label{fig:backend_arbo}
+\end{figure}
 
 Le projet backend est organisé selon le pattern MVC~:
 
@@ -316,7 +369,7 @@ Le projet backend est organisé selon le pattern MVC~:
   \item \texttt{models/}~: 8 schémas Mongoose (Company, Admin, Training, Session,
     Employee, Device, Counter, Quiz).
   \item \texttt{controllers/}~: logique métier séparée par domaine (admin.auth,
-    company.auth, admin.companies, admin.trainings, session, employee, device).
+    company.auth, admin.companies, admin.trainings, session, employee, device, quiz).
   \item \texttt{routes/}~: points d'entrée REST groupés par acteur.
   \item \texttt{middleware/}~: \texttt{auth.middleware.js} avec les 5 guards.
   \item \texttt{utils/}~: \texttt{sendEmail.js} (Nodemailer).
@@ -328,12 +381,13 @@ Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'
 
 \begin{table}[H]
   \centering
-  \begin{tabularx}{\textwidth}{llXl}
+  \small
+  \setlength{\tabcolsep}{1.5pt}
+  \begin{tabularx}{\textwidth}{l>{\footnotesize}p{7.5cm}Xc}
     \toprule
     \textbf{Méthode} & \textbf{Route} & \textbf{Description} & \textbf{Auth} \\
     \midrule
     \multicolumn{4}{l}{\textit{Authentification Admin}} \\
-    POST & \texttt{/api/admin/auth/setup} & Créer le 1er superadmin & Public \\
     POST & \texttt{/api/admin/auth/login} & Login admin & Public \\
     GET  & \texttt{/api/admin/auth/me} & Profil admin courant & Admin \\
     \midrule
@@ -441,9 +495,25 @@ garantissant une incrémentation atomique sans doublons.
   \label{tab:eval_s1}
 \end{table}
 
-\placeholder{Capture Postman --- Réponse POST /api/company/devices/check (à insérer)}
+La figure~\ref{fig:postman_check} montre un appel à l'endpoint de vérification
+du casque testé sous Postman, avec la réponse retournée par le backend.
 
-\placeholder{Capture MongoDB Compass --- Collections créées (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../images/postman_deviceCheck.png}
+  \caption{Test de l'endpoint d'activation sous Postman}
+  \label{fig:postman_check}
+\end{figure}
+
+La figure~\ref{fig:compass} présente les collections de la base de données
+telles qu'elles apparaissent dans MongoDB Compass.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/compass_collections.png}
+  \caption{Collections de la base de données dans MongoDB Compass}
+  \label{fig:compass}
+\end{figure}
 
 \section{Conclusion}
 

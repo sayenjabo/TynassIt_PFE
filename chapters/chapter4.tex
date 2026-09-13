@@ -31,7 +31,9 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
 
 \begin{table}[H]
   \centering
-  \begin{tabularx}{\textwidth}{llXcc}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
     \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
     \midrule
@@ -107,11 +109,13 @@ ont été préférés pour les raisons suivantes~:
     routes \texttt{/api/company/*}, jamais aux routes admin.
   \item \textbf{Déploiements indépendants}~: une mise à jour du dashboard Admin
     n'affecte pas le dashboard Company.
-  \item \textbf{URLs distinctes}~: \texttt{admin-dashbord-mypfe.vercel.app} et
-    \texttt{company-dashbord-mypfe.vercel.app}.
 \end{itemize}
 
 \subsection{Système d'authentification}
+
+L'authentification aux dashboards repose sur un jeton JWT. La figure~\ref{fig:seq_login_admin}
+présente la séquence de connexion d'un administrateur, depuis la saisie de ses identifiants
+jusqu'à la validation du jeton et le chargement de son profil.
 
 \begin{figure}[H]
   \centering
@@ -176,7 +180,12 @@ Interface d'authentification avec animation Framer Motion (fade-in + scale de la
 carte). Le formulaire appelle \texttt{POST /api/admin/auth/login} et stocke le JWT
 dans \texttt{localStorage}.
 
-\placeholder{Capture LoginPage admin (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/dashAdmin_login.png}
+  \caption{Dashboard Admin --- page de connexion}
+  \label{fig:dash_admin_login}
+\end{figure}
 
 \subsubsection{DashboardPage}
 
@@ -184,7 +193,12 @@ Page d'accueil affichant 4 KPIs calculés depuis le backend~: Total Companies, T
 Trainings, Sessions Played, Global Pass Rate. Affiche également les 5 entreprises
 les plus actives et les 5 formations les plus jouées.
 
-\placeholder{Capture DashboardPage avec KPIs (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_kpis.png}
+  \caption{Dashboard Admin --- indicateurs clés (KPIs)}
+  \label{fig:dash_admin_kpis}
+\end{figure}
 
 \subsubsection{CompaniesPage}
 
@@ -192,7 +206,12 @@ Gestion complète des entreprises clientes~: création, modification, suppressio
 (superadmin uniquement), activation/désactivation, et assignation des formations
 via un dialog interactif.
 
-\placeholder{Capture CompaniesPage (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_companies.png}
+  \caption{Dashboard Admin --- gestion des entreprises}
+  \label{fig:dash_admin_companies}
+\end{figure}
 
 \subsubsection{TrainingsPage}
 
@@ -200,14 +219,24 @@ Gestion du catalogue de formations VR. Le champ \texttt{sceneName} est crucial~:
 correspond exactement au nom de la scène Unity à charger via
 \texttt{SceneManager.LoadScene(training.sceneName)}.
 
-\placeholder{Capture TrainingsPage avec champ sceneName (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_trainings.png}
+  \caption{Dashboard Admin --- catalogue de formations et champ \texttt{sceneName}}
+  \label{fig:dash_admin_trainings}
+\end{figure}
 
 \subsubsection{DevicesPage}
 
 Activation et révocation des casques Meta Quest~3. L'admin saisit le code 6 chiffres
 affiché sur le casque, sélectionne l'entreprise et confirme l'activation.
 
-\placeholder{Capture DevicesPage --- activation en cours (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_devices.png}
+  \caption{Dashboard Admin --- activation d'un casque}
+  \label{fig:dash_admin_devices}
+\end{figure}
 
 \subsubsection{SessionsPage}
 
@@ -215,14 +244,24 @@ Historique de toutes les sessions avec filtres multi-critères~: \texttt{company
 \texttt{trainingFilter}, \texttt{dateFrom}, \texttt{dateTo}. Le filtrage est effectué
 côté client (JavaScript) sur le tableau complet retourné par l'API.
 
-\placeholder{Capture SessionsPage avec filtres (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_sessions.png}
+  \caption{Dashboard Admin --- historique des sessions et filtres}
+  \label{fig:dash_admin_sessions}
+\end{figure}
 
 \subsubsection{StatisticsPage}
 
 Visualisation des statistiques agrégées par formation et par entreprise, calculées
 via les pipelines d'agrégation MongoDB.
 
-\placeholder{Capture StatisticsPage (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashAdmin_stats.png}
+  \caption{Dashboard Admin --- statistiques agrégées}
+  \label{fig:dash_admin_stats}
+\end{figure}
 
 \subsection{Dashboard Company --- Pages implémentées}
 
@@ -235,14 +274,24 @@ Page centrale du dashboard Company~: CRUD complet des employés, affichage de
 l'accessCode (lecture seule après création), saisie du PIN lors de la création, et
 consultation des milestones de chaque employé.
 
-\placeholder{Capture EmployeesPage (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashCompany_employees.png}
+  \caption{Dashboard Company --- gestion des employés}
+  \label{fig:dash_company_employees}
+\end{figure}
 
 \subsubsection{SessionsPage Company}
 
 Historique des sessions avec pagination frontend (PAGE\_SIZE = 20 sessions par page),
 filtrage par employé ou par formation.
 
-\placeholder{Capture SessionsPage company (à insérer)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashCompany_sessions.png}
+  \caption{Dashboard Company --- historique des sessions}
+  \label{fig:dash_company_sessions}
+\end{figure}
 
 \section{Difficultés et solutions}
 
@@ -303,7 +352,15 @@ filtrage par employé ou par formation.
   \label{tab:eval_s2}
 \end{table}
 
-\placeholder{Captures des deux dashboards déployés sur Vercel (à insérer)}
+Les deux dashboards sont déployés en production sur Vercel, comme le montre
+la figure~\ref{fig:dashboards_vercel}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashboards_vercel.png}
+  \caption{Les deux dashboards déployés en production sur Vercel}
+  \label{fig:dashboards_vercel}
+\end{figure}
 
 \section{Conclusion}
 

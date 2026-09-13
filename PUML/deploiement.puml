@@ -38,12 +38,12 @@ node "Service Email\n(Nodemailer / SMTP)" as Mail
 node "UptimeRobot\n(monitoring)" as Uptime
 
 Admin   --> API : HTTPS (REST)
-Company --> API : HTTPS (REST)
+Company -> API : HTTPS (REST)
 Quest   --> API : HTTPS (REST + device_token)
 API     --> DB  : Mongoose (TLS)
 API     --> Mail : réinitialisation\ndu mot de passe
 Uptime  ..> API : ping de disponibilité
 
-note right of Render : Déploiement continu\ndepuis GitHub
+note top of Render : Déploiement continu\ndepuis GitHub
 note bottom of Mail : Mailtrap en développement,\nSMTP réel en production
 @enduml
