@@ -17,11 +17,13 @@ participant "Backend REST" as API
 database "MongoDB\nAtlas" as DB
 
 Emp -> Unity : saisir accessCode (format XX-001)
-Unity -> Unity : valider le format en local\n(Regex ^[A-Z]{2}-\\d{3}$)
+Unity -> Unity : vérifier le format\ndu code d'accès
 Emp -> Unity : saisir le PIN (4 chiffres)
 
-Unity -> API : POST /company/employees/login\n{ accessCode, pin } + device_token
-API -> DB : rechercher Employee(accessCode)
+Unity -> API : POST /api/company/employees/login\n{ accessCode, pin } + device_token
+API -> API : identifier l'entreprise\nassociée au casque
+
+API -> DB : rechercher l'employé\npar entreprise et code d'accès
 alt employé trouvé et actif
   API -> API : bcrypt.compare(pin, employee.pin)
   alt PIN correct
@@ -36,5 +38,4 @@ else employé introuvable / inactif
   API --> Unity : 404 / 403 -- accès refusé
 end
 
-note over Unity, DB : Le PIN n'est jamais stocké en clair :\ncomparaison bcrypt côté serveur uniquement.
 @enduml

@@ -16,17 +16,22 @@ skinparam activity {
 
 title Processus de développement itératif et incrémental
 
-partition "Cycle d'une itération" {
-  start
+start
+
+repeat
+
   :Analyse & conception;
+
   :Développement de l'incrément;
+
   :Test & correction\n(casque / navigateur);
+
   :Livraison de l'incrément;
-  if (Itération suivante ?) then (oui)
-    :Nouvelle itération;
-    detach
-  else (non)
-    stop
-  endif
-}
+
+repeat while (Itération suivante ?) is (oui)
+
+-> non;
+
+stop
+
 @enduml

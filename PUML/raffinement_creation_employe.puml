@@ -1,0 +1,38 @@
+@startuml Raffinement_Creation_Employe
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Company" as Company
+actor "Backend Immersio" as Backend
+
+rectangle "Dashboard Company" {
+
+    usecase "Saisir les informations\nde l'employé" as Informations
+
+    usecase "Définir un PIN" as Pin
+
+    usecase "Créer un employé" as Creer
+
+    usecase "Générer automatiquement\nle code d'accès" as Code
+
+    usecase "Enregistrer l'employé" as Enregistrer
+
+    usecase "Afficher le code\nd'accès" as Afficher
+}
+
+Company --> Informations
+Company --> Pin
+Company --> Creer
+
+Creer ..> Code : <<include>>
+Creer ..> Enregistrer : <<include>>
+Creer ..> Afficher : <<include>>
+
+Code <-- Backend
+Enregistrer <-- Backend
+
+@enduml

@@ -26,11 +26,13 @@
 
 \section{Introduction}
 
-Cette première itération couvre le développement du backend complet de \tynassit{}~: les 8 modèles
-de données, l'API REST de 30+ endpoints, et une architecture de sécurité à 4 couches.
-À l'issue de cette itération, le système est capable d'authentifier les trois types d'acteurs
-(Admin, Company, Device), d'activer les casques Meta Quest~3, de gérer le login des employés
-et d'enregistrer les sessions de formation.
+Cette première itération porte sur la mise en place du socle backend de \tynassit{}.
+Elle comprend les premiers modèles de données, l'API REST ainsi que les mécanismes
+d'authentification et de contrôle d'accès nécessaires au fonctionnement de la plateforme.
+
+À l'issue de cette itération, le système permet d'authentifier les différents types
+d'acteurs (Admin, Company et Device), d'activer les casques Meta Quest~3,
+de gérer la connexion des employés et d'enregistrer les sessions de formation.
 
 \section{Planification de l'itération~1}
 
@@ -41,9 +43,10 @@ associées et leur charge estimée.
 
 À l'issue de cette itération, le système doit être capable de~:
 \begin{itemize}
-  \item Authentifier un admin, une entreprise et un casque avec des tokens JWT différenciés.
+  \item Authentifier un admin, une entreprise et un casque avec des jetons JWT différenciés.
   \item Activer un casque Meta Quest~3 via un code d'activation à 6 chiffres.
-  \item Permettre le login d'un employé (accessCode XX-001 + PIN bcrypt).
+  \item Mettre en place les mécanismes backend nécessaires à l'authentification
+d'un employé à partir de son code d'accès et de son PIN.
   \item Enregistrer et retourner les sessions de formation avec critères d'évaluation.
   \item Calculer les statistiques de performance par formation et par entreprise.
 \end{itemize}
@@ -56,17 +59,17 @@ associées et leur charge estimée.
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{\footnotesize Charge estimée (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{\footnotesize Charge estimée (j)} \\
     \midrule
-    US-01 & Authentification admin &
+    US-01 & Authentification sécurisée (admin) &
       Modèle Admin + routes auth + JWT admin & \must{} & 2 \\
-    US-02 & Gestion des entreprises &
+    US-02 & Gestion des entreprises clientes &
       Modèle Company + CRUD + routes admin & \must{} & 2 \\
-    US-03 & Gestion des formations &
+    US-03 & Gestion du catalogue de formations &
       Modèle Training + CRUD + sceneName & \must{} & 1,5 \\
-    US-04 & Activation des casques &
+    US-04 & Activation initiale d'un casque &
       Modèle Device + activation par code à 6 chiffres + jeton haché SHA-256 & \must{} & 3 \\
-    US-05 & Statistiques globales &
+    US-05 & Consultation des statistiques globales &
       Agrégations MongoDB pour statistiques & \should{} & 2 \\
     \midrule
     \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{10,5} \\
@@ -89,13 +92,17 @@ Le choix de \textbf{MongoDB} comme système de gestion de base de données repos
 les caractéristiques spécifiques des données de \tynassit{}~:
 
 \begin{archbox}
-  \textbf{MongoDB vs PostgreSQL}~: Les données de \tynassit{} présentent une structure
-  naturellement flexible~: les \texttt{evaluationCriteria} d'une session varient selon
-  la formation, les \texttt{milestones} d'un employé sont des documents imbriqués,
-  et les \texttt{assignedTrainings} d'une entreprise sont un tableau de références.
-  PostgreSQL aurait imposé des tables de jointure complexes pour chaque variante,
-  augmentant la complexité des requêtes. MongoDB permet de représenter ces relations
-  naturellement avec des documents imbriqués ou des références ObjectId.
+
+  \textbf{Choix de MongoDB}~: Les données de \tynassit{} présentent une structure
+  flexible comprenant à la fois des données intégrées directement dans un document
+  et des références entre plusieurs entités. Par exemple, les critères d'évaluation
+  d'une session sont intégrés à celle-ci, tandis que les formations attribuées à une
+  entreprise sont représentées par des références.
+
+  MongoDB a été retenu car son modèle orienté document permet de représenter
+  simplement ces différentes structures. PostgreSQL aurait également pu être utilisé,
+  mais aurait nécessité une modélisation relationnelle différente.
+
 \end{archbox}
 
 Le tableau~\ref{tab:archi_decisions_backend} présente l'ensemble des décisions
@@ -107,58 +114,73 @@ architecturales du backend avec leurs justifications.
     \toprule
     \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
     \midrule
-    BDD       & MongoDB   & PostgreSQL   & Schéma flexible, documents imbriqués,
-                                           pas de migrations complexes \\
-    Framework & Express   & NestJS       & Légèreté, flexibilité, maîtrise préalable,
-                                           pas de surcharge pour un PFE \\
-    ODM       & Mongoose  & Driver natif & Validation intégrée, hooks pre/post,
+    BDD & MongoDB & PostgreSQL & Modèle orienté document adapté aux données
+                              imbriquées et aux références de la plateforme \\
+    Framework & Express & NestJS & Légèreté, flexibilité et maîtrise préalable \\
+    ODM & Mongoose  & Driver natif & Validation intégrée, hooks pre/post,
                                            \texttt{populate()} pour les références \\
-    Auth      & JWT       & Sessions     & Stateless, compatible mobile (Meta Quest~3),
-                                           scalable sans serveur de sessions \\
-    Hash      & bcrypt    & Argon2       & 10 rounds $\approx$ 100~ms, support natif
-                                           Node.js sans binaires compilés \\
-    Cloud BDD & Atlas     & Local        & Accès global depuis n'importe quel réseau
-                                           Wi-Fi (Meta Quest~3 hors réseau local) \\
-    Emails    & Nodemailer& SendGrid     & Compatible SMTP universel (Mailtrap dev,
-                                           SMTP réel prod sans changer le code) \\
-    Déploiement & Render  & Railway      & CD automatique depuis GitHub, free tier \\
+    Authentification & JWT & Sessions & Authentification sans état adaptée
+                                    à une API REST \\
+
+    BDD cloud & Atlas & Base locale & Base hébergée dans le cloud et accessible
+                                  par le backend déployé \\
+
+    Emails & Nodemailer & SendGrid & Envoi d'e-mails via SMTP intégré au backend \\
+
+    Déploiement & Render & Railway & Hébergement du backend avec déploiement
+                                 depuis GitHub \\
     \bottomrule
   \end{tabularx}
   \caption{Décisions architecturales --- Backend}
   \label{tab:archi_decisions_backend}
 \end{table}
 
-\tynassit{} utilise \textbf{8 modèles MongoDB}~:
+Au cours de cette première itération, plusieurs modèles de données ont été mis en
+place afin de constituer le socle du backend. Les principaux modèles sont les suivants~:
 
 \begin{itemize}
-  \item \textbf{Admin}~: staff Tynass avec rôles \texttt{superadmin} / \texttt{staff}.
-  \item \textbf{Company}~: entreprise cliente B2B avec \texttt{assignedTrainings} (références).
-  \item \textbf{Training}~: module VR avec \texttt{sceneName} (nom de scène Unity).
-  \item \textbf{Employee}~: employé avec \texttt{accessCode} (format XX-001),
-    PIN bcrypt et \texttt{milestones} (embedded).
-  \item \textbf{Device}~: casque Meta Quest~3 avec \texttt{metaUserId} et
-    token haché SHA-256.
-  \item \textbf{Session}~: résultats de simulation avec \texttt{evaluationCriteria}
-    (embedded), \texttt{score}, \texttt{passed}, \texttt{attemptNumber}.
-  \item \textbf{Counter}~: compteur atomique pour l'auto-incrémentation des accessCodes.
-  \item \textbf{Quiz}~: questions à choix multiples liées à une formation, avec seuil
-    de réussite (\texttt{passingScore}) et bonne réponse (\texttt{correctIndex}) jamais
-    transmise au casque.
+
+  \item \textbf{Admin}~: représente les administrateurs de la plateforme.
+
+  \item \textbf{Company}~: représente les entreprises clientes et les formations
+    qui leur sont attribuées.
+
+  \item \textbf{Training}~: représente les formations disponibles sur la plateforme.
+
+  \item \textbf{Employee}~: représente les employés appartenant aux entreprises clientes.
+
+  \item \textbf{Device}~: représente les casques Meta Quest~3 enregistrés
+    sur la plateforme.
+
+  \item \textbf{Session}~: permet d'enregistrer les informations relatives
+    aux sessions de formation.
+
+  \item \textbf{Counter}~: permet de gérer la génération des codes d'accès
+    des employés de manière atomique.
+
 \end{itemize}
 
+Ces modèles ont ensuite été enrichis et complétés au cours des itérations suivantes
+en fonction des nouvelles fonctionnalités développées.
+
 \begin{notebox}
-  \textbf{Règle reference vs embedded}~: les données qui n'ont pas d'existence
-  indépendante (milestones d'un employé, evaluationCriteria d'une session)
-  sont \textbf{embedded}. Les données accédées indépendamment (Company, Training,
-  Employee référencés dans Session) sont des références ObjectId.
+
+  \textbf{Organisation des données}~: certaines informations sont intégrées
+  directement dans le document auquel elles appartiennent, tandis que les
+  entités utilisées indépendamment sont reliées entre elles par des références.
+
+  Par exemple, les critères d'évaluation d'une session peuvent être intégrés
+  directement dans celle-ci, alors que les entreprises, les formations et les
+  employés sont reliés par des références.
+
 \end{notebox}
 
 \subsection{Architecture de sécurité à 4 couches}
 
-\tynassit{} implémente une architecture de sécurité organisée en 4 couches
-complémentaires, illustrée par la figure~\ref{fig:securite}. Chaque couche filtre la
-requête à un niveau différent, de l'authentification du jeton jusqu'à la sécurité du
-casque physique.
+\tynassit{} met en place une architecture de sécurité organisée en quatre couches
+complémentaires, illustrée par la figure~\ref{fig:securite}. Ces couches interviennent
+à différents niveaux~: authentification des acteurs, contrôle des autorisations,
+protection des données sensibles et contrôle de l'activation du casque.
 
 \begin{figure}[H]
   \centering
@@ -169,9 +191,11 @@ casque physique.
 
 \subsubsection{Couche 1 --- Authentification JWT différenciée}
 
-Le payload JWT encode le type d'acteur~: \texttt{\{id, type: 'admin'|'company'|'device', role?\}}.
-Cette différenciation garantit qu'un token de type \texttt{device} ne peut jamais accéder
-aux routes réservées aux admins, même en cas d'interception.
+Le jeton JWT contient le type d'acteur authentifié~:
+\texttt{admin}, \texttt{company} ou \texttt{device}.
+
+Cette information est vérifiée par les mécanismes de contrôle d'accès du backend
+afin de limiter chaque acteur aux fonctionnalités correspondant à son rôle.
 
 \begin{table}[H]
   \centering
@@ -188,10 +212,10 @@ aux routes réservées aux admins, même en cas d'interception.
   \label{tab:jwt_tokens}
 \end{table}
 
-Le token device a une durée d'un an car le casque est un device fixe appartenant à
-l'entreprise (pas à l'employé individuel). Supprimer le token à chaque changement
-d'employé forcerait une réactivation à chaque session, ce qui est opérationnellement
-absurde.
+Le token device a une durée d'un an car le casque est attribué à
+l'entreprise et non à un employé en particulier. Supprimer le token à chaque
+changement d'employé nécessiterait une réactivation du casque, ce qui serait
+opérationnellement inapproprié.
 
 \subsubsection{Couche 2 --- Autorisation RBAC}
 
@@ -208,81 +232,131 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
 \subsubsection{Couche 3 --- Protection des données sensibles}
 
 \begin{itemize}
-  \item \textbf{bcrypt 10 rounds}~: appliqué aux mots de passe Company/Admin et aux
-    PINs des employés. 10 rounds $\approx$ 100~ms, délai intentionnel rendant les
-    attaques brute force coûteuses en temps.
-  \item \textbf{SHA-256 pour les tokens device}~: le token brut (plain) est exposé
-    une seule fois, pendant 60 secondes. Seul son hash est stocké en base. En cas
-    de compromission de la BDD, les tokens hachés sont inutilisables.
-  \item \textbf{SHA-256 pour le reset password}~: même logique, avec expiration de
-    30 min.
+  \item \textbf{Hachage des mots de passe et des PIN}~: les mots de passe des
+  administrateurs et des entreprises ainsi que les PIN des employés sont
+  hachés avec bcrypt avant leur stockage en base de données.
+  \item \textbf{Protection des jetons du casque}~: le jeton utilisé par le casque
+  n'est pas conservé directement en clair dans la base de données. Une version
+  hachée avec SHA-256 est stockée afin de limiter l'exposition du jeton en cas
+  d'accès non autorisé à la base de données.
+  \item \textbf{Réinitialisation du mot de passe}~: le jeton de réinitialisation
+  est également haché avant son stockage et possède une durée de validité limitée.
+  \item \textbf{Identifiant du casque}~: lors de l'activation, l'application
+  récupère un identifiant utilisé par \tynassit{} pour reconnaître le casque
+  lors de ses échanges avec la plateforme.
+  \item \textbf{Code d'activation}~: code temporaire à 6 chiffres, valable
+  pendant 15 minutes et saisi par le Staff Admin dans le dashboard.
 \end{itemize}
 
-\subsubsection{Couche 4 --- Sécurité du device physique}
+\subsection{Raffinement des cas d'utilisation de l'itération~1}
 
-\begin{itemize}
-  \item \textbf{Meta User ID}~: identifiant matériel unique fourni par le SDK Oculus,
-    stable et impossible à falsifier (contrairement à \texttt{deviceUniqueIdentifier}
-    qui peut changer après un factory reset).
-  \item \textbf{Code d'activation}~: 6 chiffres aléatoires, expire après 15 minutes.
-    Saisi manuellement par l'admin dans le dashboard.
-\end{itemize}
+Les cas d'utilisation présentés dans le diagramme global sont détaillés ci-dessous
+afin de préciser les principales interactions liées au backend.
 
-\subsection{Cas d'utilisation --- Descriptions textuelles}
+La figure~\ref{fig:raffinement_activation_casque} présente le raffinement
+du cas d'utilisation relatif à l'activation d'un casque Meta Quest~3.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{../images/raffinement_activation_casque.png}
+    \caption{Raffinement du cas d'utilisation --- activation d'un casque Meta Quest~3}
+    \label{fig:raffinement_activation_casque}
+\end{figure}
 
 \begin{ucbox}{Activer un casque Meta Quest~3}
   \begin{tabular}{lp{9cm}}
     \textbf{Pré-conditions} & Casque physiquement présent, admin Staff connecté. \\
     \textbf{Acteur}         & Staff Admin Tynass. \\
-    \textbf{Scénario}       &
-      1. Unity envoie le Meta User ID à \texttt{POST /request-activation}. \newline
-      2. Backend génère un code 6 chiffres aléatoire (expire 15 min). \newline
-      3. Admin saisit le code dans la DevicesPage du dashboard. \newline
-      4. Backend génère un JWT device (1 an) + stocke le hash SHA-256. \newline
-      5. Unity appelle \texttt{POST /check} et reçoit le token brut (60~s). \newline
-      6. Token stocké dans PlayerPrefs (permanent). \\
-    \textbf{Exceptions}     & Code expiré (15 min) → admin régénère un nouveau code. \\
-    \textbf{Post-conditions}& Casque actif en BDD, token persistant sur le casque. \\
+    \textbf{Scénario} &
+      1. Le casque envoie une demande d'activation à la plateforme. \newline
+      2. Le système génère un code d'activation temporaire à 6 chiffres. \newline
+      3. Le Staff Admin saisit ce code dans le dashboard. \newline
+      4. Le système vérifie le code et associe le casque à l'entreprise. \newline
+      5. Le casque récupère automatiquement les informations nécessaires à son activation. \newline
+      6. L'application confirme l'activation et permet l'accès à l'écran de connexion. \\
+    \textbf{Exceptions} &  Code expiré (15 min) → le Staff Admin génère un nouveau code. \\
+
+\textbf{Post-conditions} & Casque activé et associé à l'entreprise concernée. \\
   \end{tabular}
 \end{ucbox}
 
 \vspace{0.5cm}
 
-\begin{ucbox}{Login employé via casque VR}
+La figure~\ref{fig:raffinement_authentification_employe} présente le raffinement
+du cas d'utilisation relatif à l'authentification d'un employé sur le casque.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{../images/raffinement_authentification_employe.png}
+    \caption{Raffinement du cas d'utilisation --- authentification d'un employé}
+    \label{fig:raffinement_authentification_employe}
+\end{figure}
+
+\begin{ucbox}{Authentifier un employé}
+
   \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Casque activé, employee créé avec accessCode + PIN. \\
-    \textbf{Acteur}         & Employé (via Meta Quest~3). \\
-    \textbf{Scénario}       &
-      1. Employé saisit son accessCode (format XX-001) via le panel. \newline
-      2. Unity valide le format (Regex \texttt{\^{}[A-Z]\{2\}-\textbackslash d\{3\}\$}). \newline
-      3. Employé saisit son PIN 4 chiffres via le numpad. \newline
-      4. Unity envoie \texttt{POST /api/company/employees/login} avec
-         \texttt{device\_token}. \newline
-      5. Backend vérifie le PIN (\texttt{bcrypt.compare}) et retourne
-         \texttt{employee + auth\_token}. \newline
-      6. AppSession stocke les données employé. \\
-    \textbf{Exceptions}     & Code invalide → message d'erreur. PIN incorrect → rejet. \\
-    \textbf{Post-conditions}& Employé connecté, AppSession initialisée, ModulesPanel
-                              chargé. \\
+
+    \textbf{Pré-conditions} &
+      Casque activé et employé enregistré avec un code d'accès et un PIN. \\
+
+    \textbf{Acteur} &
+      Employé. \\
+
+    \textbf{Scénario} &
+      1. L'employé saisit son code d'accès. \newline
+      2. L'employé saisit son PIN. \newline
+      3. Le backend vérifie les informations saisies. \newline
+      4. Si les informations sont valides, l'employé est authentifié. \newline
+      5. Le système autorise l'accès aux formations attribuées à son entreprise. \\
+
+    \textbf{Exceptions} &
+      Code d'accès ou PIN incorrect → un message d'erreur est retourné. \\
+
+    \textbf{Post-conditions} &
+      L'employé est authentifié et peut accéder aux formations disponibles. \\
+
   \end{tabular}
+
 \end{ucbox}
 
 \vspace{0.5cm}
 
-\begin{ucbox}{Soumettre une session de formation}
+La figure~\ref{fig:raffinement_enregistrement_session_formation} présente le
+raffinement du cas d'utilisation relatif à l'enregistrement d'une session
+de formation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{../images/raffinement_enregistrement_session_formation.png}
+    \caption{Raffinement du cas d'utilisation --- enregistrement d'une session de formation}
+    \label{fig:raffinement_enregistrement_session_formation}
+\end{figure}
+
+\begin{ucbox}{Enregistrer une session de formation}
+
   \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Simulation terminée, données collectées dans AppSession. \\
-    \textbf{Acteur}         & Système Unity (automatique). \\
-    \textbf{Scénario}       &
-      1. \texttt{OnboardingManager} calcule le score final. \newline
-      2. AppSession contient~: trainingId, employeeId, startedAt, score, criteria[]. \newline
-      3. Unity appelle \texttt{POST /api/sessions/submit} (auth\_token dans le header). \newline
-      4. Backend calcule \texttt{durationSeconds} (côté serveur, horloge fiable). \newline
-      5. Backend incrémente \texttt{attemptNumber} via le pre-save hook. \newline
-      6. Session stockée en BDD, visible dans le dashboard admin. \\
-    \textbf{Exceptions}     & Perte Wi-Fi → retry automatique via TynassApiClient. \\
-    \textbf{Post-conditions}& Session persistante, statistiques mises à jour. \\
+
+    \textbf{Pré-conditions} &
+      L'employé et la formation concernés existent dans le système. \\
+
+    \textbf{Acteur} &
+      Application VR. \\
+
+    \textbf{Scénario} &
+      1. Le backend reçoit les résultats d'une session de formation. \newline
+      2. Le système vérifie les informations reçues. \newline
+      3. La session est enregistrée dans la base de données. \newline
+      4. Les données enregistrées peuvent être utilisées pour le suivi
+      et le calcul des statistiques. \\
+
+    \textbf{Exceptions} &
+      Données manquantes ou invalides → la session n'est pas enregistrée. \\
+
+    \textbf{Post-conditions} &
+      La session est enregistrée et peut être consultée par les acteurs autorisés. \\
+
   \end{tabular}
+
 \end{ucbox}
 
 \subsection{Diagrammes de séquence}
@@ -298,14 +372,13 @@ récupération du jeton sécurisé.
   \label{fig:seq_activation}
 \end{figure}
 
-La figure~\ref{fig:seq_login} détaille la séquence de connexion d'un employé sur le
-casque~: la saisie du code d'accès et du PIN, leur validation côté serveur, puis le
-retour des données de session.
+La figure~\ref{fig:seq_login} présente le processus d'authentification d'un employé
+à partir de son code d'accès et de son PIN.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{../images/seqLogin.png}
-  \caption{Diagramme de séquence --- login employé}
+  \caption{Diagramme de séquence --- authentification d'un employé}
   \label{fig:seq_login}
 \end{figure}
 
@@ -315,6 +388,11 @@ Cette section détaille la mise en œuvre du backend~: la structure du projet se
 patron MVC, les principales routes de l'API REST, et les fonctionnalités clés développées.
 
 \subsection{Structure du projet --- Architecture MVC}
+
+Le backend conserve une organisation MVC tout au long du projet. L'arborescence
+ci-dessous présente sa structure générale. Certains composants, notamment ceux
+liés à la gestion des quiz, ont été ajoutés et enrichis au cours des itérations
+suivantes.
 
 \begin{figure}[H]
 \centering
@@ -330,7 +408,6 @@ backend/
 |   |-- employee.js
 |   |-- device.js
 |   |-- session.js
-|   |-- quiz.js
 |   +-- counter.js
 |-- controllers/           logique metier par domaine
 |   |-- admin.auth.controller.js
@@ -339,8 +416,7 @@ backend/
 |   |-- admin.trainings.controller.js
 |   |-- device.controller.js
 |   |-- employee.controller.js
-|   |-- session.controller.js
-|   +-- quiz.controller.js
+|   +-- session.controller.js
 |-- routes/                points d'entree REST par acteur
 |   |-- admin.auth.routes.js
 |   |-- company.auth.routes.js
@@ -351,27 +427,31 @@ backend/
 |   |-- device.sessions.routes.js
 |   |-- employee.routes.js
 |   |-- session.routes.js
-|   |-- quiz.routes.js
 |   +-- company.trainings.routes.js
 |-- middleware/
 |   +-- auth.middleware.js     protect, adminOnly, superAdminOnly,
 |                              companyOnly, deviceOnly
-+-- .env                   variables d'environnement
+|-- utils/
+|   +-- sendEmail.js
++-- .env                       variables d'environnement
 \end{verbatim}
 \end{minipage}
 \caption{Arborescence du projet backend (architecture MVC)}
 \label{fig:backend_arbo}
 \end{figure}
 
-Le projet backend est organisé selon le pattern MVC~:
+Le projet backend est organisé selon le patron MVC~:
 
 \begin{itemize}
-  \item \texttt{models/}~: 8 schémas Mongoose (Company, Admin, Training, Session,
-    Employee, Device, Counter, Quiz).
-  \item \texttt{controllers/}~: logique métier séparée par domaine (admin.auth,
-    company.auth, admin.companies, admin.trainings, session, employee, device, quiz).
+  \item \texttt{models/}~: 7 schémas Mongoose (Company, Admin, Training, Session,
+  Employee, Device, Counter).
+\item \texttt{controllers/}~: logique métier séparée par domaine (admin.auth,
+  company.auth, admin.companies, admin.trainings, session, employee, device).
   \item \texttt{routes/}~: points d'entrée REST groupés par acteur.
-  \item \texttt{middleware/}~: \texttt{auth.middleware.js} avec les 5 guards.
+  \item \texttt{middleware/}~: contient les fonctions de contrôle d'accès
+  \texttt{protect()}, \texttt{adminOnly()}, \texttt{superAdminOnly()},
+  \texttt{companyOnly()} et \texttt{deviceOnly()}, présentées précédemment
+  dans l'architecture de sécurité.
   \item \texttt{utils/}~: \texttt{sendEmail.js} (Nodemailer).
 \end{itemize}
 
@@ -382,10 +462,10 @@ Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'
 \begin{table}[H]
   \centering
   \small
-  \setlength{\tabcolsep}{1.5pt}
-  \begin{tabularx}{\textwidth}{l>{\footnotesize}p{7.5cm}Xc}
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabularx}{\textwidth}{l>{\footnotesize}p{7cm}Xc}
     \toprule
-    \textbf{Méthode} & \textbf{Route} & \textbf{Description} & \textbf{Auth} \\
+    \textbf{Méthode} & \textbf{Route} & \textbf{Description} & \textbf{Accès} \\
     \midrule
     \multicolumn{4}{l}{\textit{Authentification Admin}} \\
     POST & \texttt{/api/admin/auth/login} & Login admin & Public \\
@@ -398,9 +478,9 @@ Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'
     POST & \texttt{/api/admin/companies/:id/trainings} & Assigner une formation & Admin \\
     \midrule
     \multicolumn{4}{l}{\textit{Activation Casque}} \\
-    POST & \texttt{/api/company/devices/request-activation} & Générer code 6 chiffres & Device \\
-    POST & \texttt{/api/company/devices/activate} & Activer avec le code & Admin \\
-    POST & \texttt{/api/company/devices/check} & Récupérer device token & Device \\
+    POST & \texttt{/api/company/devices/request-activation} & Demander l'activation du casque & Sans JWT device \\
+    POST & \texttt{/api/company/devices/activate} & Valider l'activation du casque & Staff Admin \\
+    POST & \texttt{/api/company/devices/check} & Vérifier l'état de l'activation & Sans JWT device \\
     \midrule
     \multicolumn{4}{l}{\textit{Login Employé}} \\
     POST & \texttt{/api/company/employees/login} & Login code + PIN & Device \\
@@ -417,29 +497,34 @@ Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'
 
 \subsection{Fonctionnalité clé --- Système d'activation du casque}
 
-Le système d'activation est la fonctionnalité la plus originale du backend. Il repose
-sur l'identifiant hardware Meta User ID, fourni par le SDK Oculus Platform et
-impossible à falsifier. Le flow complet est le suivant~:
+Le système d'activation permet d'associer un casque Meta Quest~3 à une entreprise
+avant son utilisation sur la plateforme. L'application utilise un identifiant de
+référence afin de reconnaître le casque auprès du backend.
+
+Le processus d'activation se déroule comme suit~:
 
 \begin{enumerate}
-  \item L'application Unity envoie le Meta User ID au backend via
-    \texttt{POST /request-activation}.
-  \item Le backend génère un code aléatoire de 6 chiffres, le stocke haché (SHA-256)
-    avec une expiration de 15 minutes, et retourne le code à l'affichage (pour l'admin).
-  \item L'admin saisit ce code dans la DevicesPage du dashboard.
-  \item Le backend vérifie le code, génère un JWT device (1 an), stocke le hash
-    SHA-256 en BDD et expose le token brut pendant 60 secondes maximum.
-  \item Unity appelle \texttt{POST /check}, récupère le token brut et le stocke
-    dans PlayerPrefs. Le token brut est immédiatement effacé côté serveur.
+
+  \item Le casque envoie une demande d'activation au backend.
+
+  \item Le système génère un code temporaire à 6 chiffres.
+
+  \item Le Staff Admin saisit ce code dans le dashboard d'administration.
+
+  \item Le backend vérifie le code et associe le casque à l'entreprise concernée.
+
+  \item Une fois l'activation validée, le casque reçoit les informations nécessaires
+    pour s'authentifier lors de ses prochains échanges avec la plateforme.
+
 \end{enumerate}
 
 \subsection{Fonctionnalité clé --- Compteur atomique (accessCode)}
 
 L'accessCode des employés suit le format XX-001 (2 lettres initiales de l'entreprise
-+ numéro auto-incrémenté). Pour éviter les race conditions lors de créations
-simultanées, le backend utilise la commande MongoDB
-\texttt{findOneAndUpdate(\{key\}, \{\$inc: \{seq: 1\}\}, \{upsert: true, new: true\})},
-garantissant une incrémentation atomique sans doublons.
++ numéro auto-incrémenté). Pour éviter les conditions de concurrence
+(\textit{race conditions}) lors de créations simultanées, le backend utilise
+une opération d'incrémentation atomique avec MongoDB. Cette opération permet d'attribuer des numéros distincts lorsque plusieurs
+employés d'une même entreprise sont créés simultanément.
 
 \section{Difficultés et solutions}
 
@@ -449,15 +534,19 @@ garantissant une incrémentation atomique sans doublons.
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
     \midrule
-    Race condition & Deux employés créés simultanément pouvaient recevoir le même
-                     accessCode (\texttt{countDocuments} non atomique). &
-                     Migration vers Counter + \texttt{\$inc} MongoDB~: opération
-                     atomique garantissant l'unicité. \\
+    Condition de concurrence & Deux ``employés'' créés simultanément pouvaient recevoir
+                           le même \texttt{accessCode} lorsque le comptage précédent
+                           n'était pas atomique. &
+
+                           Utilisation d'un compteur MongoDB avec une incrémentation
+                           atomique afin d'éviter l'attribution du même numéro. \\
     \midrule
-    Sécurité token device & Stocker le device token en clair en BDD représentait
-                            un risque en cas de compromission. &
-                            SHA-256 permanent pour le stockage, token brut exposé
-                            60~s uniquement puis effacé. \\
+    Protection du jeton du casque &
+  Le stockage du jeton directement en clair dans la base de données
+  augmentait le risque d'exposition en cas d'accès non autorisé. &
+
+  Stockage d'une version hachée du jeton avec SHA-256 et limitation
+  de la disponibilité de sa version en clair. \\
     \midrule
     UnityWebRequest 4xx & Unity traitait les réponses HTTP 4xx comme des erreurs
                           réseau sans lire le body JSON. &
@@ -481,11 +570,11 @@ garantissant une incrémentation atomique sans doublons.
   \centering
   \begin{tabularx}{\textwidth}{Xl}
     \toprule
-    \textbf{Élément validé} & \textbf{Statut} \\
+    \textbf{Élément évalué} & \textbf{Statut} \\
     \midrule
     Authentification différenciée des trois acteurs (Admin, Company, Device) & Fonctionnel \\
     Activation d'un casque via code à 6 chiffres + jeton haché SHA-256 & Fonctionnel \\
-    Login employé (code d'accès + PIN) & Fonctionnel \\
+    Authentification d'un employé (code d'accès + PIN) & Fonctionnel \\
     Enregistrement et restitution des sessions de formation & Fonctionnel \\
     Agrégation des statistiques par formation et par entreprise & Fonctionnel \\
     Tests des endpoints via Postman & Validé \\
@@ -495,14 +584,15 @@ garantissant une incrémentation atomique sans doublons.
   \label{tab:eval_s1}
 \end{table}
 
-La figure~\ref{fig:postman_check} montre un appel à l'endpoint de vérification
-du casque testé sous Postman, avec la réponse retournée par le backend.
+La figure~\ref{fig:postman_device_check} présente un test de l'endpoint de
+vérification de l'état d'activation d'un casque réalisé avec Postman.
+La réponse retournée confirme le fonctionnement de l'échange avec le backend.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{../images/postman_deviceCheck.png}
-  \caption{Test de l'endpoint d'activation sous Postman}
-  \label{fig:postman_check}
+  \caption{Test de vérification de l'activation d'un casque avec Postman}
+  \label{fig:postman_device_check}
 \end{figure}
 
 La figure~\ref{fig:compass} présente les collections de la base de données
@@ -517,8 +607,12 @@ telles qu'elles apparaissent dans MongoDB Compass.
 
 \section{Conclusion}
 
-Cette première itération a livré le backend complet de \tynassit{}, déployé sur Render
-(\texttt{tynassit-backend-pfe.onrender.com}). L'architecture de sécurité à 4 couches
-garantit l'isolation des acteurs et la protection des données sensibles. Le système
-d'activation des casques, combinant identifiant matériel Meta User ID et code
-d'activation à usage unique, constitue la fonctionnalité la plus originale du projet.
+Cette première itération a permis de mettre en place le socle backend de \tynassit{},
+déployé sur Render. Elle a introduit les mécanismes d'authentification et de contrôle
+d'accès, la gestion des principales données de la plateforme ainsi que le système
+d'activation des casques.
+
+Ce système d'activation associe un identifiant utilisé par l'application à un code
+temporaire à 6 chiffres afin de contrôler l'activation du casque. Ces fonctionnalités
+constituent la base nécessaire au développement des dashboards web Admin et Company,
+présentés dans le chapitre suivant.

@@ -13,8 +13,8 @@
 
 Cette itération couvre le développement des deux interfaces web de \tynassit{}~:
 le \textbf{dashboard Admin} destiné aux équipes Tynass, et le \textbf{dashboard Company}
-destiné aux entreprises clientes. Les deux dashboards sont développés avec React,
-TypeScript et déployés séparément sur Vercel pour garantir une isolation totale.
+destiné aux entreprises clientes. Les deux dashboards sont développés avec React et TypeScript, puis déployés
+séparément sur Vercel afin de permettre une gestion et une évolution indépendantes.
 
 \section{Planification de l'itération~2}
 
@@ -35,23 +35,23 @@ TypeScript et déployés séparément sur Vercel pour garantir une isolation tot
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j)} \\
     \midrule
-    US-06 & Connexion Admin &
+    US-06 & Connexion au dashboard Admin &
       LoginPage admin + AuthProvider + JWT localStorage & \must{} & 1,5 \\
-    US-07 & KPIs du dashboard &
+    US-07 & Visualisation des KPIs &
       DashboardPage --- 4 KPIs + Top 5 Companies/Trainings & \must{} & 2 \\
-    US-08 & Gestion des entreprises &
+    US-08 & Gestion des entreprises depuis le dashboard &
       CompaniesPage --- CRUD + toggle + assign formations & \must{} & 2,5 \\
-    US-09 & Gestion des casques &
+    US-09 & Activation et révocation des casques &
       DevicesPage --- activation (code 6 chiffres) + révocation & \must{} & 2 \\
     US-10 & Filtrage des sessions &
       SessionsPage --- filtres company/training/date & \should{} & 1,5 \\
-    US-11 & Connexion Company &
+    US-11 & Connexion au dashboard Company &
       LoginPage company + AuthProvider company & \must{} & 1 \\
     US-12 & Gestion des employés &
       EmployeesPage --- CRUD + accessCode + PIN & \must{} & 2 \\
-    US-13 & Historique Company &
+    US-13 & Consultation des sessions employés &
       SessionsPage company --- historique + pagination & \should{} & 1,5 \\
     \midrule
     \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{14} \\
@@ -99,16 +99,20 @@ ainsi que le système d'authentification mis en place.
   \label{tab:archi_frontend}
 \end{table}
 
-\subsection{Pourquoi deux projets séparés~?}
+\subsection{Séparation des deux dashboards}
 
-Un seul projet avec gestion des rôles aurait été possible, mais deux projets séparés
-ont été préférés pour les raisons suivantes~:
+Un seul projet avec une gestion des rôles aurait été possible. Cependant, nous avons
+opté pour deux projets séparés pour les raisons suivantes~:
 
 \begin{itemize}
-  \item \textbf{Isolation totale des données}~: le dashboard Company n'a accès qu'aux
-    routes \texttt{/api/company/*}, jamais aux routes admin.
-  \item \textbf{Déploiements indépendants}~: une mise à jour du dashboard Admin
-    n'affecte pas le dashboard Company.
+
+  \item \textbf{Séparation des interfaces et des accès}~: le dashboard Admin et le
+    dashboard Company proposent des fonctionnalités différentes selon le type
+    d'utilisateur.
+
+  \item \textbf{Déploiements indépendants}~: chaque dashboard peut être mis à jour
+    et déployé séparément.
+
 \end{itemize}
 
 \subsection{Système d'authentification}
@@ -124,12 +128,26 @@ jusqu'à la validation du jeton et le chargement de son profil.
   \label{fig:seq_login_admin}
 \end{figure}
 
-Le JWT admin est stocké dans \texttt{localStorage("admin\_token")}. Au chargement de
-l'application, le hook \texttt{useAuth()} appelle \texttt{api.getMe()} pour valider
-le token et récupérer le profil admin. Si le token est expiré, \texttt{.catch()}
-l'efface automatiquement et redirige vers la page de connexion.
+Le jeton de l'administrateur est conservé dans la mémoire du navigateur.
+Au chargement de l'application, sa validité est vérifiée auprès du serveur
+avant de récupérer le profil de l'administrateur.
 
-\subsection{Cas d'utilisation --- Descriptions textuelles}
+Si le jeton a expiré ou n'est plus valide, il est supprimé et l'utilisateur
+est redirigé vers la page de connexion.
+
+\subsection{Raffinement des cas d'utilisation de l'itération~2}
+
+La figure~\ref{fig:raffinement_activation_casque_dashboard} présente le
+raffinement du cas d'utilisation relatif à l'activation d'un casque depuis
+le dashboard administrateur.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]
+    {../images/raffinement_activation_casque_dashboard.png}
+    \caption{Raffinement du cas d'utilisation --- activation d'un casque depuis le dashboard Admin}
+    \label{fig:raffinement_activation_casque_dashboard}
+\end{figure}
 
 \begin{ucbox}{Activer un casque (côté Dashboard)}
   \begin{tabular}{lp{9cm}}
@@ -149,19 +167,41 @@ l'efface automatiquement et redirige vers la page de connexion.
 
 \vspace{0.5cm}
 
-\begin{ucbox}{Créer un employé avec accessCode et PIN}
+La figure~\ref{fig:raffinement_creation_employe} présente le raffinement
+du cas d'utilisation relatif à la création d'un employé depuis le
+dashboard de l'entreprise.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]
+    {../images/raffinement_creation_employe.png}
+    \caption{Raffinement du cas d'utilisation --- création d'un employé}
+    \label{fig:raffinement_creation_employe}
+\end{figure}
+
+\begin{ucbox}{Créer un employé}
+
   \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Manager Company connecté au dashboard. \\
-    \textbf{Acteur}         & Company (client B2B). \\
-    \textbf{Scénario}       &
-      1. Manager ouvre EmployeesPage et clique « Créer employé ». \newline
-      2. Saisie~: nom, prénom, poste, département. \newline
-      3. Saisie du PIN 4 chiffres (haché bcrypt côté backend). \newline
-      4. Dashboard appelle \texttt{POST /api/company/employees}. \newline
-      5. Backend génère l'accessCode (ex~: IN-001) via Counter + \texttt{\$inc}. \newline
-      6. L'accessCode est affiché en lecture seule dans la fiche employé. \\
-    \textbf{Post-conditions}& Employé créé, accessCode communiqué à l'employé. \\
+
+    \textbf{Pré-conditions} &
+      Responsable de l'entreprise connecté au dashboard. \\
+
+    \textbf{Acteur} &
+      Entreprise cliente. \\
+
+    \textbf{Scénario} &
+      1. Le responsable ouvre la gestion des employés. \newline
+      2. Il saisit les informations de l'employé : nom, prénom, poste et département. \newline
+      3. Il définit un PIN à 4 chiffres. \newline
+      4. Le système crée l'employé et génère automatiquement son code d'accès. \newline
+      5. Le code d'accès est affiché dans la fiche de l'employé. \\
+
+    \textbf{Post-conditions} &
+      L'employé est enregistré et dispose d'un code d'accès lui permettant
+      de se connecter à la plateforme. \\
+
   \end{tabular}
+
 \end{ucbox}
 
 \section{Implémentation de l'itération~2}
@@ -174,7 +214,7 @@ destiné aux entreprises clientes.
 
 Le dashboard Admin regroupe sept pages, décrites ci-dessous.
 
-\subsubsection{LoginPage}
+\subsubsection{Page de connexion (\textit{LoginPage})}
 
 Interface d'authentification avec animation Framer Motion (fade-in + scale de la
 carte). Le formulaire appelle \texttt{POST /api/admin/auth/login} et stocke le JWT
@@ -187,11 +227,14 @@ dans \texttt{localStorage}.
   \label{fig:dash_admin_login}
 \end{figure}
 
-\subsubsection{DashboardPage}
+\subsubsection{Page d'accueil (\textit{DashboardPage})}
 
-Page d'accueil affichant 4 KPIs calculés depuis le backend~: Total Companies, Total
-Trainings, Sessions Played, Global Pass Rate. Affiche également les 5 entreprises
-les plus actives et les 5 formations les plus jouées.
+Cette page d'accueil présente quatre indicateurs clés calculés à partir des données
+du backend~: le nombre total d'entreprises, le nombre total de formations,
+le nombre de sessions réalisées et le taux global de réussite.
+
+Elle présente également les entreprises les plus actives ainsi que les formations
+les plus utilisées.
 
 \begin{figure}[H]
   \centering
@@ -200,7 +243,7 @@ les plus actives et les 5 formations les plus jouées.
   \label{fig:dash_admin_kpis}
 \end{figure}
 
-\subsubsection{CompaniesPage}
+\subsubsection{Gestion des entreprises (\textit{CompaniesPage})}
 
 Gestion complète des entreprises clientes~: création, modification, suppression
 (superadmin uniquement), activation/désactivation, et assignation des formations
@@ -213,11 +256,11 @@ via un dialog interactif.
   \label{fig:dash_admin_companies}
 \end{figure}
 
-\subsubsection{TrainingsPage}
+\subsubsection{Gestion des formations (\textit{TrainingsPage})}
 
-Gestion du catalogue de formations VR. Le champ \texttt{sceneName} est crucial~: il
-correspond exactement au nom de la scène Unity à charger via
-\texttt{SceneManager.LoadScene(training.sceneName)}.
+Cette page permet de gérer le catalogue des formations VR disponibles sur la
+plateforme. Chaque formation est associée au contenu VR correspondant afin de
+permettre son lancement depuis l'application.
 
 \begin{figure}[H]
   \centering
@@ -226,7 +269,7 @@ correspond exactement au nom de la scène Unity à charger via
   \label{fig:dash_admin_trainings}
 \end{figure}
 
-\subsubsection{DevicesPage}
+\subsubsection{Gestion des casques (\textit{DevicesPage})}
 
 Activation et révocation des casques Meta Quest~3. L'admin saisit le code 6 chiffres
 affiché sur le casque, sélectionne l'entreprise et confirme l'activation.
@@ -238,11 +281,13 @@ affiché sur le casque, sélectionne l'entreprise et confirme l'activation.
   \label{fig:dash_admin_devices}
 \end{figure}
 
-\subsubsection{SessionsPage}
+\subsubsection{Historique des sessions (\textit{SessionsPage})}
 
-Historique de toutes les sessions avec filtres multi-critères~: \texttt{companyFilter},
-\texttt{trainingFilter}, \texttt{dateFrom}, \texttt{dateTo}. Le filtrage est effectué
-côté client (JavaScript) sur le tableau complet retourné par l'API.
+Cette page présente l'historique des sessions avec plusieurs possibilités de filtrage~:
+nom de l'entreprise, formation, date de début et date de fin.
+
+Ces filtres permettent de retrouver plus rapidement les sessions correspondant
+aux critères recherchés.
 
 \begin{figure}[H]
   \centering
@@ -251,7 +296,7 @@ côté client (JavaScript) sur le tableau complet retourné par l'API.
   \label{fig:dash_admin_sessions}
 \end{figure}
 
-\subsubsection{StatisticsPage}
+\subsubsection{Statistiques (\textit{StatisticsPage})}
 
 Visualisation des statistiques agrégées par formation et par entreprise, calculées
 via les pipelines d'agrégation MongoDB.
@@ -265,14 +310,44 @@ via les pipelines d'agrégation MongoDB.
 
 \subsection{Dashboard Company --- Pages implémentées}
 
-Le dashboard Company regroupe les pages permettant à l'entreprise de gérer ses employés
-et de suivre leurs sessions.
+Le dashboard Company comprend six pages principales permettant à l'entreprise
+de consulter son activité, de gérer ses employés et ses casques, d'accéder aux
+formations qui lui sont attribuées et de suivre les sessions réalisées.
 
-\subsubsection{EmployeesPage}
 
-Page centrale du dashboard Company~: CRUD complet des employés, affichage de
-l'accessCode (lecture seule après création), saisie du PIN lors de la création, et
-consultation des milestones de chaque employé.
+\subsubsection{Page de connexion (\textit{LoginPage})}
+
+Cette page permet à l'entreprise de se connecter à son espace à l'aide de son
+adresse e-mail et de son mot de passe. Une fois l'authentification réussie,
+l'utilisateur est redirigé vers la page d'accueil du dashboard.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../images/dashCompany_login.png}
+  \caption{Dashboard Company --- page de connexion}
+  \label{fig:dash_company_login}
+\end{figure}
+
+\subsubsection{Page d'accueil (\textit{DashboardPage})}
+
+Cette page fournit une vue d'ensemble de l'activité de l'entreprise. Elle affiche
+le nombre d'employés, le nombre de casques associés, le nombre de sessions
+réalisées ainsi que le taux de réussite.
+
+Elle présente également les sessions les plus récentes afin de permettre un
+suivi rapide de l'activité de formation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashCompany_dashboard.png}
+  \caption{Dashboard Company --- vue d'ensemble de l'activité}
+  \label{fig:dash_company_dashboard}
+\end{figure}
+
+\subsubsection{Gestion des employés (\textit{EmployeesPage})}
+Cette page permet à l'entreprise de gérer ses employés~: création, modification,
+consultation des informations et définition du PIN. Le code d'accès généré pour
+chaque employé est également affiché dans sa fiche.
 
 \begin{figure}[H]
   \centering
@@ -281,10 +356,45 @@ consultation des milestones de chaque employé.
   \label{fig:dash_company_employees}
 \end{figure}
 
-\subsubsection{SessionsPage Company}
+\subsubsection{Formations attribuées (\textit{TrainingsPage})}
 
-Historique des sessions avec pagination frontend (PAGE\_SIZE = 20 sessions par page),
-filtrage par employé ou par formation.
+Cette page présente les formations attribuées à l'entreprise. Pour chaque formation,
+le dashboard affiche notamment son titre, sa catégorie et son état d'activation.
+
+Elle permet ainsi à l'entreprise de consulter les contenus de formation mis à sa
+disposition sur la plateforme.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashCompany_trainings.png}
+  \caption{Dashboard Company --- formations attribuées à l'entreprise}
+  \label{fig:dash_company_trainings}
+\end{figure}
+
+\subsubsection{Gestion des casques (\textit{DevicesPage})}
+
+Cette page permet à l'entreprise de consulter les casques qui lui sont associés
+ainsi que leur état.
+
+Elle permet également de révoquer un casque actif. Une fonction de réactivation
+est disponible lorsqu'un casque déjà associé doit récupérer de nouvelles informations
+d'accès, sans réaliser une nouvelle activation initiale.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/dashCompany_devices.png}
+  \caption{Dashboard Company --- gestion des casques associés}
+  \label{fig:dash_company_devices}
+\end{figure}
+
+\subsubsection{Historique des sessions (\textit{SessionsPage})}
+
+Cette page présente l'historique des sessions réalisées par les employés.
+Les résultats peuvent être filtrés afin de faciliter la recherche et sont
+présentés avec une pagination de 20 sessions par page.
+
+Pour chaque session, l'entreprise peut notamment consulter la formation suivie,
+l'employé concerné, le score obtenu et le résultat de la session.
 
 \begin{figure}[H]
   \centering
@@ -301,24 +411,24 @@ filtrage par employé ou par formation.
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
     \midrule
-    Migration router & TanStack Start (SSR) bloquait les appels
+    Routage de l'application & TanStack Start (SSR) bloquait les appels
                        fetch côté client en production. &
                        Migration vers React Router v6~: routage
                        100\% côté client, sans SSR. \\
     \midrule
-    Tailwind v4 & Shadcn UI incompatible avec Tailwind v4
-                  (classes manquantes, styles cassés). &
-                  Migration vers Tailwind v3, stable et
-                  pleinement compatible avec Shadcn. \\
+    Configuration des styles & La configuration utilisée avec Tailwind v4 provoquait des problèmes
+                                d'affichage avec certains composants Shadcn UI. &
+                                Utilisation de Tailwind v3 afin de conserver une configuration
+                                stable pour les composants du projet. \\
     \midrule
-    Pattern \texttt{?? data} & Le backend enveloppe les réponses~:
+    Format des réponses API & Le backend enveloppe les réponses~:
                                \texttt{\{companies: [...]\}} au lieu de
                                \texttt{[...]} directement. &
                                Pattern \texttt{data.companies ?? data}
                                dans chaque appel API pour
                                rétrocompatibilité. \\
     \midrule
-    Tri statistiques & Le champ \texttt{sessionsPlayed} dans les
+    Tri des statistiques & Le champ \texttt{sessionsPlayed} dans les
                        mock-data ne correspondait pas au champ
                        \texttt{totalSessions} retourné par le backend. &
                        Correction du tri~: utilisation de
@@ -340,7 +450,7 @@ filtrage par employé ou par formation.
   \centering
   \begin{tabular}{ll}
     \toprule
-    \textbf{Élément validé} & \textbf{Statut} \\
+    \textbf{Élément évalué} & \textbf{Statut} \\
     \midrule
     Pages du dashboard Admin livrées   & 7 / 7 \\
     Pages du dashboard Company livrées & 6 / 6 \\

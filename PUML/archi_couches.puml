@@ -29,7 +29,7 @@ rectangle "Couche métier" as C2 #E8EEF4 {
 }
 
 rectangle "Couche données" as C3 #E8EEF4 {
-  database "MongoDB Atlas\n8 collections" as DB
+  database "MongoDB Atlas\nBase de données" as DB
 }
 
 Admin --> API : HTTPS / JSON

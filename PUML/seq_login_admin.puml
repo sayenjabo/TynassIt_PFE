@@ -35,5 +35,4 @@ else admin introuvable / inactif
   API --> UI : 403 -- accès refusé
 end
 
-note over UI, DB : Au rechargement, useAuth() revalide le token\nvia /me ; s'il est expiré, il est effacé.
 @enduml

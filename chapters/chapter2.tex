@@ -43,8 +43,8 @@ puis le backlog produit avec priorisation \textbf{MoSCoW} et la planification de
 
 \section{Analyse des besoins}
 
-Cette section identifie les acteurs du système puis détaille leurs besoins fonctionnels
-et non-fonctionnels.
+Dans cette section, nous identifions les différents acteurs du système,
+puis nous détaillons leurs besoins fonctionnels et non fonctionnels.
 
 \subsection{Identification des acteurs}
 
@@ -77,20 +77,22 @@ Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par a
     & Accéder à toutes les fonctionnalités du Staff Admin. \\
     & Supprimer des entreprises et des formations (action réservée au Superadmin).\\
     \midrule
-    \multirow{6}{=}{\textbf{Staff Admin}} &
+    \multirow{7}{=}{\textbf{Staff Admin}} &
       S'authentifier sur la plateforme web. \\
     & Gérer les entreprises clientes (créer, modifier, activer, désactiver). \\
-    & Gérer le catalogue de formations VR (créer, modifier ; champ \texttt{sceneName}). \\
+    & Gérer le catalogue de formations VR (créer, modifier et organiser les formations). \\
     & Activer un casque Meta Quest~3 en saisissant le code à 6 chiffres affiché sur le casque. \\
+    & Révoquer un casque Meta Quest~3. \\
     & Assigner des formations à une entreprise. \\
     & Consulter les statistiques et sessions de toutes les entreprises. \\
     \midrule
-    \multirow{6}{=}{\textbf{Company}} &
+    \multirow{7}{=}{\textbf{Company}} &
       S'authentifier sur le dashboard entreprise. \\
     & Gérer les employés (créer, modifier, supprimer), générer leur code d'accès et définir un code PIN protégé par hachage en base. \\
     & Créer et gérer un quiz par formation (questions, choix, seuil de réussite). \\
     & Définir des objectifs (\textit{milestones}) de formation par employé. \\
     & Révoquer un casque Meta Quest~3. \\
+    & Réactiver ou révoquer un casque Meta Quest~3 déjà attribué à l'entreprise. \\
     & Consulter les sessions et performances de ses employés. \\
     \midrule
     \multirow{5}{=}{\textbf{Employé}} &
@@ -107,69 +109,105 @@ Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par a
 
 \subsection{Besoins non-fonctionnels}
 
-L'analyse des besoins non-fonctionnels s'appuie sur le modèle de qualité logicielle
-ISO/IEC~25010~\cite{iso25010}, qui définit huit caractéristiques de qualité,
-parmi lesquelles nous retenons celles les plus pertinentes pour ce projet.
+L'analyse des besoins non fonctionnels s'appuie sur le modèle de qualité logicielle
+ISO/IEC~25010~\cite{iso25010}. Parmi les caractéristiques proposées par ce modèle,
+nous retenons celles qui sont les plus pertinentes pour \tynassit{}.
 
-\placeholder{Modèle ISO/IEC 25010 (figure)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../images/ModèleISO/IEC.png}
+  \caption{Modèle ISO/IEC 25010}
+  \label{fig:Modèle ISO/IEC 25010}
+\end{figure}
 
-Les caractéristiques retenues pour \tynassit{} sont détaillées ci-dessous.
+Les caractéristiques retenues sont présentées ci-dessous.
 
-\subsubsection{Efficience de la performance --- Comportement temporel}
+\paragraph*{\textbullet~Efficience de la performance --- Comportement temporel}
 
-Le système doit garantir des temps de réponse acceptables sur toutes ses composantes~:
+La plateforme doit offrir une expérience suffisamment réactive, aussi bien sur
+les interfaces web que dans l'application VR. Les objectifs retenus sont les suivants~:
 
 \begin{itemize}
-  \item \textbf{API backend}~: temps de réponse moyen inférieur à \textbf{500~ms}
-    pour les endpoints critiques (login, submission de session).
-  \item \textbf{Application VR}~: maintien d'une cadence de \textbf{72~fps stables}
-    sur Meta Quest~3 (seuil minimum pour éviter le motion sickness).
-  \item \textbf{Chargement scènes Unity}~: inférieur à \textbf{5 secondes}.
+  \item \textbf{API backend}~: maintenir un temps de réponse adapté aux opérations
+    principales telles que l'authentification et l'envoi des résultats de formation.
+  \item \textbf{Application VR}~: maintenir une fréquence d'affichage proche de
+    \textbf{72 images par seconde} sur Meta Quest~3 afin de conserver une expérience fluide.
+  \item \textbf{Chargement des scènes Unity}~: limiter le temps d'attente de
+    l'utilisateur lors du passage d'une scène à une autre.
+  \item \textbf{Durée des formations VR}~: limiter la durée des sessions immersives
+afin de réduire le risque d'inconfort chez certains utilisateurs sensibles à la
+réalité virtuelle, tout en conservant un contenu suffisant pour atteindre les
+objectifs pédagogiques de la formation.
 \end{itemize}
 
-\subsubsection{Sécurité}
+\paragraph*{\textbullet~Sécurité}
 
-Conformément au principe de défense en profondeur, la sécurité est organisée en
-\textbf{quatre couches} complémentaires (détaillées au chapitre~3).
+La sécurité de la plateforme repose sur plusieurs mécanismes complémentaires,
+détaillés dans le chapitre~3.
 
 \begin{itemize}
-  \item \textbf{Confidentialité}~: JWT signé HS256, différencié par type d'acteur.
-  \item \textbf{Résistance}~: bcrypt 10 rounds ($\approx$100~ms), SHA-256 pour les
-    tokens sensibles, validation des entrées côté Unity et backend.
+  \item \textbf{Authentification et contrôle d'accès}~: utilisation de jetons JWT
+    permettant d'identifier les utilisateurs et de contrôler l'accès aux ressources
+    selon leur rôle.
+  \item \textbf{Protection des mots de passe et des PIN}~: stockage sous forme
+    hachée à l'aide de bcrypt.
+  \item \textbf{Protection des jetons sensibles}~: utilisation de SHA-256 pour
+    éviter leur stockage direct en clair lorsque cela est nécessaire.
+  \item \textbf{Validation des données}~: vérification des données reçues par
+    l'API avant leur traitement.
 \end{itemize}
 
-\subsubsection{Fiabilité --- Disponibilité}
+\paragraph*{\textbullet~Fiabilité --- Disponibilité}
+
+La plateforme doit rester accessible pendant son utilisation et limiter les
+interruptions de service.
 
 \begin{itemize}
-  \item \textbf{MongoDB Atlas}~: SLA de 99,9\%, sauvegardes automatiques, accès global.
-  \item \textbf{Render + Vercel}~: déploiements continus avec rollback automatique.
+  \item Le backend et les tableaux de bord sont déployés sur des services cloud.
+  \item La base de données est hébergée sur MongoDB Atlas.
+  \item La disponibilité du backend peut être surveillée afin de détecter rapidement
+    une interruption du service.
+  \item Les erreurs de communication avec le serveur doivent être signalées à
+    l'utilisateur afin d'éviter une perte silencieuse d'information.
 \end{itemize}
 
-\subsubsection{Maintenabilité --- Modifiabilité}
+\paragraph*{\textbullet~Maintenabilité --- Modifiabilité}
+
+L'architecture du système doit faciliter l'évolution des différentes composantes
+de la plateforme.
 
 \begin{itemize}
-  \item \textbf{sceneName dynamique}~: l'ajout d'une nouvelle formation VR ne nécessite
-    aucune modification du code Unity --- seul le champ \texttt{sceneName} en base de données
-    suffit.
-  \item \textbf{Architecture MVC}~: modification d'un contrôleur sans impact sur les autres.
-  \item \textbf{AppSession statique}~: état global Unity accessible sans instanciation.
+  \item \textbf{Architecture en couches}~: séparation entre les interfaces utilisateur,
+    la logique métier et la couche de données.
+  \item \textbf{Organisation MVC du backend}~: séparation des modèles, des contrôleurs
+    et des routes afin de faciliter la maintenance du code.
+  \item \textbf{Gestion des formations}~: une formation peut être associée à une
+    scène VR déjà intégrée dans l'application sans modifier la logique générale
+    de la plateforme. L'ajout d'une nouvelle scène Unity nécessite toutefois sa
+    présence dans une nouvelle version de l'application.
 \end{itemize}
 
-\subsubsection{Utilisabilité --- Apprentissage}
+\paragraph*{\textbullet~Utilisabilité --- Apprentissage}
+
+L'application VR doit rester simple à utiliser, notamment pour les employés qui
+ne sont pas familiers avec la réalité virtuelle.
 
 \begin{itemize}
-  \item \textbf{Tutoriel VR}~: un tutoriel de trois leçons couvrant les interactions
-    fondamentales (mouvement, manipulation, interface UI).
-  \item \textbf{Interface VR simple}~: login en 2 étapes~--- un clavier virtuel
-    simplifié et à saisie minimale pour le code d'accès alphanumérique
-    (étape~1), puis un pavé numérique dédié, sans clavier virtuel, pour le
-    PIN à 4 chiffres (étape~2).
+  \item \textbf{Tutoriel VR}~: un parcours de trois leçons permet à l'utilisateur
+    d'apprendre les interactions principales, notamment le déplacement,
+    la manipulation d'objets et l'utilisation des interfaces.
+  \item \textbf{Connexion simplifiée}~: la connexion de l'employé est réalisée
+    en deux étapes~: saisie du code d'accès, puis saisie du PIN à quatre chiffres
+    à l'aide d'un pavé numérique.
+  \item \textbf{Retour utilisateur}~: des messages indiquent à l'utilisateur
+    les erreurs de connexion ou les actions nécessaires pour poursuivre son parcours.
 \end{itemize}
 
 \section{Modélisation du système}
 
-La modélisation du système s'appuie sur le langage UML et se décline en trois vues
-complémentaires~: fonctionnelle, structurelle et dynamique.
+La modélisation du système s'appuie sur le langage UML et se décline en deux vues
+complémentaires~: une vue fonctionnelle, représentée par le diagramme de cas
+d'utilisation global, et une vue structurelle, représentée par le diagramme de classes.
 
 \subsection{Vue fonctionnelle --- Diagramme de cas d'utilisation}
 
@@ -180,15 +218,15 @@ comptes administrateurs et la suppression d'entreprises et de formations.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{../images/casUtilisation.png}
+  \includegraphics[width=0.5\textwidth,keepaspectratio]{../images/casUtilisation.png}
   \caption{Diagramme de cas d'utilisation global}
   \label{fig:cas_utilisation}
 \end{figure}
 
 \subsection{Vue structurelle --- Diagramme de classes}
 
-La figure~\ref{fig:classes} présente le diagramme de classes des huit modèles de données
-de la plateforme. Il distingue les entités principales, référencées entre elles par des
+La figure~\ref{fig:classes} présente le diagramme de classes des principaux modèles
+de données de la plateforme. Il distingue les entités principales, référencées entre elles par des
 identifiants (\texttt{ObjectId}), des sous-documents imbriqués (\textit{embedded}) qui
 n'ont pas d'existence indépendante, comme les objectifs d'un employé ou les critères
 d'évaluation d'une session.
@@ -196,7 +234,7 @@ d'évaluation d'une session.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{../images/diagramClasses.png}
-  \caption{Diagramme de classes des huit modèles de données}
+  \caption{Diagramme de classes des principaux modèles de données}
   \label{fig:classes}
 \end{figure}
 
@@ -213,7 +251,8 @@ couches, puis une vue physique décrivant le déploiement des composants.
   \item \textbf{Couche présentation}~: dashboards React (Admin et Company) et application
     VR Unity~6 sur Meta Quest~3.
   \item \textbf{Couche métier}~: API REST Node.js/Express avec contrôleurs MVC.
-  \item \textbf{Couche données}~: MongoDB Atlas avec 8 collections.
+  \item \textbf{Couche données}~: MongoDB Atlas, utilisée pour le stockage
+des données de la plateforme.
 \end{itemize}
 
 La figure~\ref{fig:archi_couches} illustre l'architecture logique de la plateforme,
@@ -226,9 +265,9 @@ organisée en trois couches.
   \label{fig:archi_couches}
 \end{figure}
 
-Cette séparation en couches garantit que la couche présentation (dashboards et application
-VR) ne communique jamais directement avec la base de données, mais uniquement à travers
-l'API métier, qui centralise la logique et les contrôles de sécurité.
+Dans cette architecture, la couche présentation (dashboards et application VR)
+communique avec le backend à travers l'API REST. Le backend assure ensuite l'accès
+à la base de données et centralise la logique métier ainsi que les contrôles d'accès.
 
 \subsection{Architecture physique --- Diagramme de déploiement}
 
@@ -246,7 +285,8 @@ répartition physique des composants sur les différents services d'hébergement
 étant déployée directement sur le casque~:
 
 \begin{itemize}
-  \item \textbf{MongoDB Atlas}~: base de données cloud, accessible depuis tous les composants.
+  \item \textbf{MongoDB Atlas}~: base de données cloud utilisée par le backend pour
+  stocker et récupérer les données de la plateforme.
   \item \textbf{Render}~: hébergement du backend Node.js avec déploiement continu depuis
     GitHub.
   \item \textbf{Vercel}~: hébergement des deux dashboards React avec CI/CD automatique.
@@ -273,10 +313,15 @@ et de correction, puis la livraison, avant de passer à l'itération suivante.
 
 \subsection{Backlog produit}
 
-Le backlog produit regroupe \textbf{25 user stories} organisées en \textbf{5 épics},
-priorisées selon la méthode \textbf{MoSCoW}~\cite{moscow2009}. Chaque user story suit
-le format~: \textit{« En tant que [rôle], je veux [action], afin de [bénéfice]. »},
-accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done}).
+Le backlog produit regroupe \textbf{25 user stories}, priorisées selon la méthode
+\textbf{MoSCoW}~\cite{moscow2009}. Chaque user story décrit un besoin fonctionnel
+du système selon le format~: \textit{« En tant que [rôle], je veux [action],
+afin de [bénéfice]. »}, accompagné de critères d'acceptation permettant de
+préciser les conditions nécessaires à sa validation.
+
+Les user stories sont ensuite réparties entre les quatre itérations du projet
+en fonction de leur ordre de réalisation et de leurs dépendances fonctionnelles
+et techniques.
 
 \begin{longtable}{lp{2.8cm}p{8cm}l}
   \toprule
@@ -292,8 +337,6 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
   \caption{Backlog produit --- \tynassit{}}
   \label{tab:backlog}
   \endlastfoot
-
-  \multicolumn{4}{l}{\textit{EP-01 --- Backend \& Sécurité}} \\[2pt]
 
   US-01 & Authentification sécurisée (admin) &
     En tant qu'admin, je veux m'authentifier sur la plateforme, afin
@@ -319,17 +362,18 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     & \must{} \\[4pt]
 
   US-03 & Gestion du catalogue de formations &
-    En tant qu'admin, je veux créer des formations VR avec leur scène
-    associée, afin de les rendre disponibles aux entreprises clientes.
-    \newline\textbf{Critères d'acceptation}~:
-    \begin{itemize}
-      \item Le champ \texttt{sceneName} est obligatoire à la création.
-      \item La formation est visible dans le catalogue dès sa création.
-      \item Sa modification ne nécessite aucun redéploiement Unity.
-    \end{itemize}
-    & \must{} \\[4pt]
+  En tant qu'admin, je veux créer et gérer les formations VR,
+  afin de les rendre disponibles aux entreprises clientes.
+  \newline\textbf{Critères d'acceptation}~:
+  \begin{itemize}
+    \item L'administrateur peut créer et modifier une formation.
+    \item Chaque formation est associée à une scène VR disponible dans l'application.
+    \item La formation créée est visible dans le catalogue.
+    \item Une formation peut être assignée aux entreprises autorisées.
+  \end{itemize}
+  & \must{} \\[4pt]
 
-  US-04 & Activation d'un casque via Meta User ID &
+  US-04 & Activation initiale d'un casque &
     En tant qu'admin, je veux activer un casque Meta Quest~3 via un
     code généré par le système, afin de sécuriser l'accès physique à
     la plateforme.
@@ -352,8 +396,6 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
       \item L'accès est réservé au rôle admin.
     \end{itemize}
     & \should{} \\[4pt]
-
-  \multicolumn{4}{l}{\textit{EP-02 --- Dashboard Admin}} \\[2pt]
 
   US-06 & Connexion au dashboard Admin &
     En tant qu'admin, je veux me connecter au dashboard web, afin
@@ -391,18 +433,25 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     \end{itemize}
     & \must{} \\[4pt]
 
-  US-09 & Activation et révocation des casques &
-    En tant qu'admin, je veux activer ou révoquer un casque depuis le
-    dashboard, afin de contrôler les appareils actifs sur la
-    plateforme.
-    \newline\textbf{Critères d'acceptation}~:
-    \begin{itemize}
-      \item L'activation se fait via le code à 6 chiffres affiché sur
-        le casque.
-      \item La révocation invalide le token immédiatement.
-      \item Un casque révoqué ne peut plus s'authentifier.
-    \end{itemize}
-    & \must{} \\[4pt]
+  US-09 & Activation initiale des casques &
+
+  En tant que Staff Admin, je veux activer un casque Meta Quest~3 
+  à partir du code affiché sur celui-ci, afin de l'associer à une
+  entreprise cliente et d'autoriser son accès à la plateforme.
+  \newline\textbf{Critères d'acceptation}~:
+  \begin{itemize}
+
+    \item L'activation initiale est réservée au Staff Admin.
+
+    \item Le casque affiche un code d'activation à 6 chiffres.
+
+    \item Après validation, le casque est associé à l'entreprise concernée.
+
+    \item Un jeton d'authentification est généré afin de permettre
+    au casque de s'authentifier auprès du serveur.
+
+  \end{itemize}
+  & \must{} \\[4pt]
 
   US-10 & Filtrage des sessions &
     En tant qu'admin, je veux filtrer les sessions par entreprise,
@@ -415,8 +464,6 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
       \item Les filtres peuvent être réinitialisés en un clic.
     \end{itemize}
     & \should{} \\[4pt]
-
-  \multicolumn{4}{l}{\textit{EP-03 --- Dashboard Company}} \\[2pt]
 
   US-11 & Connexion au dashboard Company &
     En tant qu'entreprise, je veux me connecter à mon dashboard, afin
@@ -452,31 +499,6 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     \end{itemize}
    & \should{} \\[4pt]
 
-  US-24 & Gestion des quiz &
-    En tant qu'entreprise, je veux créer et configurer un quiz par
-    formation, afin d'évaluer la compréhension de mes employés.
-    \newline\textbf{Critères d'acceptation}~:
-    \begin{itemize}
-      \item CRUD complet des questions, choix et bonne réponse.
-      \item Définition d'un seuil de réussite (\textit{passing score}).
-      \item La bonne réponse n'est jamais transmise au casque.
-    \end{itemize}
-    & \must{} \\[4pt]
-
-  US-25 & Objectifs de formation (milestones) &
-    En tant qu'entreprise, je veux définir des objectifs de formation
-    par employé, afin de suivre leur progression individuelle.
-    \newline\textbf{Critères d'acceptation}~:
-    \begin{itemize}
-      \item Création d'objectifs par employé (titre, type, module).
-      \item Passage automatique de « en attente » à « atteint » après une
-        session réussie.
-      \item Objectifs visibles sur la fiche de l'employé.
-    \end{itemize}
-    & \should{} \\[4pt]
-
-  \multicolumn{4}{l}{\textit{EP-04 --- Application VR Unity}} \\[2pt]
-
   US-14 & Tutoriel des contrôleurs VR &
     En tant qu'employé, je veux apprendre à utiliser les contrôleurs
     VR via un tutoriel, afin d'être à l'aise avant ma première
@@ -489,17 +511,20 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
     \end{itemize}
     & \must{} \\[4pt]
 
-  US-15 & Activation du casque &
-    En tant qu'employé, je veux que le casque s'active automatiquement
-    via son identifiant matériel, afin de ne pas ressaisir un code à
-    chaque session.
-    \newline\textbf{Critères d'acceptation}~:
-    \begin{itemize}
-      \item Le Meta User ID est envoyé au backend au démarrage.
-      \item Un casque déjà activé est reconnu directement.
-      \item Un casque non activé affiche l'écran d'attente.
-    \end{itemize}
-    & \must{} \\[4pt]
+  US-15 & Vérification de l'activation du casque &
+  En tant qu'employé, je veux que l'application vérifie automatiquement
+  l'état d'activation du casque au démarrage, afin d'accéder à la
+  plateforme sans répéter la procédure d'activation à chaque utilisation.
+  \newline\textbf{Critères d'acceptation}~:
+  \begin{itemize}
+    \item L'application vérifie l'état d'activation du casque au démarrage.
+    \item Un casque déjà activé et disposant d'un jeton valide est reconnu automatiquement.
+    \item Si le jeton local a été perdu, l'application affiche un écran demandant
+      la réactivation du casque par l'administrateur de l'entreprise.
+    \item Après réactivation, le nouveau jeton est récupéré automatiquement
+      et l'écran de connexion de l'employé devient accessible.
+  \end{itemize}
+  & \must{} \\[4pt]
 
   US-16 & Connexion employé sur le casque &
     En tant qu'employé, je veux me connecter avec mon code d'accès et
@@ -533,8 +558,6 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
       \item Ils sont conservés entre les sessions.
     \end{itemize}
     & \should{} \\[4pt]
-
-  \multicolumn{4}{l}{\textit{EP-05 --- Simulation VR Indigo}} \\[2pt]
 
   US-19 & Exploration des locaux &
     En tant qu'employé, je veux explorer virtuellement les locaux
@@ -594,6 +617,29 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
       \item Il n'entre pas en conflit avec la sélection tactile.
     \end{itemize}
     & \could{} \\
+
+    US-24 & Gestion des quiz &
+    En tant qu'entreprise, je veux créer et configurer un quiz par
+    formation, afin d'évaluer la compréhension de mes employés.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item CRUD complet des questions, choix et bonne réponse.
+      \item Définition d'un seuil de réussite (\textit{passing score}).
+      \item La bonne réponse n'est jamais transmise au casque.
+    \end{itemize}
+    & \must{} \\[4pt]
+
+  US-25 & Objectifs de formation (milestones) &
+    En tant qu'entreprise, je veux définir des objectifs de formation
+    par employé, afin de suivre leur progression individuelle.
+    \newline\textbf{Critères d'acceptation}~:
+    \begin{itemize}
+      \item Création d'objectifs par employé (titre, type, module).
+      \item Passage automatique de « en attente » à « atteint » après une
+        session réussie.
+      \item Objectifs visibles sur la fiche de l'employé.
+    \end{itemize}
+    & \should{} \\[4pt]
 \end{longtable}
 
 \subsection{Planification des itérations}
@@ -615,15 +661,24 @@ accompagné de ses critères d'acceptation (DOD --- \textit{Definition of Done})
 \end{table}
 
 \begin{notebox}
+
   Le projet suit une approche \textbf{itérative et incrémentale}~: chaque itération
+
   livre un incrément fonctionnel exploitable, en s'appuyant sur les livrables des
-  itérations précédentes (l'application VR ne peut être développée avant que le backend
-  existe, par exemple). Les durées (3, 3, 4 et 5 semaines) sont fixées par
-  \textit{timeboxing}. Le regroupement des user stories par itération suit leurs
-  dépendances techniques, et non une correspondance stricte avec les épics du backlog.
-  Ainsi, les fonctionnalités de quiz et d'objectifs (US-24 et US-25), bien que rattachées
-  à l'épic du dashboard Company, ont été développées lors de la quatrième itération, en
-  complément de la simulation Indigo qui les exploite.
+
+  itérations précédentes. Par exemple, l'application VR s'appuie sur les services
+
+  développés dans le backend lors de la première itération.
+
+  Les durées des itérations, comprises entre trois et cinq semaines, donnent un ordre
+
+  de grandeur de la charge prévue. Le regroupement des user stories par itération suit leurs
+dépendances fonctionnelles et techniques.
+
+Ainsi, les fonctionnalités de gestion des quiz et des objectifs de formation
+(US-24 et US-25) ont été regroupées dans la quatrième itération, en complément
+de la simulation Indigo qui les exploite.
+
 \end{notebox}
 
 \section{Conclusion}

@@ -11,11 +11,14 @@
 
 \section{Introduction}
 
- Cette itération couvre le développement de l'application VR pour Meta Quest~3, incluant
-les deux premières scènes~: la scène tutoriel (\texttt{trainingscene}, initiation aux contrôleurs) et
-la scène d'authentification (\texttt{Companys}, connexion et sélection des formations). À l'issue de cette itération,
-un employé peut activer le casque, se connecter, voir les formations disponibles
-et accéder aux paramètres.
+ Cette itération couvre le développement de l'application VR pour Meta Quest~3.
+Elle comprend une scène tutoriel destinée à l'initiation aux contrôleurs ainsi
+qu'une scène d'authentification permettant à l'employé de se connecter et de
+consulter les formations disponibles.
+
+À l'issue de cette itération, le casque peut être activé et l'employé peut
+s'authentifier, consulter les formations disponibles et accéder aux paramètres
+de l'application.
 
 \section{Planification de l'itération~3}
 
@@ -25,13 +28,22 @@ leur charge estimée.
 \subsection{Objectifs}
 
 \begin{itemize}
-  \item Implémenter le flow complet d'activation du casque (Meta User ID matériel + code d'activation à 6 chiffres).
-  \item Permettre le login employé (accessCode + PIN) via une interface VR intuitive.
-  \item Charger et afficher les formations assignées à l'entreprise.
-  \item Livrer un tutoriel d'introduction aux contrôleurs Meta Quest~3.
-  \item Permettre la configuration des paramètres (audio, langue, contrôleurs).
-\end{itemize}
 
+  \item Mettre en place le processus d'activation du casque à l'aide de
+    l'identifiant utilisé par l'application et d'un code d'activation à 6 chiffres.
+
+  \item Permettre à l'employé de se connecter avec son code d'accès et son PIN
+    depuis l'interface VR.
+
+  \item Charger et afficher les formations attribuées à l'entreprise.
+
+  \item Mettre à disposition un tutoriel d'introduction aux contrôleurs
+    Meta Quest~3.
+
+  \item Permettre la configuration des paramètres de l'application
+    (audio, langue et contrôleurs).
+
+\end{itemize}
 \subsection{Tâches et estimations de l'itération~3}
 
 \begin{table}[H]
@@ -40,18 +52,18 @@ leur charge estimée.
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (j)} \\
     \midrule
-    US-14 & Tutoriel des contrôleurs &
-      Scène tutoriel (\texttt{trainingscene}) --- 3 leçons & \must{} & 4 \\
-    US-15 & Activation du casque &
-      DeviceActivationManager (Meta User ID + code d'activation) & \must{} & 2 \\
-    US-16 & Connexion employé &
-      EmployeeSignInPanel (code + PIN numpad) & \must{} & 3 \\
-    US-17 & Liste des formations &
-      ModulesPanel (grille formations) & \must{} & 2,5 \\
-    US-18 & Paramètres persistants &
-      SettingsPanel (audio, langue, contrôleurs) & \should{} & 3 \\
+    US-14 & Tutoriel des contrôleurs VR &
+      Tutoriel en trois leçons & \must{} & 4 \\
+    US-15 & Vérification de l’activation du casque &
+      Gestion de l'activation du casque & \must{} & 2 \\
+    US-16 & Connexion employé sur le casque &
+      Saisie du code d'accès et du PIN & \must{} & 3 \\
+    US-17 & Consultation des formations disponibles &
+      Affichage des formations attribuées & \must{} & 2,5 \\
+    US-18 & Configuration des paramètres &
+      Réglages audio, langue et contrôleurs & \should{} & 3 \\
     \midrule
     \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{14,5} \\
     \bottomrule
@@ -68,6 +80,9 @@ Cette section présente la configuration du projet Unity pour Meta Quest~3, les 
 architecturales de l'application et l'organisation de ses scripts principaux.
 
 \subsection{Configuration Unity~6 pour Meta Quest~3}
+
+Le tableau~\ref{tab:unity_config} présente les principaux paramètres retenus
+pour configurer l'application Unity sur le casque Meta Quest~3.
 
 \begin{table}[H]
   \centering
@@ -90,18 +105,22 @@ architecturales de l'application et l'organisation de ses scripts principaux.
 
 \subsection{Décisions architecturales --- Unity}
 
+Le tableau~\ref{tab:archi_unity} présente les principaux choix architecturaux
+effectués pour le développement de l'application VR.
+
 \begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{lllX}
     \toprule
     \textbf{Composant} & \textbf{Retenu} & \textbf{Alternative} & \textbf{Justification} \\
     \midrule
-    Moteur & Unity 6 LTS & Unreal Engine 5 & 85\% des apps Quest Store en 2024,
-                                             Meta XR SDK optimisé Unity \\
+    Moteur & Unity 6 LTS & Unreal Engine 5 &
+Compatibilité avec l'écosystème Meta XR et maîtrise préalable de Unity \\
     SDK    & Meta XR All-in-One & Meta Core SDK & Un seul package intégrant tous les
                                                   SDK Meta \\
-    Client HTTP & TynassApiClient & ApiManager (obsolète) & Singleton avec JWT,
-                                                              méthodes typées, PlayerPrefs \\
+    Client HTTP & TynassApiClient & ApiManager &
+Client centralisé pour les échanges entre l'application Unity et l'API backend \\
+
     État global & AppSession & SessionManager & Classe statique~: toujours disponible
                                                 sans instanciation, pas de cycle de vie \\
     \bottomrule
@@ -133,76 +152,107 @@ présente ces composants et leurs dépendances.
   \label{fig:composants_unity}
 \end{figure}
 
-Les 8 scripts principaux de l'application Unity~:
+Les huit scripts principaux de l'application Unity sont les suivants~:
 
 \begin{itemize}
-  \item \textbf{TynassApiClient.cs}~: singleton HTTP centralisé. Gère le JWT
-    (\texttt{SetToken}/\texttt{ClearToken}), \texttt{TryRestoreSession()} au
-    démarrage, et toutes les méthodes typées de l'API. Utilise les classes
-    \texttt{[Serializable]} pour la sérialisation JSON via \texttt{JsonUtility}.
-  \item \textbf{AppSession.cs}~: classe statique globale. Stocke les données de
-    Device, Company, Employee, Training et Quiz (QuizScore, QuizCorrect, QuizTotal,
-    QuizCurrentIndex, QuizElapsedSecs). \texttt{AppSession.Clear()} efface les
-    données personnelles de l'employé mais conserve le DeviceToken (appartient au
-    casque).
-  \item \textbf{PanelManager.cs}~: gère la navigation entre les panels UI
-    (GoSignIn, GoEmployeePicker, GoModules, GoSettings, GoQuiz, GoQuizResult).
-  \item \textbf{DeviceActivationManager.cs}~: récupère le Meta User ID via
-    \texttt{Oculus.Platform.Users.GetLoggedInUser()}, orchestre le flow
-    d'activation.
-  \item \textbf{EmployeeSignInPanel.cs}~: gère les 2 étapes de login (Step~1~:
-    accessCode XX-001, Step~2~: PIN numpad 4 chiffres).
-  \item \textbf{ModulesPanel.cs}~: charge les formations via \texttt{device\_token},
-    instancie les cartes de formation dans un Grid Layout Group.
-  \item \textbf{SettingsPanel.cs}~: audio (master/sfx/narration/spatial), langue
-    (FR/EN/AR), contrôleurs (main, dwell time, haptic). Persistance via
-    \texttt{PlayerPrefs}.
-  \item \textbf{TrainingSceneManager.cs}~: orchestre la scène tutoriel
-    (\texttt{trainingscene})~: leçons, narration audio, NarrationManager.
+
+  \item \textbf{TynassApiClient.cs}~: centralise les échanges entre
+    l'application VR et le backend.
+
+  \item \textbf{AppSession.cs}~: conserve les informations nécessaires
+    pendant l'utilisation de l'application, notamment celles relatives
+    au casque, à l'entreprise, à l'employé et à la formation sélectionnée.
+
+  \item \textbf{PanelManager.cs}~: gère la navigation entre les différentes
+    interfaces de l'application.
+
+  \item \textbf{DeviceActivationManager.cs}~: gère la reconnaissance et
+    l'activation du casque.
+
+  \item \textbf{EmployeeSignInPanel.cs}~: gère l'authentification de
+    l'employé à partir de son code d'accès et de son PIN.
+
+  \item \textbf{ModulesPanel.cs}~: récupère et affiche les formations
+    attribuées à l'entreprise.
+
+  \item \textbf{SettingsPanel.cs}~: gère les paramètres audio, la langue
+    et les préférences liées aux contrôleurs. Ces paramètres sont
+    enregistrés localement.
+
+  \item \textbf{TrainingSceneManager.cs}~: gère le déroulement des
+    différentes leçons du tutoriel et leurs narrations.
+
 \end{itemize}
 
-\subsection{Cas d'utilisation --- Descriptions textuelles}
+\subsection{Raffinement des cas d'utilisation de l'itération~3}
 
-\begin{ucbox}{Tutoriel d'introduction (scène \texttt{trainingscene})}
-  \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Casque démarré, utilisateur novice en VR. \\
-    \textbf{Acteur}         & Employé. \\
-    \textbf{Scénario A}     &
-      1. L'utilisateur choisit « Commencer les leçons » (choix A). \newline
-      2. Leçon 1~: se déplacer avec le joystick jusqu'au waypoint. \newline
-      3. Leçon 2~: saisir un cube (grip) et l'amener au waypoint. \newline
-      4. Leçon 3~: lire un panel, cliquer sur le bouton (trigger). \newline
-      5. Transition automatique vers la scène Companys. \\
-    \textbf{Scénario B}     &
-      1. L'utilisateur choisit « Passer » (choix B). \newline
-      2. Transition directe vers la scène Companys. \\
-    \textbf{Post-conditions}& Utilisateur maîtrise les 3 interactions fondamentales. \\
-  \end{tabular}
+Le diagramme de cas d'utilisation global présenté au chapitre~2 décrit les
+principales fonctionnalités accessibles à l'employé. Dans cette itération,
+nous détaillons les cas d'utilisation relatifs au tutoriel VR et à la
+consultation des formations disponibles.
+
+La figure ci-dessous présente le raffinement du cas d'utilisation relatif
+au tutoriel d'introduction et aux différentes interactions proposées à l'employé.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{../images/raffinement_tutoriel_introduction.png}
+  \caption{Raffinement du cas d'utilisation --- tutoriel VR}
+  \label{fig:raffinement_tutoriel_introduction.png}
+\end{figure}
+
+\begin{ucbox}{Tutoriel d'introduction}
+\begin{tabular}{lp{9cm}}
+\textbf{Pré-conditions} &
+Casque démarré, utilisateur novice en VR. \\
+\textbf{Acteur} &
+Employé. \\
+\textbf{Scénario A} &
+1. L'utilisateur choisit « Commencer les leçons ». \newline
+2. Leçon 1 : apprendre à se déplacer dans l'environnement virtuel. \newline
+3. Leçon 2 : apprendre à saisir et déplacer un objet. \newline
+4. Leçon 3 : apprendre à interagir avec l'interface. \newline
+5. À la fin du tutoriel, l'utilisateur accède à l'écran de connexion. \\
+\textbf{Scénario B} &
+1. L'utilisateur choisit « Passer ». \newline
+2. L'utilisateur accède directement à l'écran de connexion. \\
+\textbf{Post-conditions} &
+Le tutoriel est terminé ou passé et l'utilisateur accède à l'étape suivante. \\
+\end{tabular}
 \end{ucbox}
 
 \vspace{0.5cm}
+La figure~\ref{fig:consultation_lancement_formation} présente le raffinement
+du cas d'utilisation relatif à la consultation et au lancement d'une formation.
 
-\begin{ucbox}{Sélectionner une formation (ModulesPanel)}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{../images/consultation_lancement_formation.png}
+  \caption{Raffinement du cas d'utilisation --- consultation et lancement d'une formation}
+  \label{fig:consultation_lancement_formation}
+\end{figure}
+
+\begin{ucbox}{Consulter et lancer une formation}
   \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Employé connecté, \texttt{device\_token} valide. \\
-    \textbf{Acteur}         & Employé. \\
-    \textbf{Scénario}       &
-      1. ModulesPanel appelle \texttt{GET /api/company/devices/trainings}. \newline
-      2. Les formations assignées à l'entreprise sont affichées en grille. \newline
-      3. L'employé pointe et sélectionne une formation. \newline
-      4. \texttt{AppSession.ActiveTraining} est défini. \newline
-      5. \texttt{SceneManager.LoadScene(training.sceneName)} est appelé. \newline
-      6. Si \texttt{sceneName} est null~: erreur loguée, rien ne se passe. \\
-    \textbf{Post-conditions}& Scène de formation chargée. \\
+    \textbf{Pré-conditions} &
+      Employé connecté et casque activé. \\
+    \textbf{Acteur} &
+      Employé. \\
+    \textbf{Scénario} &
+      1. Le système affiche les formations attribuées à l'entreprise. \newline
+      2. Les formations disponibles sont présentées sous forme de cartes. \newline
+      3. L'employé lance la formation qu'il souhaite suivre depuis la carte correspondante. \newline
+      4. La scène de formation associée est chargée. \\
+    \textbf{Post-conditions} &
+      La formation choisie est lancée. \\
   \end{tabular}
 \end{ucbox}
 
 \subsection{Diagramme de séquence}
 
-La figure~\ref{fig:flow_complet} retrace le flux complet vécu par un employé, depuis le
-tutoriel jusqu'au lancement d'une simulation, en passant par l'authentification et la
-sélection d'une formation. Elle montre l'enchaînement des trois scènes et leurs échanges
-avec le backend.
+La figure~\ref{fig:flow_complet} retrace le parcours de l'employé, depuis le tutoriel
+jusqu'au lancement d'une formation, en passant par l'authentification et la consultation
+des formations disponibles. Elle présente également les échanges avec le backend.
 
 \begin{figure}[H]
   \centering
@@ -213,61 +263,74 @@ avec le backend.
 
 \section{Implémentation de l'itération~3}
 
-Cette section détaille la mise en œuvre des principaux composants de l'application~: le
-client HTTP, l'activation du casque, le login employé et les panneaux de l'interface.
+Cette section présente les principaux éléments réalisés pour mettre en œuvre l'application
+VR, depuis la préparation des supports du tutoriel jusqu'à l'intégration des fonctionnalités
+d'activation, de connexion et de sélection des formations.
 
-\subsection{TynassApiClient.cs --- Client HTTP centralisé}
+\subsection{Préparation des supports audiovisuels du tutoriel}
 
-\texttt{TynassApiClient} est le singleton central de communication avec le backend.
-Sa conception résout un problème fondamental de Unity~: \texttt{JsonUtility} ne
-sérialise que les classes marquées \texttt{[Serializable]}. Tout objet anonyme
-produit un JSON vide (\texttt{\{\}}).
+En complément de la conception de la scène d'entraînement, nous avons réalisé les supports
+audiovisuels utilisés pour accompagner l'utilisateur lors de sa première prise en main
+du casque. Les séquences destinées aux différentes leçons ont été préparées et montées
+avec \textbf{DaVinci Resolve}, afin de présenter de manière claire les interactions à
+effectuer avec les contrôleurs Meta Quest~3.
 
- \begin{lstlisting}[language={[Sharp]C}, caption={TynassApiClient -- methode typee async}]
-[Serializable]
-public class EmployeeLoginPayload {
-    public string accessCode;
-    public string pin;
-}
+Après leur montage et leur export, ces vidéos ont été intégrées à la scène tutoriel et associées aux étapes correspondantes. Elles complètent ainsi
+les exercices pratiques en donnant à l'utilisateur une démonstration visuelle avant ou
+pendant la réalisation de l'interaction demandée.
 
-public async Task<EmployeeLoginResponse> LoginEmployee(
-    string accessCode, string pin, string deviceToken)
-{
-    var payload = new EmployeeLoginPayload { accessCode = accessCode, pin = pin };
-    // POST /company/employees/login avec le device_token dans l'en-tete
-    return await PostRequest<EmployeeLoginResponse>(
-        "/company/employees/login", payload, deviceToken);
-}
-\end{lstlisting}
+\subsection{Client HTTP centralisé (\textit{TynassApiClient.cs})}
 
-\subsection{DeviceActivationManager --- Meta User ID}
+Le client HTTP centralise les échanges entre l'application VR et le backend.
+Il permet notamment d'envoyer les requêtes nécessaires à l'authentification,
+à la récupération des formations et aux autres échanges avec l'API.
 
-\begin{lstlisting}[language={[Sharp]C}, caption={Meta User ID -- recuperation et verification}]
+
+\subsection{Gestion de l'activation du casque
+(\textit{DeviceActivationManager.cs})}
+
+Ce composant récupère l'identifiant utilisé par l'application afin de vérifier
+auprès du backend si le casque est déjà activé.
+
+Le listing ci-dessous présente la récupération de cet identifiant et la
+vérification de l'état d'activation du casque.
+
+\begin{lstlisting}[language={[Sharp]C},
+caption={Récupération de l'identifiant et vérification de l'activation du casque}]
+
 Oculus.Platform.Users.GetLoggedInUser().OnComplete(async msg => {
+
     string metaUserId;
+
     if (!msg.IsError)
         metaUserId = msg.Data.ID.ToString();
     else
         metaUserId = SystemInfo.deviceUniqueIdentifier; // fallback editeur
 
     var response = await TynassApiClient.Instance.CheckDevice(metaUserId);
+
     if (response != null && response.status == "activated")
         ShowLoginPanel();
     else
         ShowActivationPanel();
 });
+
 \end{lstlisting}
 
-\subsection{EmployeeSignInPanel --- Login en 2 étapes}
+\subsection{Connexion de l'employé en deux étapes
+(\textit{EmployeeSignInPanel})}
 
 \begin{enumerate}
-  \item \textbf{Step 1 --- accessCode}~: l'employé saisit son code via un clavier
-    alphanumérique. Unity valide le format en temps réel avec
-    \texttt{Regex.IsMatch(code, \^{}[A-Z]\{2\}-\textbackslash d\{3\}\$)}.
-    Cette validation côté Unity donne un retour immédiat sans aller-retour réseau.
-    La validation backend constitue la sécurité réelle (défense en profondeur).
-  \item \textbf{Step 2 --- PIN}~: numpad 4 chiffres (0-9 + effacer). Visuellement
-    masqué par des étoiles. Envoyé au backend pour vérification bcrypt.
+
+  \item \textbf{Première étape --- Code d'accès}~:
+    l'employé saisit son code d'accès à l'aide d'un clavier
+    alphanumérique. Le format est vérifié avant l'envoi des informations.
+
+  \item \textbf{Deuxième étape --- PIN}~:
+    l'employé saisit son PIN à quatre chiffres à l'aide d'un pavé numérique.
+    Les chiffres sont masqués à l'écran et les informations sont ensuite
+    vérifiées par le backend.
+
 \end{enumerate}
 
 \begin{figure}[H]
@@ -284,11 +347,11 @@ Oculus.Platform.Users.GetLoggedInUser().OnComplete(async msg => {
   \label{fig:vr_signin_pin}
 \end{figure}
 
-\subsection{ModulesPanel --- Grille des formations}
+\subsection{Grille des formations (\textit{ModulesPanel})}
 
-Les cartes de formation sont instanciées dynamiquement depuis un prefab dans un
-\textbf{Grid Layout Group}, qui calcule automatiquement la position de chaque enfant
-selon \texttt{Cell Size} et \texttt{Spacing}.
+Les formations attribuées à l'entreprise sont chargées dynamiquement et affichées
+sous forme de cartes dans une grille. L'employé peut ainsi consulter les formations
+disponibles et sélectionner celle qu'il souhaite lancer.
 
 \begin{figure}[H]
   \centering
@@ -297,12 +360,11 @@ selon \texttt{Cell Size} et \texttt{Spacing}.
   \label{fig:vr_modules}
 \end{figure}
 
-\subsection{SettingsPanel --- Paramètres persistants}
+\subsection{Paramètres persistants (\textit{SettingsPanel})}
 
-Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
-\texttt{vol\_master}, \texttt{vol\_sfx}, \texttt{vol\_narr}, \texttt{mute\_all},
-\texttt{spatial}, \texttt{ui\_lang}, \texttt{narr\_lang}, \texttt{hand},
-\texttt{dwell\_time}, \texttt{glow}, \texttt{haptic}.
+Ce panneau permet à l'utilisateur de configurer les paramètres audio, la langue
+et certaines préférences liées aux contrôleurs. Les réglages sont enregistrés
+localement afin d'être conservés entre les différentes sessions d'utilisation.
 
 \begin{figure}[H]
   \centering
@@ -319,26 +381,28 @@ Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
     \midrule
-    JsonUtility & Les objets anonymes \texttt{new \{email = "test"\}}
-                  produisaient \texttt{\{\}} (JSON vide). &
-                  Création de classes \texttt{[Serializable]} explicites
-                  pour tous les payloads. \\
+    Sérialisation des données &
+Certaines données envoyées au backend n'étaient pas correctement
+converties au format JSON. &
+Création de classes dédiées afin de structurer correctement
+les données échangées avec l'API. \\
     \midrule
-    Vidéos lentes & Les vidéos dans \texttt{Resources/} étaient préchargées
-                    au démarrage, causant un gel de plus d'une minute. &
-                    Migration vers \texttt{StreamingAssets/}~: lecture en
-                    streaming via URL \texttt{file://}, démarrage instantané. \\
+    Chargement des vidéos &
+Le préchargement des vidéos au démarrage provoquait un temps
+d'attente important. &
+Les vidéos ont été déplacées vers un emplacement permettant
+leur chargement au moment de leur utilisation. \\
     \midrule
-    Cards superposées & Les cartes de formations apparaissaient toutes
-                        au même point (0,0,0) sans layout automatique. &
-                        \texttt{Grid Layout Group} calcule automatiquement
-                        la position de chaque carte. \\
+    Superposition des cartes &
+Les cartes des formations étaient affichées au même emplacement,
+ce qui empêchait une lecture correcte de la liste. &
+Mise en place d'une organisation automatique sous forme de grille. \\
     \midrule
-    Vélocité locomotion & Maintenir le joystick pendant un blocage
-                          accumulait une vélocité~: l'employé partait
-                          en sprint au déblocage. &
-                          \texttt{EnableMovement()} remet la vélocité
-                          à zéro avant de réactiver le mouvement. \\
+    Déplacement de l'utilisateur &
+Lorsqu'un déplacement était maintenu pendant une phase de blocage,
+un mouvement brusque pouvait se produire lors de la reprise. &
+La vitesse de déplacement est réinitialisée avant de rendre
+le mouvement à nouveau disponible. \\
     \bottomrule
   \end{tabularx}
   \caption{Difficultés rencontrées et solutions --- Itération~3}
@@ -351,10 +415,10 @@ Tous les paramètres sont sauvegardés dans \texttt{PlayerPrefs}~:
   \centering
   \begin{tabularx}{\textwidth}{Xl}
     \toprule
-    \textbf{Élément validé} & \textbf{Statut} \\
+    \textbf{Élément évalué} & \textbf{Statut} \\
     \midrule
     Activation du casque sur Meta Quest~3 & Fonctionnel \\
-    Login employé (code d'accès + PIN) sur le casque & Fonctionnel \\
+    Authentification de l'employé (code d'accès + PIN) & Fonctionnel \\
     Affichage des formations assignées & Fonctionnel \\
     Tutoriel des contrôleurs (3 leçons) & 3 / 3 \\
     Persistance des paramètres (audio, langue, contrôleurs) & Fonctionnel \\
@@ -370,20 +434,16 @@ l'employé apprend à saisir un objet.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{../images/vr_tutoriel_grip.png}
-  \caption{Scène tutoriel --- leçon de manipulation (grip)}
+  \caption{Scène tutoriel --- leçon de manipulation d'un objet}
   \label{fig:vr_tuto}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9\textwidth]{../images/vr_flow_casque.png}
-  \caption{Exécution du flux complet sur le casque Meta Quest~3}
-  \label{fig:vr_flow_casque}
 \end{figure}
 
 \section{Conclusion}
 
-Cette troisième itération a livré l'application VR avec ses deux premières scènes~:
-le tutoriel des contrôleurs et l'authentification. Le flow complet
-fonctionne sur le casque physique Meta Quest~3~: activation, login employé, affichage
-des formations. Le chapitre suivant présente la simulation d'intégration d'Indigo Company.
+Cette troisième itération a permis de mettre en place les principales fonctionnalités
+de l'application VR sur Meta Quest~3~: le tutoriel d'utilisation des contrôleurs,
+l'activation du casque, l'authentification de l'employé, la consultation des formations
+disponibles et la configuration des paramètres.
+
+Ces éléments constituent la base nécessaire au lancement des simulations de formation.
+Le chapitre suivant présente la simulation d'intégration réalisée pour Indigo Company.

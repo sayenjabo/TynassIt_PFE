@@ -16,35 +16,57 @@ skinparam package {
 
 title Composants principaux de l'application Unity
 
-package "Communication & état" {
+package "Communication et état" {
+
   [TynassApiClient] as API
+
   [AppSession] as Session
 }
 
-package "Navigation & UI" {
+package "Navigation et interfaces" {
+
   [PanelManager] as Panel
+
   [EmployeeSignInPanel] as SignIn
+
   [ModulesPanel] as Modules
+
   [SettingsPanel] as Settings
+
+  [AboutTynassItPanel] as About
 }
 
-package "Activation & scènes" {
-  [LoadingManager] as Loading
+package "Activation et tutoriel" {
+
   [DeviceActivationManager] as Device
+
+  [TrainingSceneManager] as Training
 }
 
-API --> Session : lit / écrit l'état global
-Device -> Loading : attend l'écran de chargement
-Device -> API : check / activation casque
-SignIn ----> API : login employé
-SignIn ----> Session : sauvegarde la session
-Modules ---> API : charge les formations
-Modules -> Loading : charge la scène choisie
+API -> Session : lit / écrit l'état global
+Device ---> API : vérifier / activer\nle casque
+SignIn --> API : authentifier\nl'employé
+SignIn --> Session : conserver les informations\nde l'employé
+Modules --> API : récupérer\nles formations
+Modules --> Session : définir la\nformation active
 Panel --> SignIn
 Panel --> Modules
-Panel --> Settings
-Settings ---> Session : réglages persistants (PlayerPrefs)
+Panel -> Settings
+Panel -left-> About
 
+note bottom of Session
+Conserve les informations liées
+au casque, à l'entreprise,
+à l'employé et à la formation active.
+end note
 
-note bottom of Session : Classe statique globale :\ntoken, employé, formation, quiz.
+note bottom of Settings
+Les réglages sont
+enregistrés localement.
+end note
+
+note bottom of Training
+Gère les trois leçons
+et les narrations du tutoriel.
+end note
 @enduml

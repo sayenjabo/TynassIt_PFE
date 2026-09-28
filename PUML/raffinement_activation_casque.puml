@@ -1,0 +1,29 @@
+@startuml Raffinement_Activation_Casque
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Staff Admin" as Admin
+actor "Application VR" as VR 
+
+rectangle "Système d'activation du casque" {
+
+    usecase "Activer un casque\nMeta Quest 3" as Activer
+    usecase "Générer et afficher\nun code d'activation" as Code
+    usecase "Vérifier le code\nd'activation" as Verifier
+    usecase "Associer le casque\nà une entreprise" as Associer
+    usecase "Autoriser l'accès\ndu casque" as Autoriser
+}
+
+Admin --> Activer
+Code <-- VR 
+
+Activer ..> Code : <<include>>
+Activer ..> Verifier : <<include>>
+Activer ..> Associer : <<include>>
+Activer ..> Autoriser : <<include>>
+
+@enduml

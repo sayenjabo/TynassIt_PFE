@@ -1,0 +1,31 @@
+@startuml Raffinement_Enregistrement_Session_Formation
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Application VR" as VR
+
+rectangle "Backend Immersio" {
+
+    usecase "Enregistrer une session\nde formation" as Enregistrer
+
+    usecase "Recevoir les résultats\nde la session" as Recevoir
+
+    usecase "Vérifier les données\nreçues" as Verifier
+
+    usecase "Enregistrer la session\ndans la base de données" as Stocker
+
+    usecase "Rendre les données disponibles\npour le suivi et les statistiques" as Suivi
+}
+
+VR --> Enregistrer
+
+Enregistrer ..> Recevoir : <<include>>
+Enregistrer ..> Verifier : <<include>>
+Enregistrer ..> Stocker : <<include>>
+Enregistrer ..> Suivi : <<include>>
+
+@enduml

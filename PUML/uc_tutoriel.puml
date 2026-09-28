@@ -1,0 +1,35 @@
+@startuml UC_Tutoriel
+
+
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam nodesep 40
+skinparam ranksep 100
+
+actor "Employé" as Employe
+
+rectangle "Application VR" {
+
+    usecase "Utiliser le tutoriel" as UC0
+
+    usecase "Suivre les leçons" as UC1
+    usecase "Passer le tutoriel" as UC2
+
+    usecase "Apprendre à se déplacer" as UC3
+    usecase "Apprendre à manipuler\nun objet" as UC4
+    usecase "Apprendre à interagir\navec l'interface" as UC5
+}
+
+Employe --> UC0
+
+UC1 -|> UC0
+UC2 -up-|> UC0
+
+UC1 ..> UC3 : <<include>>
+UC1 ..> UC4 : <<include>>
+UC1 ..> UC5 : <<include>>
+
+@enduml

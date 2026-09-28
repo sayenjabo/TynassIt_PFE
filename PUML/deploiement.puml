@@ -31,7 +31,7 @@ cloud "Render" as Render {
 }
 
 cloud "MongoDB Atlas" as Atlas {
-  database "Base de données\n8 collections" as DB
+  database "Base de données\nMongoDB" as DB
 }
 
 node "Service Email\n(Nodemailer / SMTP)" as Mail
@@ -44,6 +44,6 @@ API     --> DB  : Mongoose (TLS)
 API     --> Mail : réinitialisation\ndu mot de passe
 Uptime  ..> API : ping de disponibilité
 
-note top of Render : Déploiement continu\ndepuis GitHub
-note bottom of Mail : Mailtrap en développement,\nSMTP réel en production
+note bottom of Render : Déploiement continu\ndepuis GitHub
+note bottom of Mail : Service SMTP utilisé\npour l'envoi des e-mails 
 @enduml

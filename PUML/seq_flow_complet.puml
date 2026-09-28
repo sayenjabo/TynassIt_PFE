@@ -10,32 +10,44 @@ skinparam ActorFontColor #FFFFFF
 skinparam SequenceLifeLineBorderColor #2B4B6F
 
 actor "Employé" as Emp
-participant "Scène tutoriel\n(trainingscene)" as Trail
-participant "Scène auth\n(Companys)" as Comp
-participant "Scène simulation\n(indigo_onboarding)" as Indigo
+participant "Tutoriel VR" as Tutoriel
+participant "Connexion et formations" as Interface
 participant "Backend REST" as API
+participant "Simulation Indigo" as Indigo
 
-Emp -> Trail : démarrage de l'application
-activate Trail
-Trail -> Trail : tutoriel des contrôleurs (3 leçons)
-Trail -> Comp : transition (fin ou "passer")
-deactivate Trail
 
-activate Comp
-Comp -> API : activation du casque + login employé
-API --> Comp : device_token + données employé
-Comp -> API : charger les formations assignées
-API --> Comp : liste des formations
-Emp -> Comp : sélectionner la formation Indigo
-Comp -> Indigo : charger la scène de simulation
-deactivate Comp
+Emp -> Tutoriel : démarrer l'application
+activate Tutoriel
+
+Tutoriel -> Tutoriel : suivre les trois leçons
+
+Tutoriel -> Interface : fin ou passage du tutoriel
+deactivate Tutoriel
+
+== Connexion ==
+
+activate Interface
+
+Interface -> API : vérifier l'état d'activation du casque
+API --> Interface : état d'activation
+
+Emp -> Interface : saisir le code d'accès et le PIN
+
+Interface -> API : authentifier l'employé
+API --> Interface : employé authentifié
+
+== Formations ==
+
+Interface -> API : demander les formations disponibles
+API --> Interface : formations attribuées à l'entreprise
+
+Emp -> Interface : lancer la formation Indigo\ndepuis sa carte
+
+Interface -> Indigo : charger la simulation
+deactivate Interface
 
 activate Indigo
-Indigo -> Indigo : exploration + quiz
-Indigo -> API : SubmitSession (résultats)
-API --> Indigo : 201 Created
-Indigo -> Comp : retour à l'authentification
+Indigo --> Emp : démarrer la formation
 deactivate Indigo
 
-note over Trail, API : Chaque changement de scène passe par\nLoadingManager (écran de chargement).
 @enduml

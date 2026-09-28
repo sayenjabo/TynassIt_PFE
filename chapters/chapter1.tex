@@ -97,8 +97,49 @@ Avant ce PFE, Tynass a développé plusieurs projets XR remarquables~:
 
 \section{Présentation du projet}
 
-Apres avoir presente l'organisation d'accueil, cette section expose la problématique à l'origine du projet, puis les objectifs fixés
-pour y répondre.
+Après avoir présenté l'organisation d'accueil, cette section expose la démarche ayant
+conduit au choix du cas d'usage pilote, l'analyse des besoins réalisée auprès de
+l'entreprise retenue, puis la problématique et les objectifs du projet.
+
+\subsection{Recueil et analyse des besoins}
+
+Avant d'entamer le développement, nous avons mené une phase de cadrage afin
+d'identifier un cas d'usage réel permettant d'expérimenter la plateforme dans un
+contexte professionnel. Dans ce cadre, nous avons pris contact avec deux entreprises
+afin d'échanger sur leurs besoins en matière de formation et d'intégration des
+nouveaux employés. À l'issue de ces échanges, \textbf{Indigo Company} a été retenue
+comme entreprise pilote pour la première simulation en réalité virtuelle.
+
+Afin de mieux comprendre son processus d'intégration, nous avons ensuite élaboré
+un formulaire de recueil des besoins destiné au service des ressources humaines.
+Celui-ci portait notamment sur le déroulement de l'intégration, les informations
+essentielles à transmettre, les difficultés rencontrées, les critères permettant
+d'évaluer l'autonomie d'un nouvel employé ainsi que les attentes vis-à-vis d'un
+outil de formation en réalité virtuelle.
+
+Les réponses recueillies indiquent que le parcours d'intégration débute par un accueil
+RH comprenant une présentation de l'entreprise et une découverte du siège. Il se
+poursuit par un parcours dans différents départements et, lorsque cela est nécessaire,
+dans les magasins, ainsi que par un accompagnement individuel avec le responsable
+hiérarchique. La durée moyenne de cette phase d'intégration est estimée à environ
+deux semaines.
+
+Le recueil des besoins a également mis en évidence plusieurs difficultés. Indigo
+regroupe treize marques possédant chacune leurs propres standards, notamment en
+matière d'identité de marque, d'expérience client et de procédures opérationnelles.
+Ces éléments nécessitent généralement une immersion sur le terrain pour être bien
+assimilés. Par ailleurs, le temps consacré à l'accompagnement peut limiter la
+transmission complète des informations aux nouveaux employés.
+
+L'évaluation de l'intégration repose principalement sur le responsable hiérarchique,
+qui apprécie l'autonomie du collaborateur, sa maîtrise des procédures, son comportement
+et son adaptation au poste. Aucun indicateur quantitatif précis n'est actuellement
+utilisé pour déterminer le moment où un employé devient autonome.
+
+Enfin, Indigo attend de la solution proposée qu'elle complète le parcours
+d'intégration existant, facilite la découverte de l'entreprise et permette d'évaluer
+les connaissances acquises. Ces constats ont servi de base à la définition du premier
+cas d'usage d'\tynassit{}.
 
 \subsection{Problématique}
 
@@ -118,23 +159,47 @@ procédurales et situées, là où les supports classiques peinent à reproduire
 véritable mise en situation.
 
 \begin{notebox}
-  \textbf{Problématique}~: comment concevoir et developper une plateforme de formation immersive
-  capable de réduire le temps de montée en autonomie sur des procédures complexes,
-  tout en offrant un moyen mesurable d'en vérifier les acquis~?
+  \textbf{Problématique}~: comment concevoir et développer une plateforme de formation
+  immersive capable de compléter le parcours d'intégration des nouveaux employés,
+  de structurer la transmission des informations essentielles et de fournir à
+  l'entreprise un moyen de vérifier les connaissances acquises~?
 \end{notebox}
+
+\subsection{Justification du recours à la réalité virtuelle}
+
+Le choix de la réalité virtuelle découle directement de la nature du besoin identifié.
+Dans le cas d'Indigo Company, certaines informations liées à l'organisation des locaux,
+aux rôles des différents départements et aux procédures internes nécessitent une
+découverte contextualisée. La VR permet de reproduire cet environnement et de placer
+l'employé dans une situation proche de son futur contexte de travail, tout en conservant
+un parcours de formation reproductible.
+
+Ce choix s'appuie également sur plusieurs principes issus de la littérature académique.
+La théorie du double codage~\cite{paivio1971,clarkpaivio1991} montre que l'association
+d'informations verbales et visuelles peut favoriser leur mémorisation. Dans
+\tynassit{}, ce principe se traduit par la combinaison de narrations audio, de textes
+informatifs et de représentations visuelles en trois dimensions.
+
+Par ailleurs, les travaux consacrés aux environnements immersifs
+\cite{radianti2020,dalgarnolee2010} mettent en évidence l'intérêt de la présence et
+de l'interaction pour des apprentissages contextualisés. Dans notre cas, la réalité
+virtuelle est ainsi utilisée principalement pour la découverte spatiale, la présentation
+des informations dans leur contexte et la mise en situation de l'utilisateur.
+
+Il convient toutefois de préciser que la réalité virtuelle n'est pas considérée ici
+comme un remplacement de l'ensemble du parcours de formation. Elle constitue un
+support complémentaire au dispositif existant, notamment à l'accompagnement assuré
+par les ressources humaines et par le responsable hiérarchique.
 
 \subsection{Objectifs}
 
-Pour valider cette approche sur un cas réel, nous avons choisi de développer un
-premier module de formation en partenariat avec \textbf{Indigo Company}, leader
-tunisien du prêt-à-porter regroupant treize enseignes aux identités et procédures
-propres. Chez Indigo, l'intégration d'un nouvel employé repose aujourd'hui
-principalement sur un accueil RH ponctuel suivi d'un accompagnement de proximité avec
-le N\texttt{+}1, sur une période de deux semaines en moyenne~--- une approche où le
-temps consacré dépend directement de la disponibilité du manager, et où aucun
-mécanisme systématique ne permet de vérifier qu'un nouvel employé maîtrise
-effectivement les règles et procédures essentielles avant d'être considéré comme
-autonome.
+À partir des besoins identifiés avec \textbf{Indigo Company}, nous avons retenu
+comme premier cas d'usage la conception d'un module immersif destiné à compléter
+son parcours d'intégration existant. L'objectif n'est pas de remplacer
+l'accompagnement réalisé par les ressources humaines ou par le responsable
+hiérarchique, mais de proposer un support complémentaire permettant de transmettre
+de manière structurée certaines informations essentielles, de faciliter la
+découverte de l'environnement de travail et d'évaluer les connaissances acquises.
 
 En réponse à cette problématique, et à travers ce cas d'usage, \tynassit{} vise à~:
 
@@ -150,40 +215,6 @@ En réponse à cette problématique, et à travers ce cas d'usage, \tynassit{} v
   \item Réaliser le premier module de formation pour \textbf{Indigo Company}~:
     simulation d'intégration des nouveaux employés.
 \end{itemize}
-
-\section{Fondements pédagogiques du choix de la VR}
-
-Au-delà des indicateurs sectoriels déjà cités en introduction~\cite{pwc2020}, le choix
-de la VR comme support pédagogique s'appuie sur deux corpus théoriques distincts de la
-littérature académique.
-
-\paragraph{Double codage de l'information.}
-La théorie du double codage~\cite{paivio1971,clarkpaivio1991} établit que l'information
-encodée simultanément par le canal verbal et le canal visuel bénéficie de deux traces
-mnésiques indépendantes, augmentant significativement les chances de rappel par rapport
-à un encodage mono-canal. Ce principe justifie la combinaison, dans \tynassit{}, de la
-narration audio, du texte informatif et de la représentation visuelle~3D des lieux et
-procédures, plutôt qu'un support uniquement textuel ou uniquement oral.
-
-\paragraph{Apprentissage expérientiel et présence immersive.}
-Au-delà du simple visuel, la spécificité de la VR tient à l'immersion et à
-l'expérience à la première personne. Une revue systématique de l'usage de la VR en
-éducation~\cite{radianti2020} et le modèle des \textit{learning affordances} des
-environnements 3D~\cite{dalgarnolee2010} convergent~: le sentiment de présence en
-environnement virtuel immersif améliore la mémorisation spatiale, l'engagement et la
-rétention de connaissances, en particulier pour des tâches procédurales et
-situées~--- exactement le cas d'usage de l'intégration de nouveaux employés visé par
-la simulation d'intégration d'Indigo.
-
-\begin{notebox}
-  Il convient de nuancer~: l'efficacité de la VR n'est pas uniforme selon le type de
-  tâche. Elle est particulièrement démontrée pour les compétences procédurales et
-  situées~--- se repérer dans un lieu, suivre une procédure, réagir à une
-  situation~--- et moins systématiquement supérieure aux supports électroniques
-  classiques pour l'acquisition de connaissances purement déclaratives. C'est ce
-  périmètre précis (repérage, procédures, mise en situation) que cible cette
-  simulation d'intégration, plutôt qu'une prétention à remplacer tout support de formation.
-\end{notebox}
 
 \section{Étude de l'existant}
 
@@ -212,19 +243,22 @@ de \textbf{70 000 équipes} à travers le monde (dont Google, Amazon, Meta, PwC)
 Plusieurs grandes entreprises et plateformes ont développé des solutions de formation en
 réalité virtuelle, à des échelles et avec des objectifs variés.
 
-\subsubsection{BCG Universe}
+\paragraph*{\textbullet~BCG Universe.}
 
 Boston Consulting Group a déployé \textbf{BCG Universe}~\cite{bcg2024} en 2024, un programme
 d'onboarding en VR destiné à ses nouvelles recrues mondiales.
 
 \begin{itemize}
+  \item \textbf{Fonctionnalités}~: environnement virtuel immersif de découverte des
+    locaux mondiaux du BCG, présentation des équipes et de la culture d'entreprise,
+    collaboration immersive entre nouvelles recrues internationales.
   \item \textbf{Résultats}~: 100\% de satisfaction des participants, Gold Award
     Brandon Hall Excellence Awards 2024.
   \item \textbf{Limites}~: solution interne, budget de plusieurs millions de dollars,
     non accessible aux PME.
 \end{itemize}
 
-\subsubsection{Accenture Nth Floor}
+\paragraph*{\textbullet~Accenture Nth Floor}
 
 Accenture a développé \textbf{Nth Floor}~\cite{accenture2025}, un environnement métaverse
 pour l'intégration de ses nouvelles recrues.
@@ -235,7 +269,7 @@ pour l'intégration de ses nouvelles recrues.
   \item \textbf{Limites}~: solution propriétaire non commercialisée, réservée en interne.
 \end{itemize}
 
-\subsubsection{ClassVR}
+\paragraph*{\textbullet~ClassVR}
 
 ClassVR est une plateforme VR dédiée à l'éducation, proposant des casques spécifiques
 pour les établissements scolaires.
@@ -247,7 +281,7 @@ pour les établissements scolaires.
     professionnelle adulte en entreprise.
 \end{itemize}
 
-\subsubsection{Meta Quest for Business}
+\paragraph*{\textbullet~Meta Quest for Business}
 
 Meta Quest for Business était un bundle enterprise combinant casques Quest et outils de
 gestion d'entreprise.
@@ -259,11 +293,12 @@ gestion d'entreprise.
     citant une demande insuffisante et un marché pas encore assez mature.
 \end{itemize}
 
-\subsubsection{Start Beyond}
+\paragraph*{\textbullet~Oncio --- Start Beyond.}
 
-Start Beyond~\cite{startbeyond2026} est une entreprise australienne fondée en 2015,
-spécialisée dans la conception de contenus VR/AR sur mesure pour l'entreprise et
-l'éducation, via son studio de production et sa plateforme \textbf{Oncio}.
+\textbf{Oncio}, proposée par Start Beyond, est une plateforme destinée au déploiement
+et à la gestion de contenus de formation immersifs en réalité virtuelle. Elle permet
+aux organisations de mettre à disposition des expériences VR dans différents contextes
+professionnels, notamment l'intégration, la sécurité et la formation opérationnelle.
 
 \begin{itemize}
   \item \textbf{Fonctionnalités}~: formations immersives à la demande (onboarding,
@@ -289,24 +324,26 @@ par rapport à \tynassit{}.
     \textbf{Critère} & \textbf{TalentLMS} & \textbf{BCG} & \textbf{ClassVR}
                      & \textbf{Meta QB} & \textbf{\tynassit{}} \\
     \midrule
-    B2B               & \checkmark & \checkmark & $\times$   & \checkmark & \checkmark \\
-    VR immersive      & $\times$   & \checkmark & \checkmark & $\times$   & \checkmark \\
-    Plateforme gestion& \checkmark & $\times$   & \checkmark & \checkmark & \checkmark \\
-    Suivi sessions    & \checkmark & $\times$   & $\times$   & $\times$   & \checkmark \\
-    Meta Quest 3      & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
-    PME Tunisie       & $\times$   & $\times$   & $\times$   & $\times$   & \checkmark \\
+    B2B                & \cmark & \cmark & \xmark & \cmark & \cmark \\
+    VR immersive       & \xmark & \cmark & \cmark & \xmark & \cmark \\
+    Plateforme gestion & \cmark & \xmark & \cmark & \cmark & \cmark \\
+    Suivi sessions     & \cmark & \xmark & \xmark & \xmark & \cmark \\
+    Meta Quest 3       & \xmark & \xmark & \xmark & \xmark & \cmark \\
+    PME Tunisie        & \xmark & \xmark & \xmark & \xmark & \cmark \\
     \bottomrule
   \end{tabularx}
   \caption{Synthèse comparative des solutions existantes}
   \label{tab:comparatif}
 \end{table}
 
-L'analyse des solutions existantes révèle un vide significatif~: aucune solution ne combine
-simultanément l'immersion VR sur Meta Quest~3, une plateforme de gestion B2B intégrée et
-une accessibilité adaptée aux entreprises tunisiennes. \tynassit{} se positionne précisément
-dans cet espace, en offrant une alternative abordable aux solutions VR enterprise coûteuses
-(BCG, Accenture), tout en dépassant les capacités des LMS classiques (TalentLMS) par
-l'immersion et l'interactivité.
+L'analyse comparative met en évidence des positionnements différents selon les solutions
+étudiées. Les LMS traditionnels, tels que TalentLMS, proposent principalement des fonctions
+de gestion et de suivi de la formation, tandis que certaines solutions spécialisées
+exploitent la réalité virtuelle pour proposer des expériences immersives.
+
+Dans ce contexte, \tynassit{} vise à réunir au sein d'une même plateforme la gestion
+des entreprises et des formations, le suivi des sessions ainsi qu'une application
+de formation immersive sur Meta Quest~3, adaptée au cas d'usage étudié avec Indigo Company.
 
 \section{Méthodologie de développement}
 
@@ -339,16 +376,32 @@ les approches traditionnelles et agiles~\cite{agile2020}.
 
 \subsection{Choix de l'approche itérative et incrémentale}
 
-La nature de ce projet~--- évolutif, avec un client pilote (Indigo Company) dont les
-besoins peuvent évoluer, et mené par un développeur unique~--- appelle une approche
-flexible. Une démarche \textbf{itérative et incrémentale}, inspirée des principes agiles,
-a été retenue pour les raisons suivantes~:
+La nature évolutive du projet, la présence d'un client pilote et les dépendances
+entre les différentes composantes de la plateforme nous ont conduits à retenir une
+démarche \textbf{itérative et incrémentale}, inspirée des principes agiles.
+
+Le développement a ainsi été organisé en quatre itérations d'une durée comprise
+entre \textbf{trois et cinq semaines}. Chaque itération produit un incrément fonctionnel
+qui s'appuie sur les réalisations précédentes et peut être vérifié avant de poursuivre
+le développement.
+
+À l'issue de chaque itération, l'incrément réalisé était présenté à l'encadrement
+professionnel de Tynass afin de vérifier son fonctionnement, de recueillir les retours
+et de valider la poursuite du développement. Pour les fonctionnalités directement
+liées au cas d'usage d'Indigo Company, les choix réalisés étaient également confrontés
+aux besoins exprimés par l'entreprise pilote.
+
+Cette organisation a notamment permis~:
 
 \begin{itemize}
-  \item Des itérations courtes permettant de valider régulièrement l'avancement.
-  \item Une adaptation facile aux changements de priorités (règlement intérieur Indigo, retours terrain).
-  \item Des livraisons incrémentales permettant de tester chaque composante sur le casque physique.
-  \item Un backlog produit structurant clairement les priorités via la méthode MoSCoW.
+  \item de répartir progressivement le développement en incréments fonctionnels~;
+  \item d'intégrer les retours et les nouveaux besoins au fur et à mesure de l'avancement~;
+  \item de tester progressivement les composants web, backend et VR~;
+  \item d'organiser des points de validation réguliers avec l'encadrement professionnel
+        et, pour les fonctionnalités liées à la simulation d'intégration, de confronter
+        les réalisations aux besoins exprimés par Indigo Company~;
+  \item de prioriser les fonctionnalités à l'aide du backlog produit et de la méthode
+        MoSCoW.
 \end{itemize}
 
 \subsection{Organisation du travail}
@@ -363,6 +416,10 @@ référent.
 
 
 \subsection{Planning global du projet}
+
+La figure~\ref{fig:gantt} présente la planification globale du projet, depuis la phase
+initiale de cadrage et de recherche du client pilote jusqu'aux quatre itérations de
+développement et à la rédaction du rapport.
 
 \begin{figure}[H]
   \centering
@@ -435,7 +492,8 @@ ces itérations, l'incrément livré par chacune et sa durée.
     Itération~1 & Backend core et architecture de sécurité & US-01 à US-05 & 3 semaines \\
     Itération~2 & Tableaux de bord web Admin et Company & US-06 à US-13 & 3 semaines \\
     Itération~3 & Application VR~: authentification et scènes de base & US-14 à US-18 & 4 semaines \\
-    Itération~4 & Simulation d'intégration d'Indigo Company & US-19 à US-23 & 5 semaines \\
+    Itération~4 & Simulation d'intégration d'Indigo Company et fonctionnalités d'évaluation
+& US-19 à US-25 & 5 semaines \\
     \bottomrule
   \end{tabularx}
   \caption{Répartition des incréments sur les itérations}

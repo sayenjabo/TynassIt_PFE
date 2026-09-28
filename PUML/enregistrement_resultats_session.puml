@@ -1,0 +1,29 @@
+@startuml Enregistrement_Resultats_Session
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Application VR" as VR
+
+rectangle "Système d'enregistrement des sessions" {
+
+  usecase "Enregistrer une session\nde formation" as Enregistrer
+
+  usecase "Vérifier les données\nreçues" as Verifier
+
+  usecase "Mettre les données à disposition\npour le suivi et les statistiques" as Suivi
+
+  usecase "Refuser l'enregistrement" as Refuser
+  }
+
+VR --> Enregistrer
+
+Enregistrer ..> Verifier : <<include>>
+
+Enregistrer <|-- Suivi : [données valides]
+Enregistrer <|-- Refuser : [données invalides]
+
+@enduml

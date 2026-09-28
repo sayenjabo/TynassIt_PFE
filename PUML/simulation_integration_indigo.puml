@@ -1,0 +1,28 @@
+@startuml Simulation_Integration_Indigo
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Employé" as Employe
+
+rectangle "Application VR" {
+
+    usecase "Vivre la simulation\nd'intégration Indigo" as Simulation
+
+    usecase "Effectuer la visite\nguidée des locaux" as Visite
+
+    usecase "Répondre au quiz" as Quiz
+
+    usecase "Consulter son résultat" as Resultat
+}
+
+Employe --> Simulation
+
+Simulation ..> Visite : <<include>>
+Simulation ..> Quiz : <<include>>
+Simulation ..> Resultat : <<include>>
+
+@enduml

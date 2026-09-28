@@ -17,7 +17,8 @@ skinparam activity {
 title Déroulement de la simulation d'intégration Indigo
 
 start
-:Chargement de la scène\n(enregistrement de startedAt);
+:Chargement de la simulation;
+:Enregistrement du début de la session;
 :Lecture de la narration d'accueil;
 
 partition "Phase 1 --- Exploration des locaux" {
@@ -35,8 +36,13 @@ partition "Phase 2 --- Quiz" {
   :Recevoir le score et le statut\n(calculés côté serveur);
 }
 
-:Afficher le panneau de résultats;
-:Soumettre la session (SubmitSession);
-:Retour à la scène d'authentification;
+:Afficher le résultat;
+
+:L'employé termine la formation;
+
+:Transmettre et enregistrer\nles données de la session;
+
+:Retour à la liste des formations;
+
 stop
 @enduml

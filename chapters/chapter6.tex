@@ -50,8 +50,8 @@ leur charge estimée.
   \item Importer et intégrer l'environnement dans Unity~6.
   \item Développer les 2 phases de la simulation (exploration des locaux, quiz).
   \item Implémenter le système de quiz avec calcul automatique du score.
-  \item Connecter la fin de simulation à \texttt{TynassApiClient.SubmitSession()}.
-  \item Afficher les résultats dans le panel QuizResult.
+  \item Transmettre automatiquement les résultats de la simulation au backend.
+  \item Afficher à l'employé son score et son statut à la fin de la simulation.
 \end{itemize}
 
 \subsection{Tâches et estimations de l'itération~4}
@@ -62,22 +62,22 @@ leur charge estimée.
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge (j/h)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (j)} \\
     \midrule
     US-19 & Exploration des locaux &
       Environnement 3D Indigo (Blender + optimisation Quest~3) & \must{} & 8 \\
     US-20 & Quiz de fin de simulation &
       Simulation~: exploration + quiz & \must{} & 5 \\
     US-21 & Soumission automatique des résultats &
-      SubmitSession → backend → visible dashboard & \must{} & 2 \\
+      Transmission et enregistrement des résultats & \must{} & 2 \\
     US-22 & Affichage des résultats &
-      Panel QuizResult (score + critères) & \must{} & 1,5 \\
-     US-23 & Navigation dans la liste des formations &
-      Scroll VR joystick dans ModulesPanel & \could{} & 1 \\
+      Affichage du score et du statut de réussite & \must{} & 1,5 \\
+    US-23 & Navigation dans la liste des formations &
+      Défilement de la liste avec le joystick & \could{} & 1 \\
     US-24 & Gestion des quiz &
-      Interface entreprise~: création de quiz par formation & \must{} & 3 \\
+      Création et gestion des quiz par formation & \must{} & 3 \\
     US-25 & Objectifs de formation &
-      Milestones par employé (statut auto après session) & \should{} & 2 \\
+      Suivi des objectifs de formation par employé & \should{} & 2 \\
     \midrule
     \multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{22,5} \\
     \bottomrule
@@ -128,8 +128,8 @@ Les optimisations appliquées pour Meta Quest~3~:
     temps réel), lightmaps calculées dans Unity.
   \item \textbf{Static Batching}~: activé sur tous les objets statiques pour réduire
     les draw calls.
-  \item \textbf{Occlusion Culling}~: activé pour ne rendre que les objets visibles
-    depuis la position courante.
+  \item \textbf{Occlusion Culling}~: activé afin d'effectuer uniquement le rendu
+des objets visibles depuis la position courante.
 \end{itemize}
 
 La figure~\ref{fig:blender} présente l'environnement d'Indigo modélisé dans
@@ -156,11 +156,13 @@ figure~\ref{fig:unity_import}.
 
 \subsection{Structure de la simulation}
 
- La simulation d'intégration Indigo (\texttt{indigo\_onboarding}) est organisée en \textbf{2 phases séquentielles}~:
-
+ La simulation d'intégration Indigo est organisée en \textbf{deux phases séquentielles}~:
 \begin{enumerate}
-  \item \textbf{Phase 1 --- Exploration des locaux}~: l'employé navigue librement dans les locaux d'Indigo Company et découvre huit zones interactives~--- les sept départements ainsi qu'une zone dédiée au responsable de département ---, chacune
-présentée par un panneau d'information et une narration audio.
+  \item \textbf{Phase 1 --- Exploration des locaux}~:
+l'employé effectue une visite guidée des locaux d'Indigo Company et découvre
+huit zones interactives~--- les sept départements ainsi qu'une zone dédiée au
+responsable de département ---, chacune présentée par un panneau d'information
+et une narration audio.
  \item \textbf{Phase 2 --- Quiz}~: questions à choix multiples évaluant la
     compréhension des informations présentées lors de l'exploration. Le nombre
     et le contenu des questions sont définis par l'entreprise depuis son tableau de bord.
@@ -189,20 +191,28 @@ de l'exploration des zones jusqu'à la soumission des résultats.
 
 \subsection{Système de quiz}
 
-Les questions du quiz et leur nombre sont définis par l'entreprise cliente depuis son tableau de bord~; ils ne sont pas figés dans l'application. Le casque transmet les réponses de l'employé au backend via \texttt{POST /company/quiz/submit}~; le backend
-les valide 
---- les bonnes réponses ne sont jamais envoyées au casque, ce qui empêche toute triche 
---- puis renvoie le score et le statut de réussite. Le score est calculé selon~:
+Les questions du quiz et leur nombre sont définis par l'entreprise cliente depuis
+son tableau de bord~; ils ne sont donc pas figés dans l'application.
+À la fin du quiz, les réponses de l'employé sont transmises au backend afin
+d'être évaluées. Le système détermine ensuite le score obtenu ainsi que le
+statut de réussite.
 
 \[
   \text{Score} = \frac{\text{QuizCorrect}}{\text{QuizTotal}} \times 100
 \]
 
-\[
-  \text{passed} = \text{Score} \geq \text{passingScore}
-\]
-où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fixé à 70~\% par défaut.
-\subsection{Mapping AppSession → SessionSubmitPayload}
+où \texttt{QuizCorrect} représente le nombre de bonnes réponses et
+\texttt{QuizTotal} le nombre total de questions.
+
+Le candidat réussit l'épreuve si le score obtenu est supérieur ou égal au
+seuil de réussite défini par l'entreprise. Dans le cas d'Indigo Company,
+ce seuil est fixé à 70~\%.
+
+\subsection{Correspondance des données de la session}
+
+Le tableau~\ref{tab:session_mapping} présente la correspondance entre les
+informations conservées pendant la simulation et les données transmises
+au backend lors de l'enregistrement d'une session.
 
 \begin{table}[H]
   \centering
@@ -223,42 +233,78 @@ où \texttt{passingScore} est le seuil de réussite défini par l'entreprise, fi
   \label{tab:session_mapping}
 \end{table}
 
-\subsection{Cas d'utilisation --- Descriptions textuelles}
+\subsection{Raffinement des cas d'utilisation de l'itération~4}
 
+La figure ci-dessous présente le raffinement du cas d'utilisation relatif
+au déroulement de la simulation d'intégration Indigo.
 \clearpage
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/simulation_integration_indigo.png}
+  \caption{Raffinement du cas d'utilisation --- simulation d'intégration Indigo}
+  \label{fig:simulation_integration_indigo}
+\end{figure}
+
 \begin{ucbox}{Vivre la simulation d'intégration Indigo}
-  \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Employé connecté, formation d'intégration Indigo sélectionnée. \\
-    \textbf{Acteur}         & Employé (via Meta Quest~3). \\
-    \textbf{Scénario}       &
-      1. La scène d'intégration Indigo est chargée via \texttt{LoadingScreen}. \newline
-      2. \texttt{OnboardingManager} enregistre \texttt{startedAt = DateTime.UtcNow}. \newline
-       3. Phase 1~: Employé explore les locaux et les huit zones
-         (sept départements + responsable~; navigation + panneaux + narrations). \newline
-      4. Phase 2~: Quiz séquentiel (questions définies par l'entreprise). \newline
-      5. À la fin~: QuizManager appelle \texttt{SubmitSession()}. \newline
-      6. PanelManager.GoQuizResult() affiche les résultats. \\
-    \textbf{Post-conditions}& Session stockée en BDD, visible dans dashboard admin. \\
-  \end{tabular}
+
+\begin{tabular}{lp{9cm}}
+
+\textbf{Pré-conditions} &
+Employé connecté et formation d'intégration Indigo lancée. \\
+
+\textbf{Acteur} &
+Employé. \\
+
+\textbf{Scénario} &
+1. L'employé accède à la simulation d'intégration Indigo. \newline
+2. Il effectue une visite guidée des différentes zones de l'entreprise. \newline
+3. Des panneaux d'information et des narrations audio accompagnent la visite. \newline
+4. À la fin de l'exploration, l'employé répond au quiz associé à la formation. \newline
+5. Le système évalue les réponses et détermine le résultat obtenu. \newline
+6. Le résultat est affiché à l'employé. \\
+
+\textbf{Post-conditions} &
+La simulation est terminée et le résultat de l'employé est enregistré. \\
+
+\end{tabular}
+
 \end{ucbox}
 
 \vspace{0.5cm}
 
-\begin{ucbox}{Soumettre une session (SubmitSession)}
-  \begin{tabular}{lp{9cm}}
-    \textbf{Pré-conditions} & Simulation terminée, AppSession remplie. \\
-    \textbf{Acteur}         & QuizManager (automatique). \\
-    \textbf{Scénario}       &
-      1. Construire \texttt{SessionSubmitPayload} depuis AppSession. \newline
-      2. Appel \texttt{TynassApiClient.SubmitSession(...)}. \newline
-      3. Backend calcule \texttt{durationSeconds} (côté serveur). \newline
-      4. Backend incrémente \texttt{attemptNumber} (pre-save hook). \newline
-      5. Session stockée en MongoDB. \newline
-      6. Réponse 201 Created → GoQuizResult(). \\
-    \textbf{Exceptions}     & Perte Wi-Fi → retry automatique (3 tentatives). \\
-    \textbf{Post-conditions}& Session visible dans les dashboards Admin et Company. \\
-  \end{tabular}
+La figure ci-dessous présente le raffinement du cas d'utilisation relatif
+à l'enregistrement des résultats d'une session.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../images/enregistrement_resultats_session.png}
+  \caption{Raffinement du cas d'utilisation --- enregistrement des résultats d'une session}
+  \label{fig:enregistrement_resultats_session}
+\end{figure}
+
+\begin{ucbox}{Enregistrer les résultats d'une session}
+
+\begin{tabular}{lp{9cm}}
+
+\textbf{Pré-conditions} &
+La simulation est terminée et le résultat de l'employé est disponible. \\
+
+\textbf{Acteur} &
+Système. \\
+
+\textbf{Scénario} &
+1. Le système prépare les informations de la session terminée. \newline
+2. Les résultats sont transmis au backend. \newline
+3. Le backend enregistre la session dans la base de données. \newline
+4. Les informations enregistrées deviennent disponibles dans les dashboards. \newline
+5. Le système affiche ensuite le résultat à l'employé. \\
+
+\textbf{Post-conditions} &
+La session est enregistrée et ses résultats sont consultables depuis les dashboards. \\
+
+\end{tabular}
+
 \end{ucbox}
 
 La figure~\ref{fig:seq_submit} détaille les échanges entre le casque, le backend et la
@@ -336,6 +382,9 @@ fin de la simulation.
 
 \section{Difficultés et solutions}
 
+Nous résumons dans le tableau ci-dessous les principales difficultés rencontrées
+au cours de cette itération ainsi que les solutions mises en place.
+
 \begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{lXX}
@@ -372,17 +421,20 @@ fin de la simulation.
 
 \section{Évaluation de l'itération~4}
 
+Le tableau ci-dessous présente les principaux éléments évalués à la fin
+de cette quatrième itération.
+
 \begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{Xl}
     \toprule
-    \textbf{Élément validé} & \textbf{Statut} \\
+    \textbf{Élément évalué} & \textbf{Statut} \\
     \midrule
     Exploration des 8 zones (7 départements + responsable) & Fonctionnel \\
     Narrations audio intégrées à la scène & Fonctionnel \\
     Quiz à choix multiples, score calculé côté backend & Fonctionnel \\
-    Soumission automatique de session (\texttt{SubmitSession}) & Validé \\
-    Session visible dans le dashboard d'administration & Validé \\
+    Transmission automatique des résultats de la session & Fonctionnel \\
+    Session visible dans le dashboard d'administration & Fonctionnel \\
     Taille de l'APK & 2,4~Go \\
     \bottomrule
   \end{tabularx}
@@ -433,9 +485,8 @@ fonctionnement de bout en bout de la chaîne casque--backend--dashboard.
 \section{Conclusion}
 
 Cette quatrième itération constitue le cœur du module de formation Indigo~:
-modélisation complète de l'environnement 3D, narrations intégrées à la scène, système de quiz fonctionnel et soumission automatique des résultats via \texttt{SubmitSession}.
-La simulation d'intégration d'Indigo Company couvre ainsi l'intégralité du parcours~:
-de l'exploration immersive des locaux jusqu'à la remontée automatique des résultats dans
-le dashboard d'administration. La mesure fine des métriques de performance (FPS, temps de
-chargement) constitue une perspective d'amélioration. Le
-chapitre suivant présente la conclusion générale et les perspectives du projet.
+modélisation de l'environnement 3D, intégration des narrations audio,
+mise en place du quiz et transmission automatique des résultats.
+La simulation d'intégration d'Indigo Company couvre ainsi l'ensemble du parcours,
+depuis la visite guidée des locaux jusqu'à l'enregistrement et la consultation
+des résultats dans le dashboard d'administration.

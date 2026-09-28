@@ -1,0 +1,27 @@
+@startuml Raffinement_Authentification_Employe
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Employé" as Employe
+
+rectangle "Système d'authentification" {
+  usecase "Saisir le code\nd'accès" as Code
+  usecase "Saisir le PIN" as Pin
+  usecase "S'authentifier" as Auth
+  usecase "Vérifier les identifiants" as Verifier
+  usecase "Autoriser l'accès aux\nformations" as Autoriser
+  usecase "Afficher un message\nd'erreur" as Erreur
+}
+
+Employe --> Auth
+Employe --> Code
+Employe --> Pin
+Auth ..> Verifier : <<include>>
+Auth <.. Autoriser : <<extend>>
+Auth <.. Erreur : <<extend>>
+
+@enduml

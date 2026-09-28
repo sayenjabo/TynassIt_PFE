@@ -1,0 +1,38 @@
+@startuml Raffinement_Activation_Casque_Dashboard
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam actorStyle awesome
+
+actor "Staff Admin" as Admin
+actor "Backend Immersio" as Backend
+
+rectangle "Dashboard Admin" {
+
+    usecase "Saisir le code\nd'activation" as Code
+
+    usecase "Sélectionner\nl'entreprise" as Entreprise
+
+    usecase "Ajouter un libellé\nau casque" as Label
+
+    usecase "Activer un casque" as Activer
+
+    usecase "Vérifier le code\nd'activation" as Verifier
+
+    usecase "Associer le casque\nà l'entreprise" as Associer
+}
+
+Admin --> Code
+Admin --> Entreprise
+Admin --> Label
+Admin --> Activer
+
+Activer ..> Verifier : <<include>>
+Activer ..> Associer : <<include>>
+
+
+Verifier <-- Backend
+Associer <-- Backend
+@enduml

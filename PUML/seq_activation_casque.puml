@@ -18,7 +18,7 @@ participant "Backend REST\n(Node.js/Express)" as API
 database "MongoDB\nAtlas" as DB
 
 == Demande d'activation (côté casque) ==
-Unity -> API : POST /company/devices/request-activation\n{ metaUserId }
+Unity -> API : POST /api/company/devices/request-activation\n{ metaUserId }
 API -> DB : rechercher / créer Device(metaUserId)
 API -> API : générer code à 6 chiffres\n(expire dans 15 min)
 API -> DB : enregistrer activationCode + expiration
@@ -26,7 +26,7 @@ API --> Unity : { activationCode, expiresIn }
 Unity -> Unity : afficher le code à l'écran
 
 == Validation (côté dashboard admin) ==
-Admin -> API : POST /company/devices/activate\n{ code, companyId, label }
+Admin -> API : POST /api/company/devices/activate\n{ code, companyId, label }
 API -> DB : vérifier code + expiration
 alt code valide
   API -> API : générer JWT device (1 an)\n+ hash SHA-256
@@ -37,11 +37,10 @@ else code expiré / invalide
 end
 
 == Récupération du token (côté casque) ==
-Unity -> API : POST /company/devices/check\n{ metaUserId }
+Unity -> API : POST /api/company/devices/check\n{ metaUserId }
 API -> DB : lire deviceTokenPlain (si < 60 s)
 API -> DB : effacer deviceTokenPlain
 API --> Unity : { status: "activated", deviceToken }
-Unity -> Unity : stocker le token dans PlayerPrefs\n(persistant)
+Unity -> Unity : conserver le jeton localement
 
-note over Unity, DB : Le token brut n'est exposé que 60 secondes.\nSeul son hash SHA-256 reste en base.
 @enduml

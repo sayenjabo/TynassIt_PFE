@@ -1,6 +1,6 @@
 @startuml Diagramme_de_classes
 ' ============================================================
-'  Diagramme de classes --- 8 modèles MongoDB (Immersio / Tynass IT)
+'  Diagramme de classes --- Principaux modèles MongoDB (Immersio / Tynass IT)
 '  Généré à partir des schémas Mongoose réels du backend.
 '  Rendu : coller sur https://www.plantuml.com/plantuml
 '  puis Export PNG ou SVG.
@@ -52,7 +52,7 @@ class Employee {
   - name : String
   - jobTitle : String
   - department : String
-  - accessCode : String «XX-001, unique»
+  - accessCode : String «XX-001, unique par entreprise»
   - pin : String «bcrypt»
   - isActive : Boolean
 }
@@ -85,10 +85,31 @@ class Session {
 }
 
 class Quiz {
-  - training : ObjectId «ref, unique»
+  - training : ObjectId «ref Training»
   - company : ObjectId «ref Company»
   - passingScore : Number «défaut 70»
   - isActive : Boolean
+}
+
+class QuizResult {
+  - company : ObjectId «ref Company»
+  - training : ObjectId «ref Training»
+  - employee : ObjectId «ref Employee»
+  - quiz : ObjectId «ref Quiz»
+  - score : Number
+  - passed : Boolean
+  - correctCount : Number
+  - totalQuestions : Number
+  - passingScore : Number
+  - consumed : Boolean
+  - sessionId : ObjectId «ref Session, nullable»
+}
+
+class SessionCounter {
+  - company : ObjectId «ref Company»
+  - training : ObjectId «ref Training»
+  - employee : ObjectId «ref Employee, nullable»
+  - seq : Number
 }
 
 class Counter {
@@ -103,7 +124,8 @@ class Milestone <<embedded>> {
   - description : String
   - type : training | task
   - status : pending | in_progress | completed
-  - module : String
+  - module : String «nullable»
+  - training : ObjectId «ref Training, nullable»
   - score : Number
   - completedAt : Date
 }
@@ -127,18 +149,26 @@ class Choice <<embedded>> {
 
 ' ---------------- Relations (références) ----------------
 
-Company "1" --> "0..*" Training : assignedTrainings
+Company "0..*" ---> "0..*" Training : assignedTrainings
 Employee "0..*" -> "1" Company
 Device   "0..*" ..> "0..1" Company
 Session  "0..*" -> "1" Company
 Session  "0..*" --> "1" Training
 Session  "0..*" ..> "0..1" Employee
-Quiz     "1" --> "1" Training
+Quiz     "0..*" --> "1" Training
 Quiz     "0..*" --> "1" Company
-
+QuizResult "0..*" --> "1" Company
+QuizResult "0..*" -> "1" Training
+QuizResult "0..*" -> "1" Employee
+QuizResult "0..*" -> "1" Quiz
+QuizResult ..> Session : sessionId
+SessionCounter "0..*" --> "1" Company
+SessionCounter "0..*" --> "1" Training
+SessionCounter "0..*" ..> "0..1" Employee
 ' ---------------- Compositions (embedded) ----------------
 
 Employee "1" *-- "0..*" Milestone
+Milestone "0..*" .> "0..1" Training : training
 Session  "1" *-- "0..*" EvaluationCriteria
 Quiz     "1" *-- "1..*" Question
 Question "1" *-- "2..4" Choice
