@@ -52,7 +52,7 @@ leur charge estimée.
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (j)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (h/j)} \\
     \midrule
     US-14 & Tutoriel des contrôleurs VR &
       Tutoriel en trois leçons & \must{} & 4 \\
@@ -204,20 +204,20 @@ au tutoriel d'introduction et aux différentes interactions proposées à l'empl
 \begin{ucbox}{Tutoriel d'introduction}
 \begin{tabular}{lp{9cm}}
 \textbf{Pré-conditions} &
-Casque démarré, utilisateur novice en VR. \\
+Casque démarré. \\
 \textbf{Acteur} &
-Employé. \\
+employé. \\
 \textbf{Scénario A} &
-1. L'utilisateur choisit « Commencer les leçons ». \newline
+1. L'employé choisit « Commencer les leçons ». \newline
 2. Leçon 1 : apprendre à se déplacer dans l'environnement virtuel. \newline
 3. Leçon 2 : apprendre à saisir et déplacer un objet. \newline
 4. Leçon 3 : apprendre à interagir avec l'interface. \newline
-5. À la fin du tutoriel, l'utilisateur accède à l'écran de connexion. \\
+5. À la fin du tutoriel, l'employé accède à l'écran de connexion. \\
 \textbf{Scénario B} &
-1. L'utilisateur choisit « Passer ». \newline
-2. L'utilisateur accède directement à l'écran de connexion. \\
+1. L'employé choisit « ignorer ». \newline
+2. L'employé accède directement à l'écran de connexion. \\
 \textbf{Post-conditions} &
-Le tutoriel est terminé ou passé et l'utilisateur accède à l'étape suivante. \\
+Le tutoriel est terminé ou passé et l'employé accède à l'étape suivante. \\
 \end{tabular}
 \end{ucbox}
 
@@ -239,7 +239,7 @@ du cas d'utilisation relatif à la consultation et au lancement d'une formation.
     \textbf{Acteur} &
       Employé. \\
     \textbf{Scénario} &
-      1. Le système affiche les formations attribuées à l'entreprise. \newline
+      1. Le système affiche les formations attribuées à l'entreprise de l'employé. \newline
       2. Les formations disponibles sont présentées sous forme de cartes. \newline
       3. L'employé lance la formation qu'il souhaite suivre depuis la carte correspondante. \newline
       4. La scène de formation associée est chargée. \\
@@ -250,9 +250,6 @@ du cas d'utilisation relatif à la consultation et au lancement d'une formation.
 
 \subsection{Diagramme de séquence}
 
-La figure~\ref{fig:flow_complet} retrace le parcours de l'employé, depuis le tutoriel
-jusqu'au lancement d'une formation, en passant par l'authentification et la consultation
-des formations disponibles. Elle présente également les échanges avec le backend.
 
 \begin{figure}[H]
   \centering
@@ -260,6 +257,11 @@ des formations disponibles. Elle présente également les échanges avec le back
   \caption{Diagramme de séquence --- flux complet entre les trois scènes}
   \label{fig:flow_complet}
 \end{figure}
+
+La figure~\ref{fig:flow_complet} retrace le parcours de l'employé, depuis le tutoriel
+jusqu'au lancement d'une formation, en passant par l'authentification et la consultation
+des formations disponibles. Elle présente également les échanges avec le backend.
+
 
 \section{Implémentation de l'itération~3}
 
@@ -320,32 +322,36 @@ Oculus.Platform.Users.GetLoggedInUser().OnComplete(async msg => {
 \subsection{Connexion de l'employé en deux étapes
 (\textit{EmployeeSignInPanel})}
 
-\begin{enumerate}
+\begin{itemize}
 
   \item \textbf{Première étape --- Code d'accès}~:
     l'employé saisit son code d'accès à l'aide d'un clavier
     alphanumérique. Le format est vérifié avant l'envoi des informations.
 
-  \item \textbf{Deuxième étape --- PIN}~:
-    l'employé saisit son PIN à quatre chiffres à l'aide d'un pavé numérique.
-    Les chiffres sont masqués à l'écran et les informations sont ensuite
-    vérifiées par le backend.
-
-\end{enumerate}
-
-\begin{figure}[H]
+    \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{../images/vr_signin_code.png}
   \caption{Connexion employé --- saisie du code d'accès}
   \label{fig:vr_signin_code}
 \end{figure}
 
-\begin{figure}[H]
+  \item \textbf{Deuxième étape --- PIN}~:
+    l'employé saisit son PIN à quatre chiffres à l'aide d'un pavé numérique.
+    Les chiffres sont masqués à l'écran et les informations sont ensuite
+    vérifiées par le backend.
+
+    \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{../images/vr_signin_pin.png}
   \caption{Connexion employé --- saisie du PIN}
   \label{fig:vr_signin_pin}
 \end{figure}
+
+\end{itemize}
+
+
+
+
 
 \subsection{Grille des formations (\textit{ModulesPanel})}
 
@@ -377,34 +383,50 @@ localement afin d'être conservés entre les différentes sessions d'utilisation
 
 \begin{table}[H]
   \centering
+
+  {\footnotesize
   \begin{tabularx}{\textwidth}{lXX}
     \toprule
     \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
     \midrule
+
     Sérialisation des données &
-Certaines données envoyées au backend n'étaient pas correctement
-converties au format JSON. &
-Création de classes dédiées afin de structurer correctement
-les données échangées avec l'API. \\
+    Certaines données envoyées au backend n'étaient pas correctement
+    converties au format JSON. &
+    Création de classes dédiées afin de structurer correctement
+    les données échangées avec l'API.
+    \\
+
     \midrule
+
     Chargement des vidéos &
-Le préchargement des vidéos au démarrage provoquait un temps
-d'attente important. &
-Les vidéos ont été déplacées vers un emplacement permettant
-leur chargement au moment de leur utilisation. \\
+    Le préchargement des vidéos au démarrage provoquait
+    un temps d'attente important. &
+    Les vidéos ont été déplacées vers un emplacement permettant
+    leur chargement au moment de leur utilisation.
+    \\
+
     \midrule
+
     Superposition des cartes &
-Les cartes des formations étaient affichées au même emplacement,
-ce qui empêchait une lecture correcte de la liste. &
-Mise en place d'une organisation automatique sous forme de grille. \\
+    Les cartes des formations étaient affichées au même emplacement,
+    ce qui empêchait une lecture correcte de la liste. &
+    Mise en place d'une organisation automatique sous forme de grille.
+    \\
+
     \midrule
+
     Déplacement de l'utilisateur &
-Lorsqu'un déplacement était maintenu pendant une phase de blocage,
-un mouvement brusque pouvait se produire lors de la reprise. &
-La vitesse de déplacement est réinitialisée avant de rendre
-le mouvement à nouveau disponible. \\
+    Lorsqu'un déplacement était maintenu pendant une phase de blocage,
+    un mouvement brusque pouvait se produire lors de la reprise. &
+    La vitesse de déplacement est réinitialisée avant de rendre
+    le mouvement à nouveau disponible.
+    \\
+
     \bottomrule
   \end{tabularx}
+  }
+
   \caption{Difficultés rencontrées et solutions --- Itération~3}
   \label{tab:dificultes_s3}
 \end{table}

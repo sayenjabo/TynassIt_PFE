@@ -6,7 +6,7 @@ skinparam shadowing false
 skinparam defaultFontName Helvetica
 skinparam actorStyle awesome
 
-actor "Application VR" as VR
+rectangle "Application VR" as VR
 
 rectangle "Système d'enregistrement des sessions" {
 
@@ -19,11 +19,14 @@ rectangle "Système d'enregistrement des sessions" {
   usecase "Refuser l'enregistrement" as Refuser
   }
 
-VR --> Enregistrer
+rectangle "Backend" {
+  usecase "Enregistrer en base\nde données" as EnregistrerDB
+}
+VR -- Enregistrer
 
+EnregistrerDB .up.> Suivi : <<include>>
 Enregistrer ..> Verifier : <<include>>
-
-Enregistrer <|-- Suivi : [données valides]
-Enregistrer <|-- Refuser : [données invalides]
+Enregistrer ..> Suivi : <<include>>
+Enregistrer <.. Refuser : <<extend>>
 
 @enduml

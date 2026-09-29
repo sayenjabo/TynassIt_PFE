@@ -1,5 +1,17 @@
 \begin{titlepage}
 \thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+\node[
+    draw,
+    rectangle,
+    minimum width=3cm,
+    minimum height=1.3cm,
+    align=center,
+    anchor=north east,
+    xshift=-0.5cm
+] at ([yshift=-0.4cm]current page.north east)
+{Code PFE : INREV-04};
+\end{tikzpicture}
 \definecolor{coverblue}{RGB}{24,61,93}
 \definecolor{covergray}{RGB}{84,92,101}
 \begin{center}
@@ -17,8 +29,8 @@
     \includegraphics[width=0.32\textwidth]{../images/isamm_logo.png}
 \end{minipage}
 \vspace{0.65cm}
-{\color{covergray}\Large\bfseries Rapport de Projet de Fin d'Études}\\[0.35cm]
-{\normalsize Présenté en vue de l'obtention du diplôme de}\\[0.15cm]
+{\color{covergray}\Large\bfseries Rapport de Projet de Fin d'Études}\\[0.15cm]
+{\normalsize Présenté en vue de l'obtention du }\\[0.15cm]
 {\color{coverblue}\large\bfseries Diplôme d'Ingénieur en Informatique et Multimédia}\\[0.15cm]
 {\normalsize Spécialité : Image Numérique et Réalité Virtuelle}
 \vspace{0.75cm}
@@ -27,11 +39,27 @@
 {\color{coverblue}\rule{1\textwidth}{1.2pt}}
 \vspace{1.5cm}
 {\color{covergray}\slshape Réalisé par}\\[0.3cm]
-{\large\bfseries Konte Skander}\\[0.18cm]
-\vspace{0.65cm}
-{\color{covergray}\slshape Encadré par}\\[0.3cm]
-{\bfseries Hosni Ajlani} {\color{covergray}-- ISAMM}\\[0.18cm]
-{\bfseries Med Ali Ezzeddine et Karim Hermi} {\color{covergray}-- Tynass IT}
+{\large\bfseries Konte Skander}
+
+\vspace{0.75cm}
+
+\begin{minipage}{0.95\textwidth}
+    \raggedright
+
+    \textbf{Encadrant académique :}
+    Pr. Hosni Ajlani
+    {\color{covergray}(ISAMM)}
+    \\[0.35cm]
+
+    \textbf{Encadrants professionnels :}
+    M. Karim Hermi
+    {\color{covergray}(Tynass IT)}
+    \\[0.12cm]
+
+    \hspace*{4.55cm}
+    M. Mohamed Ali Ezzeddine
+    {\color{covergray}(Tynass IT)}
+\end{minipage}
 \vfill
 {\color{coverblue}\rule{1\textwidth}{1pt}}\\[0.3cm]
 {\large\bfseries Année universitaire 2025--2026}

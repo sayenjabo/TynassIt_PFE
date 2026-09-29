@@ -34,15 +34,15 @@ cloud "MongoDB Atlas" as Atlas {
   database "Base de données\nMongoDB" as DB
 }
 
-node "Service Email\n(Nodemailer / SMTP)" as Mail
+node "Service Email\n(SMTP)" as Mail
 node "UptimeRobot\n(monitoring)" as Uptime
 
 Admin   --> API : HTTPS (REST)
 Company -> API : HTTPS (REST)
-Quest   --> API : HTTPS (REST + device_token)
+Quest   --> API : HTTPS (REST)
 API     --> DB  : Mongoose (TLS)
-API     --> Mail : réinitialisation\ndu mot de passe
-Uptime  ..> API : ping de disponibilité
+API     --> Mail : SMTP (TLS)
+Uptime  ..> API : HTTPS (GET /health)
 
 note bottom of Render : Déploiement continu\ndepuis GitHub
 note bottom of Mail : Service SMTP utilisé\npour l'envoi des e-mails 

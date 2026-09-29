@@ -35,7 +35,7 @@ séparément sur Vercel afin de permettre une gestion et une évolution indépen
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (j)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{Charge estimée (h/j)} \\
     \midrule
     US-06 & Connexion au dashboard Admin &
       LoginPage admin + AuthProvider + JWT localStorage & \must{} & 1,5 \\
@@ -184,10 +184,10 @@ dashboard de l'entreprise.
   \begin{tabular}{lp{9cm}}
 
     \textbf{Pré-conditions} &
-      Responsable de l'entreprise connecté au dashboard. \\
+      Responsable de l'entreprise (Company) connecté au dashboard. \\
 
     \textbf{Acteur} &
-      Entreprise cliente. \\
+      Company. \\
 
     \textbf{Scénario} &
       1. Le responsable ouvre la gestion des employés. \newline
@@ -238,7 +238,7 @@ les plus utilisées.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{../images/dashAdmin_kpis.png}
+  \includegraphics[width=0.9\textwidth]{../images/dashAdmin_kpis.png}
   \caption{Dashboard Admin --- indicateurs clés (KPIs)}
   \label{fig:dash_admin_kpis}
 \end{figure}
@@ -298,8 +298,10 @@ aux critères recherchés.
 
 \subsubsection{Statistiques (\textit{StatisticsPage})}
 
-Visualisation des statistiques agrégées par formation et par entreprise, calculées
-via les pipelines d'agrégation MongoDB.
+Visualisation des statistiques pour un employé donné d'une entreprise.
+Les performances de l'employé sont présentées sous forme de courbes et de diagrammes,
+afin de faciliter l'analyse de ses résultats et de son évolution.
+
 
 \begin{figure}[H]
   \centering
@@ -313,7 +315,6 @@ via les pipelines d'agrégation MongoDB.
 Le dashboard Company comprend six pages principales permettant à l'entreprise
 de consulter son activité, de gérer ses employés et ses casques, d'accéder aux
 formations qui lui sont attribuées et de suivre les sessions réalisées.
-
 
 \subsubsection{Page de connexion (\textit{LoginPage})}
 
@@ -405,44 +406,89 @@ l'employé concerné, le score obtenu et le résultat de la session.
 
 \section{Difficultés et solutions}
 
-\begin{table}[H]
-  \centering
-  \begin{tabularx}{\textwidth}{lXX}
-    \toprule
-    \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
-    \midrule
-    Routage de l'application & TanStack Start (SSR) bloquait les appels
-                       fetch côté client en production. &
-                       Migration vers React Router v6~: routage
-                       100\% côté client, sans SSR. \\
-    \midrule
-    Configuration des styles & La configuration utilisée avec Tailwind v4 provoquait des problèmes
-                                d'affichage avec certains composants Shadcn UI. &
-                                Utilisation de Tailwind v3 afin de conserver une configuration
-                                stable pour les composants du projet. \\
-    \midrule
-    Format des réponses API & Le backend enveloppe les réponses~:
-                               \texttt{\{companies: [...]\}} au lieu de
-                               \texttt{[...]} directement. &
-                               Pattern \texttt{data.companies ?? data}
-                               dans chaque appel API pour
-                               rétrocompatibilité. \\
-    \midrule
-    Tri des statistiques & Le champ \texttt{sessionsPlayed} dans les
-                       mock-data ne correspondait pas au champ
-                       \texttt{totalSessions} retourné par le backend. &
-                       Correction du tri~: utilisation de
-                       \texttt{totalSessions} (champ backend réel). \\
-    \midrule
-    CORS & Le dashboard (localhost:8080) était bloqué
-           par le backend sans configuration CORS. &
-           Ajout du middleware cors() avant toutes les
-           routes, avec origines explicites. \\
-    \bottomrule
-  \end{tabularx}
-  \caption{Difficultés rencontrées et solutions --- Itération~2}
-  \label{tab:dificultes_s2}
-\end{table}
+{
+\small
+\setlength{\tabcolsep}{4pt}
+
+\begin{longtable}{
+    >{\raggedright\arraybackslash}p{3cm}
+    >{\raggedright\arraybackslash}p{5.4cm}
+    >{\raggedright\arraybackslash}p{5.4cm}
+}
+
+\toprule
+\textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+
+% En-tête répété automatiquement sur les pages suivantes
+\toprule
+\textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+
+% Bas des pages intermédiaires
+\midrule
+\multicolumn{3}{r}{\small\textit{Suite à la page suivante}} \\
+\endfoot
+
+% Rien ici pour éviter une ligne après le caption
+\endlastfoot
+
+
+Routage de l'application &
+TanStack Start (SSR) bloquait les appels
+fetch côté client en production. &
+Migration vers React Router v6~: routage
+100\% côté client, sans SSR.
+\\
+
+\midrule
+
+Configuration des styles &
+La configuration utilisée avec Tailwind v4 provoquait des problèmes
+d'affichage avec certains composants Shadcn UI. &
+Utilisation de Tailwind v3 afin de conserver une configuration
+stable pour les composants du projet.
+\\
+
+\midrule
+
+Format des réponses API &
+Le backend enveloppe les réponses~:
+\texttt{\{companies: [...]\}} au lieu de
+\texttt{[...]} directement. &
+Pattern \texttt{data.companies ?? data}
+dans chaque appel API pour
+rétrocompatibilité.
+\\
+
+\midrule
+
+Tri des statistiques &
+Le champ \texttt{sessionsPlayed} dans les
+mock-data ne correspondait pas au champ
+\texttt{totalSessions} retourné par le backend. &
+Correction du tri~: utilisation de
+\texttt{totalSessions} (champ backend réel).
+\\
+
+\midrule
+
+CORS &
+Le dashboard (\texttt{localhost:8080}) était bloqué
+par le backend sans configuration CORS. &
+Ajout du middleware \texttt{cors()} avant toutes les
+routes, avec origines explicites.
+\\
+
+\bottomrule
+
+\caption{Difficultés rencontrées et solutions --- Itération~2}
+\label{tab:dificultes_s2}\\
+
+\end{longtable}
+}
 
 \section{Évaluation de l'itération~2}
 

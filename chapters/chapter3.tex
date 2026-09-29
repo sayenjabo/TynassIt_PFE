@@ -27,11 +27,11 @@
 \section{Introduction}
 
 Cette première itération porte sur la mise en place du socle backend de \tynassit{}.
-Elle comprend les premiers modèles de données, l'API REST ainsi que les mécanismes
+Elle comprend les premiers modèles de données, l'API REST  (Representational State Transfer) ainsi que les mécanismes
 d'authentification et de contrôle d'accès nécessaires au fonctionnement de la plateforme.
 
 À l'issue de cette itération, le système permet d'authentifier les différents types
-d'acteurs (Admin, Company et Device), d'activer les casques Meta Quest~3,
+d'acteurs, d'activer les casques Meta Quest~3,
 de gérer la connexion des employés et d'enregistrer les sessions de formation.
 
 \section{Planification de l'itération~1}
@@ -59,7 +59,7 @@ d'un employé à partir de son code d'accès et de son PIN.
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xcc}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{\footnotesize Charge estimée (j)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Tâches principales} & \textbf{MoSCoW} & \textbf{\footnotesize Charge estimée (h/j)} \\
     \midrule
     US-01 & Authentification sécurisée (admin) &
       Modèle Admin + routes auth + JWT admin & \must{} & 2 \\
@@ -175,17 +175,18 @@ en fonction des nouvelles fonctionnalités développées.
 
 \end{notebox}
 
-\subsection{Architecture de sécurité à 4 couches}
+\subsection{Architecture de sécurité en profondeur}
 
-\tynassit{} met en place une architecture de sécurité organisée en quatre couches
-complémentaires, illustrée par la figure~\ref{fig:securite}. Ces couches interviennent
-à différents niveaux~: authentification des acteurs, contrôle des autorisations,
-protection des données sensibles et contrôle de l'activation du casque.
+\tynassit{} met en place une architecture de sécurité en profondeur reposant sur
+plusieurs contrôles successifs, illustrée par la figure~\ref{fig:securite}.
+La requête est d'abord soumise à l'authentification, puis au contrôle des
+autorisations et, lorsque cela est nécessaire, au contrôle de l'activation du casque.
+Ces mécanismes sont complétés par des mesures de protection des données sensibles.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{../images/securite4couches.png}
-  \caption{Architecture de sécurité en profondeur à quatre couches}
+  \includegraphics[angle=90,width=0.55\textwidth]{../images/securite4couches.png}
+  \caption{Architecture de sécurité en profondeur et mesures de protection complémentaires}
   \label{fig:securite}
 \end{figure}
 
@@ -205,7 +206,7 @@ afin de limiter chaque acteur aux fonctionnalités correspondant à son rôle.
     \midrule
     Admin (superadmin / staff) & admin   & 7 jours \\
     Company (dashboard)        & company & 7 jours \\
-    Device (casque Meta Quest~3) & device & 1 an \\
+    Employee (casque Meta Quest~3) & device & 1 an \\
     \bottomrule
   \end{tabular}
   \caption{Tokens JWT par acteur}
@@ -229,23 +230,50 @@ Les middlewares Express forment une chaîne de contrôle d'accès~:
   \item \texttt{deviceOnly()}~: vérifie \texttt{type === 'device'}.
 \end{itemize}
 
-\subsubsection{Couche 3 --- Protection des données sensibles}
+\subsubsection{Mesures de protection des données sensibles}
 
 \begin{itemize}
-  \item \textbf{Hachage des mots de passe et des PIN}~: les mots de passe des
-  administrateurs et des entreprises ainsi que les PIN des employés sont
-  hachés avec bcrypt avant leur stockage en base de données.
-  \item \textbf{Protection des jetons du casque}~: le jeton utilisé par le casque
-  n'est pas conservé directement en clair dans la base de données. Une version
-  hachée avec SHA-256 est stockée afin de limiter l'exposition du jeton en cas
-  d'accès non autorisé à la base de données.
-  \item \textbf{Réinitialisation du mot de passe}~: le jeton de réinitialisation
-  est également haché avant son stockage et possède une durée de validité limitée.
-  \item \textbf{Identifiant du casque}~: lors de l'activation, l'application
-  récupère un identifiant utilisé par \tynassit{} pour reconnaître le casque
-  lors de ses échanges avec la plateforme.
-  \item \textbf{Code d'activation}~: code temporaire à 6 chiffres, valable
-  pendant 15 minutes et saisi par le Staff Admin dans le dashboard.
+
+  \item \textbf{Hachage des mots de passe et des PIN}~:
+  les mots de passe des administrateurs et des entreprises ainsi que les PIN
+  des employés sont hachés avec bcrypt avant leur stockage en base de données.
+
+  \item \textbf{Protection des jetons du casque}~:
+  le jeton utilisé par le casque n'est pas conservé directement en clair dans
+  la base de données. Une version hachée avec SHA-256 est stockée afin de limiter
+  l'exposition du jeton en cas d'accès non autorisé à la base de données.
+
+  \item \textbf{Réinitialisation du mot de passe}~:
+  le jeton de réinitialisation est également haché avant son stockage et possède
+  une durée de validité limitée.
+
+\end{itemize}
+
+\subsubsection{Couche 3 --- Contrôle de l'activation du casque}
+
+Avant de pouvoir accéder aux fonctionnalités de la plateforme, un casque doit être
+activé et associé à une entreprise. Ce contrôle permet de limiter l'utilisation de
+l'application aux casques autorisés.
+
+\begin{itemize}
+
+  \item \textbf{Identifiant du casque}~:
+  lors de l'activation, l'application récupère un identifiant utilisé par
+  \tynassit{} comme référence pour reconnaître le casque lors de ses échanges
+  avec la plateforme.
+
+  \item \textbf{Code d'activation temporaire}~:
+  lorsqu'un casque demande son activation, le système génère un code temporaire
+  à 6 chiffres, valable pendant 15 minutes.
+
+  \item \textbf{Validation par le Staff Admin}~:
+  le Staff Admin saisit ce code dans le dashboard et associe le casque
+  à l'entreprise concernée.
+
+  \item \textbf{Autorisation du casque}~:
+  une fois l'activation validée, le casque peut accéder aux fonctionnalités
+  autorisées de la plateforme.
+
 \end{itemize}
 
 \subsection{Raffinement des cas d'utilisation de l'itération~1}
@@ -459,41 +487,115 @@ Le projet backend est organisé selon le patron MVC~:
 
 Le tableau~\ref{tab:endpoints} présente un extrait des routes principales de l'API.
 
-\begin{table}[H]
-  \centering
-  \small
-  \setlength{\tabcolsep}{2.5pt}
-  \begin{tabularx}{\textwidth}{l>{\footnotesize}p{7cm}Xc}
-    \toprule
-    \textbf{Méthode} & \textbf{Route} & \textbf{Description} & \textbf{Accès} \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Authentification Admin}} \\
-    POST & \texttt{/api/admin/auth/login} & Login admin & Public \\
-    GET  & \texttt{/api/admin/auth/me} & Profil admin courant & Admin \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Gestion Entreprises}} \\
-    GET  & \texttt{/api/admin/companies} & Lister toutes les entreprises & Admin \\
-    POST & \texttt{/api/admin/companies} & Créer une entreprise & Admin \\
-    PATCH& \texttt{/api/admin/companies/:id} & Modifier une entreprise & Admin \\
-    POST & \texttt{/api/admin/companies/:id/trainings} & Assigner une formation & Admin \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Activation Casque}} \\
-    POST & \texttt{/api/company/devices/request-activation} & Demander l'activation du casque & Sans JWT device \\
-    POST & \texttt{/api/company/devices/activate} & Valider l'activation du casque & Staff Admin \\
-    POST & \texttt{/api/company/devices/check} & Vérifier l'état de l'activation & Sans JWT device \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Login Employé}} \\
-    POST & \texttt{/api/company/employees/login} & Login code + PIN & Device \\
-    GET  & \texttt{/api/company/devices/trainings} & Formations du casque & Device \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Sessions}} \\
-    POST & \texttt{/api/sessions/submit} & Soumettre une session & Device \\
-    GET  & \texttt{/api/sessions/stats} & Statistiques agrégées & Admin/Company \\
-    \bottomrule
-  \end{tabularx}
-  \caption{Endpoints API --- extrait des routes principales}
-  \label{tab:endpoints}
-\end{table}
+{
+\small
+\setlength{\tabcolsep}{2.5pt}
+
+\begin{longtable}{
+    >{\raggedright\arraybackslash}p{1.5cm}
+    >{\raggedright\arraybackslash}p{7cm}
+    >{\raggedright\arraybackslash}p{4.2cm}
+    >{\raggedright\arraybackslash}p{2.4cm}
+}
+
+\caption{Endpoints API --- extrait des routes principales}
+\label{tab:endpoints}\\
+
+\toprule
+\textbf{Méthode} &
+\textbf{Route} &
+\textbf{Description} &
+\textbf{Accès} \\
+\midrule
+\endfirsthead
+
+% En-tête répété automatiquement sur les pages suivantes
+\toprule
+\textbf{Méthode} &
+\textbf{Route} &
+\textbf{Description} &
+\textbf{Accès} \\
+\midrule
+\endhead
+
+% Bas des pages intermédiaires
+\midrule
+\multicolumn{4}{r}{\small\textit{Suite à la page suivante}} \\
+\endfoot
+
+% Bas de la dernière page
+\bottomrule
+\endlastfoot
+
+
+\multicolumn{4}{l}{\textit{Authentification Admin}} \\*
+POST &
+\path{/api/admin/auth/login} &
+Login admin &
+Public \\
+GET &
+\path{/api/admin/auth/me} &
+Profil admin courant &
+Admin \\
+
+\midrule
+\multicolumn{4}{l}{\textit{Gestion Entreprises}} \\*
+GET &
+\path{/api/admin/companies} &
+Lister toutes les entreprises &
+Admin \\
+POST &
+\path{/api/admin/companies} &
+Créer une entreprise &
+Admin \\
+PATCH &
+\path{/api/admin/companies/:id} &
+Modifier une entreprise &
+Admin \\
+POST &
+\path{/api/admin/companies/:id/trainings} &
+Assigner une formation &
+Admin \\
+
+\midrule
+\multicolumn{4}{l}{\textit{Activation Casque}} \\*
+POST &
+\path{/api/company/devices/request-activation} &
+Demander l'activation du casque &
+Sans JWT device \\
+POST &
+\path{/api/company/devices/activate} &
+Valider l'activation du casque &
+Staff Admin \\
+POST &
+\path{/api/company/devices/check} &
+Vérifier l'état de l'activation &
+Sans JWT device \\
+
+\midrule
+\multicolumn{4}{l}{\textit{Login Employé}} \\*
+POST &
+\path{/api/company/employees/login} &
+Login code + PIN &
+Device \\
+GET &
+\path{/api/company/devices/trainings} &
+Formations du casque &
+Device \\
+
+\midrule
+\multicolumn{4}{l}{\textit{Sessions}} \\*
+POST &
+\path{/api/sessions/submit} &
+Soumettre une session &
+Device \\
+GET &
+\path{/api/sessions/stats} &
+Statistiques agrégées &
+Admin/Company \\
+
+\end{longtable}
+}
 
 \subsection{Fonctionnalité clé --- Système d'activation du casque}
 
@@ -525,44 +627,102 @@ L'accessCode des employés suit le format XX-001 (2 lettres initiales de l'entre
 (\textit{race conditions}) lors de créations simultanées, le backend utilise
 une opération d'incrémentation atomique avec MongoDB. Cette opération permet d'attribuer des numéros distincts lorsque plusieurs
 employés d'une même entreprise sont créés simultanément.
-
+\newpage
 \section{Difficultés et solutions}
 
-\begin{table}[H]
-  \centering
-  \begin{tabularx}{\textwidth}{lXX}
-    \toprule
-    \textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
-    \midrule
-    Condition de concurrence & Deux ``employés'' créés simultanément pouvaient recevoir
-                           le même \texttt{accessCode} lorsque le comptage précédent
-                           n'était pas atomique. &
 
-                           Utilisation d'un compteur MongoDB avec une incrémentation
-                           atomique afin d'éviter l'attribution du même numéro. \\
-    \midrule
-    Protection du jeton du casque &
-  Le stockage du jeton directement en clair dans la base de données
-  augmentait le risque d'exposition en cas d'accès non autorisé. &
+  
+{
+\small
+\setlength{\tabcolsep}{4pt}
 
-  Stockage d'une version hachée du jeton avec SHA-256 et limitation
-  de la disponibilité de sa version en clair. \\
-    \midrule
-    UnityWebRequest 4xx & Unity traitait les réponses HTTP 4xx comme des erreurs
-                          réseau sans lire le body JSON. &
-                          Restructuration des réponses backend~: toujours
-                          retourner un body JSON lisible même sur les erreurs. \\
-    \midrule
-    Pre-save hook & Utiliser \texttt{async function(next)} dans un hook
-                    Mongoose async causait l'erreur
-                    \og~next is not a function~\fg. &
-                    Suppression du paramètre \texttt{next}~: en Mongoose,
-                    les hooks async gèrent automatiquement la promesse. \\
-    \bottomrule
-  \end{tabularx}
-  \caption{Difficultés rencontrées et solutions --- Itération~1}
-  \label{tab:dificultes_s1}
-\end{table}
+\begin{longtable}{
+    >{\raggedright\arraybackslash}p{3cm}
+    >{\raggedright\arraybackslash}p{5.4cm}
+    >{\raggedright\arraybackslash}p{5.4cm}
+}
+
+% ============================================================
+% Première page
+% ============================================================
+
+\toprule
+\textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endfirsthead
+
+% ============================================================
+% En-tête répété sur les pages suivantes
+% ============================================================
+
+\toprule
+\textbf{Défi} & \textbf{Problème} & \textbf{Solution} \\
+\midrule
+\endhead
+
+% ============================================================
+% Bas des pages intermédiaires
+% ============================================================
+
+\midrule
+\multicolumn{3}{r}{\small\textit{Suite à la page suivante}} \\
+\endfoot
+
+% Rien ici pour éviter une ligne sous le caption
+\endlastfoot
+
+
+% ============================================================
+% Contenu
+% ============================================================
+
+Condition de concurrence &
+Deux employés créés simultanément pouvaient recevoir
+le même \texttt{accessCode} lorsque le comptage précédent
+n'était pas atomique. &
+Utilisation d'un compteur MongoDB avec une incrémentation
+atomique afin d'éviter l'attribution du même numéro.
+\\
+
+\midrule
+
+Protection du jeton du casque &
+Le stockage du jeton directement en clair dans la base de données
+augmentait le risque d'exposition en cas d'accès non autorisé. &
+Stockage d'une version hachée du jeton avec SHA-256 et limitation
+de la disponibilité de sa version en clair.
+\\
+
+\midrule
+
+UnityWebRequest 4xx &
+Unity traitait les réponses HTTP 4xx comme des erreurs réseau
+sans lire le body JSON. &
+Restructuration des réponses backend~: toujours retourner
+un body JSON lisible même sur les erreurs.
+\\
+
+\midrule
+
+Pre-save hook &
+Utiliser \texttt{async function(next)} dans un hook Mongoose async
+causait l'erreur \og~next is not a function~\fg{}. &
+Suppression du paramètre \texttt{next}~: en Mongoose,
+les hooks async gèrent automatiquement la promesse.
+\\
+
+% ============================================================
+% Ligne finale + caption en dessous
+% ============================================================
+
+\bottomrule
+
+\caption{Difficultés rencontrées et solutions --- Itération~1}
+\label{tab:dificultes_s1}\\
+
+\end{longtable}
+}
+
 
 \section{Évaluation de l'itération~1}
 
@@ -590,7 +750,7 @@ La réponse retournée confirme le fonctionnement de l'échange avec le backend.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\textwidth]{../images/postman_deviceCheck.png}
+  \includegraphics[width=0.85\textwidth]{../images/postman_deviceCheck.png}
   \caption{Test de vérification de l'activation d'un casque avec Postman}
   \label{fig:postman_device_check}
 \end{figure}
@@ -600,7 +760,7 @@ telles qu'elles apparaissent dans MongoDB Compass.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{../images/compass_collections.png}
+  \includegraphics[angle=90,width=0.8\textwidth]{../images/compass_collections.png}
   \caption{Collections de la base de données dans MongoDB Compass}
   \label{fig:compass}
 \end{figure}

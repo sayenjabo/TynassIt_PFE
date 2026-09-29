@@ -7,7 +7,6 @@ skinparam defaultFontName Helvetica
 skinparam actorStyle awesome
 
 actor "Company" as Company
-actor "Backend Immersio" as Backend
 
 rectangle "Dashboard Company" {
 
@@ -24,15 +23,21 @@ rectangle "Dashboard Company" {
     usecase "Afficher le code\nd'accès" as Afficher
 }
 
-Company --> Informations
-Company --> Pin
-Company --> Creer
+rectangle "Backend Immersio" {
+    usecase "Générer le code" as GenCode
+    usecase "Persister l'employé" as Persister
+}
+
+Code ..> GenCode : <<include>>
+Enregistrer ..> Persister : <<include>>
+
+Company -- Creer
+Creer ..> Informations : <<include>>
+Creer ..> Pin : <<include>>
 
 Creer ..> Code : <<include>>
 Creer ..> Enregistrer : <<include>>
 Creer ..> Afficher : <<include>>
 
-Code <-- Backend
-Enregistrer <-- Backend
 
 @enduml

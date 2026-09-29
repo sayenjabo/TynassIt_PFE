@@ -35,7 +35,7 @@
 \section{Introduction}
 
 Cette quatrième itération représente le cœur fonctionnel de \tynassit{}~: la simulation VR
-d'intégration des nouveaux employés d'\textbf{Indigo Company}. Cette scène plonge le nouvel employé dans un environnement 3D fidèle aux locaux d'Indigo, lui fait découvrir les différents départements accompagnés de narrations audio, puis évalue sa compréhension par un quiz. À la fin de la simulation,
+d'intégration des nouveaux employés d'\textbf{Indigo Company}. Cette simulation plonge le nouvel employé dans un environnement 3D fidèle aux locaux d'Indigo, lui fait découvrir les différents départements accompagnés de narrations audio, puis évalue sa compréhension par un quiz. À la fin de la simulation,
 les résultats sont automatiquement soumis à la plateforme \tynassit{}.
 
 \section{Planification de l'itération~4}
@@ -62,7 +62,7 @@ leur charge estimée.
   \setlength{\tabcolsep}{5pt}
   \begin{tabularx}{\textwidth}{cp{3.5cm}Xc>{\footnotesize}c}
     \toprule
-    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (j)} \\
+    \textbf{ID} & \textbf{Titre} & \textbf{Description} & \textbf{MoSCoW} & \textbf{Charge estimée (h/j)} \\
     \midrule
     US-19 & Exploration des locaux &
       Environnement 3D Indigo (Blender + optimisation Quest~3) & \must{} & 8 \\
@@ -101,9 +101,9 @@ de disposer d'une référence visuelle fidèle de l'environnement réel.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.32\textwidth]{../images/photo360_indigo1.jpg}\hfill
-  \includegraphics[width=0.32\textwidth]{../images/photo360_indigo2.jpg}\hfill
-  \includegraphics[width=0.32\textwidth]{../images/photo360_indigo3.jpg}
+  \includegraphics[width=0.5\textwidth]{../images/photo360_indigo1.jpg}\hfill
+  \includegraphics[width=0.5\textwidth]{../images/photo360_indigo2.jpg}\hfill
+  \includegraphics[width=0.5\textwidth]{../images/photo360_indigo3.jpg}
   \caption{Photographies panoramiques à 360° des locaux d'Indigo, utilisées comme référence pour la modélisation}
   \label{fig:photo360}
 \end{figure}
@@ -114,14 +114,14 @@ physiquement réaliste (\textit{PBR}), tout en \textbf{simplifiant volontairemen
 détails non essentiels}~: cette
 épuration limite la charge visuelle et évite de disperser l'attention de l'employé
 pendant la formation. Le modèle a ensuite été exporté au format \textbf{glTF} et intégré
-dans Unity~6 à l'aide du package \textbf{glTFast}. Le format glTF, standard ouvert conçu
+dans Unity~6 à l'aide du package \textbf{glTFast}. Le format glTF, conçu
 pour le temps réel, a été retenu pour sa légèreté et sa gestion native des matériaux PBR,
 deux atouts adaptés au déploiement sur Meta~Quest~3.
 
 Les optimisations appliquées pour Meta Quest~3~:
 
 \begin{itemize}
-  \item \textbf{Polygon count}~: inférieur à 500\,000 triangles pour la scène complète.
+  \item \textbf{Nombre de polygones}~: inférieur à 500\,000 polygones pour la scène complète.
   \item \textbf{Textures}~: format ASTC 6x6 pour les grandes surfaces, ASTC 4x4 pour
     les textures détaillées.
   \item \textbf{Éclairage}~: \textit{baked lighting} (pas d'éclairage dynamique en
@@ -137,9 +137,9 @@ Blender, vue d'ensemble.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.32\textwidth]{../images/blender_indigo1.png}\hfill
-  \includegraphics[width=0.32\textwidth]{../images/blender_indigo2.png}\hfill
-  \includegraphics[width=0.32\textwidth]{../images/blender_indigo3.png}
+  \includegraphics[width=0.35\textwidth]{../images/blender_indigo1.png}\hfill
+  \includegraphics[width=0.35\textwidth]{../images/blender_indigo2.png}\hfill
+  \includegraphics[width=\textwidth]{../images/blender_decimate.png}
   \caption{Vues de l'environnement d'Indigo Company modélisé dans Blender}
   \label{fig:blender}
 \end{figure}
@@ -157,7 +157,7 @@ figure~\ref{fig:unity_import}.
 \subsection{Structure de la simulation}
 
  La simulation d'intégration Indigo est organisée en \textbf{deux phases séquentielles}~:
-\begin{enumerate}
+\begin{itemize}
   \item \textbf{Phase 1 --- Exploration des locaux}~:
 l'employé effectue une visite guidée des locaux d'Indigo Company et découvre
 huit zones interactives~--- les sept départements ainsi qu'une zone dédiée au
@@ -166,28 +166,121 @@ et une narration audio.
  \item \textbf{Phase 2 --- Quiz}~: questions à choix multiples évaluant la
     compréhension des informations présentées lors de l'exploration. Le nombre
     et le contenu des questions sont définis par l'entreprise depuis son tableau de bord.
-\end{enumerate}
+\end{itemize}
 
 Dans chaque zone, un panneau d'information présentant le département et son rôle
-s'affiche lorsque l'employé appuie sur le bouton dédié du contrôleur, comme le montre
+s’affiche lorsque l’employé atteint la zone dédiée, à condition qu’il ait préalablement appuyé sur le bouton « Confirmer » dans le panneau d’information précédent, comme le montre
 la figure~\ref{fig:panneau}.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{../images/vr_panneau_departement.png}
-  \caption{Panneau d'information d'un département affiché en réalité virtuelle}
+  \caption{Panneau d'information d'un département}
   \label{fig:panneau}
 \end{figure}
 
 La figure~\ref{fig:activite_simulation} présente le déroulement complet de la simulation,
 de l'exploration des zones jusqu'à la soumission des résultats.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.7\textwidth]{../images/activiteSimulation.png}
-  \caption{Diagramme d'activité --- déroulement de la simulation en deux phases}
-  \label{fig:activite_simulation}
-\end{figure}
+\clearpage
+\begingroup
+
+% ============================================================
+% PAGE A3 PORTRAIT : 297 x 420 mm
+% ============================================================
+
+\setlength{\paperwidth}{297mm}
+\setlength{\paperheight}{420mm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
+
+% ============================================================
+% Zone de texte A3
+% ============================================================
+
+\setlength{\textwidth}{267mm}
+\setlength{\textheight}{370mm}
+
+% IMPORTANT : mettre à jour les dimensions internes de la page
+\makeatletter
+\setlength{\@colht}{\textheight}
+\setlength{\@colroom}{\textheight}
+\setlength{\vsize}{\textheight}
+\makeatother
+
+% ============================================================
+% Marges horizontales
+% ============================================================
+
+\setlength{\hoffset}{0mm}
+\setlength{\oddsidemargin}{-10.4mm}
+\setlength{\evensidemargin}{-10.4mm}
+
+% ============================================================
+% Header
+% ============================================================
+
+\setlength{\topmargin}{-15mm}
+\setlength{\headheight}{8mm}
+\setlength{\headsep}{8mm}
+
+\setlength{\headwidth}{\textwidth}
+\fancyheadoffset[L,R]{0pt}
+
+% ============================================================
+% Footer
+% ============================================================
+
+\setlength{\footskip}{12mm}
+
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+
+\thispagestyle{fancy}
+
+% ============================================================
+% Figure
+% ============================================================
+
+\centering
+
+\makebox[\textwidth][c]{%
+  \includegraphics[
+    width=\textwidth,
+    height=0.95\textheight,
+    keepaspectratio
+  ]{../images/activiteSimulation.png}
+}
+
+\vspace{6pt}
+
+\refstepcounter{figure}
+\label{fig:activite_simulation}
+
+\addcontentsline{lof}{figure}{%
+  \protect\numberline{\thefigure}
+  Diagramme d'activité --- déroulement de la simulation en deux phases
+}
+
+\makebox[\textwidth][c]{%
+  \parbox{\textwidth}{%
+    \centering
+    \textbf{Figure~\thefigure{} --}
+    Diagramme d'activité --- déroulement de la simulation en deux phases
+  }%
+}
+
+\clearpage
+\endgroup
+
+% ============================================================
+% RETOUR A4
+% ============================================================
+
+\setlength{\paperwidth}{210mm}
+\setlength{\paperheight}{297mm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
 
 \subsection{Système de quiz}
 
@@ -251,7 +344,8 @@ au déroulement de la simulation d'intégration Indigo.
 \begin{tabular}{lp{9cm}}
 
 \textbf{Pré-conditions} &
-Employé connecté et formation d'intégration Indigo lancée. \\
+Employé connecté, casque VR fonctionnel, formation d’intégration
+Indigo accessible \\
 
 \textbf{Acteur} &
 Employé. \\
@@ -283,6 +377,13 @@ La figure ci-dessous présente le raffinement du cas d'utilisation relatif
   \label{fig:enregistrement_resultats_session}
 \end{figure}
 
+\vspace{0.3cm}
+
+La description textuelle du cas d'utilisation
+« Enregistrer les résultats d'une session » est présentée ci-dessous :
+
+\vspace{0.3cm}
+
 \begin{ucbox}{Enregistrer les résultats d'une session}
 
 \begin{tabular}{lp{9cm}}
@@ -291,14 +392,15 @@ La figure ci-dessous présente le raffinement du cas d'utilisation relatif
 La simulation est terminée et le résultat de l'employé est disponible. \\
 
 \textbf{Acteur} &
-Système. \\
+Application VR. \\
 
 \textbf{Scénario} &
 1. Le système prépare les informations de la session terminée. \newline
 2. Les résultats sont transmis au backend. \newline
 3. Le backend enregistre la session dans la base de données. \newline
-4. Les informations enregistrées deviennent disponibles dans les dashboards. \newline
-5. Le système affiche ensuite le résultat à l'employé. \\
+4. Le système affiche le résultat à l'employé. \newline
+5. Les informations enregistrées deviennent disponibles dans les dashboards. \\
+
 
 \textbf{Post-conditions} &
 La session est enregistrée et ses résultats sont consultables depuis les dashboards. \\

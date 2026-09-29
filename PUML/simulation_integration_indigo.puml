@@ -16,10 +16,10 @@ rectangle "Application VR" {
 
     usecase "Répondre au quiz" as Quiz
 
-    usecase "Consulter son résultat" as Resultat
+    usecase "consulter le résultat affiché" as Resultat
 }
 
-Employe --> Simulation
+Employe -- Simulation
 
 Simulation ..> Visite : <<include>>
 Simulation ..> Quiz : <<include>>

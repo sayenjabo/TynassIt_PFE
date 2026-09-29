@@ -1,19 +1,30 @@
 @startuml Cas_utilisation_global
 ' Diagramme de cas d'utilisation global --- Immersio / Tynass IT
+
 skinparam shadowing false
 skinparam defaultFontName Helvetica
 skinparam ArrowColor #2B4B6F
 skinparam actorStyle awesome
+skinparam nodesep 55
+skinparam ranksep 100
+
 skinparam actor {
   BackgroundColor #183D5D
   FontColor #000000
   BorderColor #0E2740
 }
+
 skinparam usecase {
   BackgroundColor #E8EEF4
   BorderColor #183D5D
   FontColor #000000
 }
+
+skinparam rectangle {
+  BorderColor #9AAEC3
+  FontColor #000000
+}
+
 left to right direction
 
 actor "Superadmin" as SA
@@ -26,66 +37,74 @@ SA -|> ST
 
 rectangle "Plateforme Immersio" {
 
-  ' --- Superadmin (spécifique) ---
-  usecase "Gérer les comptes\nStaff Admin" as UC_admins
-  usecase "Supprimer entreprises\net formations" as UC_delete
+  rectangle "Supervision de la plateforme" as R1 {
+    usecase "Gérer les comptes\nStaff Admin" as UC_admins
+    usecase "Supprimer entreprises\net formations" as UC_delete
+  }
 
-  ' --- Staff Admin ---
-  usecase "S'authentifier" as UC_auth
-  usecase "Gérer les\nentreprises" as UC_comp
-  usecase "Gérer le catalogue\nde formations" as UC_train
-  usecase "Activer initialement\nun casque" as UC_activate_device
-  usecase "Révoquer\nun casque" as UC_revoke_device
-  usecase "Assigner des\nformations" as UC_assign
-  usecase "Consulter\nstatistiques & sessions" as UC_stats
+  rectangle "Gestion des clients et du catalogue" as R2 {
+    usecase "Gérer les\nentreprises" as UC_comp
+    usecase "Gérer le catalogue\nde formations" as UC_train
+    usecase "Assigner des\nformations" as UC_assign
+  }
 
-  ' --- Company ---
-  usecase "Gérer ses\nemployés" as UC_emp
-  usecase "Créer / gérer\nles quiz" as UC_quiz
-  usecase "Définir des\nobjectifs (milestones)" as UC_mile
-  usecase "Réactiver\nun casque attribué" as UC_reactivate_device
-  usecase "Consulter les\nsessions employés" as UC_sess
-  
-  ' --- Employé ---
-  usecase "Se connecter\n(accessCode + PIN)" as UC_login
-  usecase "Suivre le\ntutoriel VR" as UC_tuto
-  usecase "Lancer une\nsimulation VR" as UC_sim
-  usecase "Passer le quiz" as UC_passquiz
-  usecase "Consulter ses\nrésultats" as UC_res
-  usecase "Consulter les\nformations disponibles" as UC_avail
-  usecase "Configurer les\nparamètres" as UC_config
+  rectangle "Authentification" as R3 {
+    usecase "S'authentifier au dashboard" as UC_auth
+  }
+
+  rectangle "Parc de casques" as R4 {
+    usecase "Activer initialement\nun casque" as UC_activate_device
+    usecase "Révoquer\nun casque" as UC_revoke_device
+    usecase "Réactiver\nun casque attribué" as UC_reactivate_device
+  }
+
+  rectangle "Suivi et statistiques" as R5 {
+    usecase "Consulter les statistiques\net sessions" as UC_stats
+    usecase "Consulter les\nsessions employés" as UC_sess
+  }
+
+  rectangle "Gestion des employés et des parcours" as R6 {
+    usecase "Gérer ses\nemployés" as UC_emp
+    usecase "Créer / gérer\nles quiz" as UC_quiz
+    usecase "Définir des\nobjectifs (milestones)" as UC_mile
+  }
+
+  rectangle "Formation immersive (VR)" as R7 {
+    usecase "S'authentifier sur un casque\n(code d'accès + PIN)" as UC_login
+    usecase "Suivre le\ntutoriel VR" as UC_tuto
+    usecase "Suivre une formation VR" as UC_sim
+    usecase "Répondre au quiz" as UC_passquiz
+    usecase "Consulter ses\nrésultats" as UC_res
+  }
 }
 
 ' --- Liens Superadmin ---
-SA --> UC_admins
-SA --> UC_delete
+SA -- UC_admins
+SA -- UC_delete
 
 ' --- Liens Staff Admin ---
-ST --> UC_auth
-ST --> UC_comp
-ST --> UC_train
-ST --> UC_activate_device
-ST --> UC_revoke_device
-ST --> UC_assign
-ST --> UC_stats
+ST -- UC_auth
+ST -- UC_comp
+ST -- UC_train
+ST -- UC_activate_device
+ST -- UC_revoke_device
+ST -- UC_assign
+ST -- UC_stats
 
 ' --- Liens Company ---
-CO --> UC_auth
-CO --> UC_emp
-CO --> UC_quiz
-CO --> UC_mile
-CO --> UC_reactivate_device
-CO --> UC_revoke_device
-CO --> UC_sess
-' --- Liens Employé ---
-EM --> UC_login
-EM --> UC_tuto
-EM --> UC_sim
-EM --> UC_passquiz
-EM --> UC_res
-EM --> UC_avail
-EM --> UC_config
+CO -- UC_auth
+CO -- UC_emp
+CO -- UC_quiz
+CO -- UC_mile
+CO -- UC_reactivate_device
+CO -- UC_revoke_device
+CO -- UC_sess
 
-' Le quiz fait partie de la simulation
-UC_sim ..> UC_passquiz : <<include>>
+' --- Liens Employé ---
+EM -- UC_login
+EM -- UC_tuto
+EM -- UC_sim
+EM -- UC_passquiz
+EM -- UC_res
+
 @enduml

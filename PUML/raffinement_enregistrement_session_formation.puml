@@ -6,26 +6,23 @@ skinparam shadowing false
 skinparam defaultFontName Helvetica
 skinparam actorStyle awesome
 
-actor "Application VR" as VR
+rectangle "Application VR" as VR
 
 rectangle "Backend Immersio" {
 
-    usecase "Enregistrer une session\nde formation" as Enregistrer
+    usecase "Enregistrer les résultats\nd'une session" as Enregistrer
 
-    usecase "Recevoir les résultats\nde la session" as Recevoir
+    usecase "Enregistrer la session" as Stocker
 
-    usecase "Vérifier les données\nreçues" as Verifier
+    usecase "mettre les résultats à disposition\n des tableaux de bord" as Recevoir
 
-    usecase "Enregistrer la session\ndans la base de données" as Stocker
-
-    usecase "Rendre les données disponibles\npour le suivi et les statistiques" as Suivi
+    
 }
 
-VR --> Enregistrer
+VR -- Enregistrer
 
-Enregistrer ..> Recevoir : <<include>>
-Enregistrer ..> Verifier : <<include>>
 Enregistrer ..> Stocker : <<include>>
-Enregistrer ..> Suivi : <<include>>
+Enregistrer ..> Recevoir : <<include>>
+
 
 @enduml

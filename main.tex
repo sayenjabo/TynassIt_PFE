@@ -36,6 +36,7 @@
 \usepackage{lmodern}
 \usepackage{microtype}
 \usepackage{setspace}
+\usepackage{pdfpages}
 \onehalfspacing
 
 \usepackage[dvipsnames,table]{xcolor}
@@ -57,6 +58,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{caption}
+\usepackage{geometry}
 \usepackage{subcaption}
 \graphicspath{{./images/}}
 
@@ -195,13 +197,27 @@
 \tableofcontents
 \clearpage
 
-\listoffigures
+% ============================================================
+% Liste des figures
+% ============================================================
+
+\phantomsection
 \addcontentsline{toc}{chapter}{Liste des figures}
+\listoffigures
 \clearpage
 
-\listoftables
+% ============================================================
+% Liste des tableaux
+% ============================================================
+
+\phantomsection
 \addcontentsline{toc}{chapter}{Liste des tableaux}
+\listoftables
 \clearpage
+
+% ============================================================
+% Liste des abréviations
+% ============================================================
 
 \input{chapters/abbreviations}
 

@@ -7,32 +7,28 @@ skinparam defaultFontName Helvetica
 skinparam actorStyle awesome
 
 actor "Staff Admin" as Admin
-actor "Backend Immersio" as Backend
 
 rectangle "Dashboard Admin" {
-
-    usecase "Saisir le code\nd'activation" as Code
-
-    usecase "Sélectionner\nl'entreprise" as Entreprise
-
-    usecase "Ajouter un libellé\nau casque" as Label
-
     usecase "Activer un casque" as Activer
-
+    usecase "Saisir le code\nd'activation" as Code
+    usecase "Sélectionner\nl'entreprise" as Entreprise
+    usecase "Ajouter un libellé\nau casque" as Label
     usecase "Vérifier le code\nd'activation" as Verifier
-
     usecase "Associer le casque\nà l'entreprise" as Associer
 }
 
-Admin --> Code
-Admin --> Entreprise
-Admin --> Label
-Admin --> Activer
+rectangle "Backend Immersio" {
+    usecase "Valider le code" as Valider
+    usecase "Créer l'association" as Creer
+}
 
+Admin -- Activer
+Activer <.. Label : <<extend>>
+Activer ..> Code : <<include>>
+Activer ..> Entreprise : <<include>>
 Activer ..> Verifier : <<include>>
 Activer ..> Associer : <<include>>
+Verifier ..> Valider : <<include>>
+Associer ..> Creer : <<include>>
 
-
-Verifier <-- Backend
-Associer <-- Backend
 @enduml

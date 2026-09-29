@@ -65,47 +65,178 @@ Quatre acteurs interagissent avec \tynassit{}~:
 
 Le tableau~\ref{tab:besoins_fonctionnels} décrit les besoins fonctionnels par acteur.
 
-\begin{table}[H]
-  \centering
-  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.6cm}X}
-    \toprule
-    \textbf{Acteur} & \textbf{Besoins fonctionnels} \\
-    \midrule
-     \multirow{4}{=}{\textbf{Superadmin}} &
-      S'authentifier sur la plateforme web. \\
-    & Gérer les comptes Staff Admin (créer, modifier, activer, désactiver). \\
-    & Accéder à toutes les fonctionnalités du Staff Admin. \\
-    & Supprimer des entreprises et des formations (action réservée au Superadmin).\\
-    \midrule
-    \multirow{7}{=}{\textbf{Staff Admin}} &
-      S'authentifier sur la plateforme web. \\
-    & Gérer les entreprises clientes (créer, modifier, activer, désactiver). \\
-    & Gérer le catalogue de formations VR (créer, modifier et organiser les formations). \\
-    & Activer un casque Meta Quest~3 en saisissant le code à 6 chiffres affiché sur le casque. \\
-    & Révoquer un casque Meta Quest~3. \\
-    & Assigner des formations à une entreprise. \\
-    & Consulter les statistiques et sessions de toutes les entreprises. \\
-    \midrule
-    \multirow{7}{=}{\textbf{Company}} &
-      S'authentifier sur le dashboard entreprise. \\
-    & Gérer les employés (créer, modifier, supprimer), générer leur code d'accès et définir un code PIN protégé par hachage en base. \\
-    & Créer et gérer un quiz par formation (questions, choix, seuil de réussite). \\
-    & Définir des objectifs (\textit{milestones}) de formation par employé. \\
-    & Révoquer un casque Meta Quest~3. \\
-    & Réactiver ou révoquer un casque Meta Quest~3 déjà attribué à l'entreprise. \\
-    & Consulter les sessions et performances de ses employés. \\
-    \midrule
-    \multirow{5}{=}{\textbf{Employé}} &
-      Se connecter au casque (code d'accès au format XX-001 + PIN à 4 chiffres). \\
-    & Accéder aux formations assignées à son entreprise. \\
-    & Suivre le tutoriel d'initiation à l'utilisation des contrôleurs. \\
-    & Lancer la simulation d'intégration Indigo. \\
-    & Consulter ses résultats, envoyés automatiquement à \tynassit{}. \\
-    \bottomrule
-  \end{tabularx}
-  \caption{Description des besoins fonctionnels par acteur}
-  \label{tab:besoins_fonctionnels}
-\end{table}
+{
+\small
+\setlength{\tabcolsep}{4pt}
+
+\begin{longtable}{
+    >{\raggedright\arraybackslash}p{3cm}
+    >{\raggedright\arraybackslash}p{10.7cm}
+}
+
+% ============================================================
+% Première page
+% ============================================================
+
+\toprule
+\textbf{Acteur} & \textbf{Besoins fonctionnels} \\
+\midrule
+\endfirsthead
+
+% ============================================================
+% En-tête répété automatiquement sur les pages suivantes
+% ============================================================
+
+\toprule
+\textbf{Acteur} & \textbf{Besoins fonctionnels} \\
+\midrule
+\endhead
+
+% ============================================================
+% Bas des pages intermédiaires
+% ============================================================
+
+\midrule
+\multicolumn{2}{r}{\small\textit{Suite à la page suivante}} \\
+\endfoot
+
+% Pas de ligne supplémentaire après la légende
+\endlastfoot
+
+
+% ============================================================
+% Superadmin
+% ============================================================
+
+\textbf{Superadmin} &
+S'authentifier sur la plateforme web.
+\\
+
+\textbf{Superadmin} &
+Gérer les comptes Staff Admin (créer, modifier, activer, désactiver).
+\\
+
+\textbf{Superadmin} &
+Accéder à toutes les fonctionnalités du Staff Admin.
+\\
+
+\textbf{Superadmin} &
+Supprimer des entreprises et des formations
+(action réservée au Superadmin).
+\\
+
+\midrule
+
+% ============================================================
+% Staff Admin
+% ============================================================
+
+\textbf{Staff Admin} &
+S'authentifier sur la plateforme web.
+\\
+
+\textbf{Staff Admin} &
+Gérer les entreprises clientes
+(créer, modifier, activer, désactiver).
+\\
+
+\textbf{Staff Admin} &
+Gérer le catalogue de formations VR
+(créer, modifier et organiser les formations).
+\\
+
+\textbf{Staff Admin} &
+Activer un casque Meta Quest~3 en saisissant le code à 6 chiffres
+affiché sur le casque.
+\\
+
+\textbf{Staff Admin} &
+Révoquer un casque Meta Quest~3.
+\\
+
+\textbf{Staff Admin} &
+Assigner des formations à une entreprise.
+\\
+
+\textbf{Staff Admin} &
+Consulter les statistiques et sessions de toutes les entreprises.
+\\
+
+\midrule
+
+% ============================================================
+% Company
+% ============================================================
+
+\textbf{Company} &
+S'authentifier sur le dashboard entreprise.
+\\
+
+\textbf{Company} &
+Gérer les employés (créer, modifier, supprimer), générer leur code
+d'accès et définir un code PIN protégé par hachage en base.
+\\
+
+\textbf{Company} &
+Créer et gérer un quiz par formation
+(questions, choix, seuil de réussite).
+\\
+
+\textbf{Company} &
+Définir des objectifs (\textit{milestones}) de formation par employé.
+\\
+
+\textbf{Company} &
+Révoquer un casque Meta Quest~3.
+\\
+
+\textbf{Company} &
+Réactiver ou révoquer un casque Meta Quest~3
+déjà attribué à l'entreprise.
+\\
+
+\textbf{Company} &
+Consulter les sessions et performances de ses employés.
+\\
+
+\midrule
+
+% ============================================================
+% Employé
+% ============================================================
+
+\textbf{Employé} &
+Se connecter au casque
+(code d'accès au format XX-001 + PIN à 4 chiffres).
+\\
+
+\textbf{Employé} &
+Accéder aux formations assignées à son entreprise.
+\\
+
+\textbf{Employé} &
+Suivre le tutoriel d'initiation à l'utilisation des contrôleurs.
+\\
+
+\textbf{Employé} &
+Lancer la simulation d'intégration Indigo.
+\\
+
+\textbf{Employé} &
+Consulter ses résultats, envoyés automatiquement à \tynassit{}.
+\\
+
+% ============================================================
+% Fin + caption en dessous
+% ============================================================
+
+\bottomrule
+
+\caption{Description des besoins fonctionnels par acteur}
+\label{tab:besoins_fonctionnels}\\
+
+\end{longtable}
+}
 
 \subsection{Besoins non-fonctionnels}
 
@@ -216,12 +347,113 @@ quatre acteurs du système et les fonctionnalités accessibles à chacun. Le Sup
 hérite de toutes les capacités du Staff Admin, auxquelles s'ajoutent la gestion des
 comptes administrateurs et la suppression d'entreprises et de formations.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.5\textwidth,keepaspectratio]{../images/casUtilisation.png}
-  \caption{Diagramme de cas d'utilisation global}
-  \label{fig:cas_utilisation}
-\end{figure}
+\clearpage
+\begingroup
+
+% ============================================================
+% PAGE A3 PORTRAIT : 297 x 420 mm
+% ============================================================
+
+\setlength{\paperwidth}{297mm}
+\setlength{\paperheight}{420mm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
+
+% ============================================================
+% Zone de texte A3 portrait
+% ============================================================
+
+\setlength{\textwidth}{267mm}
+\setlength{\textheight}{370mm}
+
+% IMPORTANT : mise à jour des dimensions internes de la page
+\makeatletter
+\setlength{\@colht}{\textheight}
+\setlength{\@colroom}{\textheight}
+\setlength{\vsize}{\textheight}
+\makeatother
+
+% ============================================================
+% Marges horizontales
+% ============================================================
+
+\setlength{\hoffset}{0mm}
+\setlength{\oddsidemargin}{-10.4mm}
+\setlength{\evensidemargin}{-10.4mm}
+
+% ============================================================
+% Header
+% ============================================================
+
+\setlength{\topmargin}{-15mm}
+\setlength{\headheight}{8mm}
+\setlength{\headsep}{8mm}
+
+\setlength{\headwidth}{\textwidth}
+\fancyheadoffset[L,R]{0pt}
+
+% ============================================================
+% Footer / numéro de page
+% ============================================================
+
+\setlength{\footskip}{12mm}
+
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+
+\thispagestyle{fancy}
+
+% ============================================================
+% Diagramme de cas d'utilisation
+% ============================================================
+
+\centering
+
+\makebox[\textwidth][c]{%
+  \includegraphics[
+    width=0.95\textwidth,
+    height=0.95\textheight,
+    keepaspectratio
+  ]{../images/casUtilisation.png}
+}
+
+\vspace{6pt}
+
+% ============================================================
+% Légende
+% ============================================================
+
+\refstepcounter{figure}
+\label{fig:cas_utilisation}
+
+\addcontentsline{lof}{figure}{%
+  \protect\numberline{\thefigure}
+  Diagramme de cas d'utilisation global
+}
+
+\makebox[\textwidth][c]{%
+  \parbox{\textwidth}{%
+    \centering
+    \textbf{Figure~\thefigure{} --}
+    Diagramme de cas d'utilisation global
+  }%
+}
+
+% ============================================================
+% Fin de la page A3
+% ============================================================
+
+\clearpage
+\endgroup
+
+% ============================================================
+% RETOUR A4
+% ============================================================
+
+\setlength{\paperwidth}{210mm}
+\setlength{\paperheight}{297mm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
 
 \subsection{Vue structurelle --- Diagramme de classes}
 
@@ -231,12 +463,116 @@ identifiants (\texttt{ObjectId}), des sous-documents imbriqués (\textit{embedde
 n'ont pas d'existence indépendante, comme les objectifs d'un employé ou les critères
 d'évaluation d'une session.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{../images/diagramClasses.png}
-  \caption{Diagramme de classes des principaux modèles de données}
-  \label{fig:classes}
-\end{figure}
+\clearpage
+\begingroup
+
+% ============================================================
+% PAGE A3 PORTRAIT : 297 x 420 mm
+% La figure sera tournée à 90°
+% ============================================================
+
+\setlength{\paperwidth}{297mm}
+\setlength{\paperheight}{420mm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
+
+% ============================================================
+% Zone de texte A3 portrait
+% ============================================================
+
+\setlength{\textwidth}{267mm}
+\setlength{\textheight}{370mm}
+
+% IMPORTANT : mise à jour des dimensions internes de la page
+\makeatletter
+\setlength{\@colht}{\textheight}
+\setlength{\@colroom}{\textheight}
+\setlength{\vsize}{\textheight}
+\makeatother
+
+% ============================================================
+% Marges horizontales
+% ============================================================
+
+\setlength{\hoffset}{0mm}
+\setlength{\oddsidemargin}{-10.4mm}
+\setlength{\evensidemargin}{-10.4mm}
+
+% ============================================================
+% Header
+% ============================================================
+
+\setlength{\topmargin}{-15mm}
+\setlength{\headheight}{8mm}
+\setlength{\headsep}{8mm}
+
+\setlength{\headwidth}{\textwidth}
+\fancyheadoffset[L,R]{0pt}
+
+% ============================================================
+% Footer / numéro de page
+% ============================================================
+
+\setlength{\footskip}{12mm}
+
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+
+\thispagestyle{fancy}
+
+% ============================================================
+% Diagramme de classes tourné à 90°
+% ============================================================
+
+\centering
+
+\makebox[\textwidth][c]{%
+  \rotatebox{90}{%
+    \includegraphics[
+      width=0.86\textheight,
+      height=0.95\textwidth,
+      keepaspectratio
+    ]{../images/diagramClasses.png}
+  }%
+}
+
+\vspace{6pt}
+
+% ============================================================
+% Légende
+% ============================================================
+
+\refstepcounter{figure}
+\label{fig:classes}
+
+\addcontentsline{lof}{figure}{%
+  \protect\numberline{\thefigure}
+  Diagramme de classes des principaux modèles de données
+}
+
+\makebox[\textwidth][c]{%
+  \parbox{\textwidth}{%
+    \centering
+    \textbf{Figure~\thefigure{} --}
+    Diagramme de classes des principaux modèles de données
+  }%
+}
+
+% ============================================================
+% Fin de la page A3
+% ============================================================
+
+\clearpage
+\endgroup
+
+% ============================================================
+% RETOUR A4
+% ============================================================
+
+\setlength{\paperwidth}{210mm}
+\setlength{\paperheight}{297mm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
 
 \section{Architecture du système}
 
@@ -276,7 +612,7 @@ répartition physique des composants sur les différents services d'hébergement
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{../images/deploiement.png}
+  \includegraphics[width=0.95\textwidth]{../images/deploiement.png}
   \caption{Diagramme de déploiement}
   \label{fig:deploiement}
 \end{figure}

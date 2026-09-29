@@ -34,6 +34,13 @@ rectangle "Couche données" as C3 #E8EEF4 {
 
 Admin --> API : HTTPS / JSON
 Comp  --> API : HTTPS / JSON
-VR    --> API : HTTPS / JSON\n(device_token)
+VR    --> API : HTTPS / JSON
 API   --> DB  : Mongoose (ODM)
+
+note right of API
+Authentification JWT différenciée :
+- Dashboard Admin : JWT admin
+- Dashboard Company : JWT company
+- Application VR : JWT device
+end note
 @enduml

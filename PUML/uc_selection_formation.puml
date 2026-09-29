@@ -15,8 +15,8 @@ rectangle "Application VR" {
 
 }
 
-Employe --> UC1
-Employe --> UC2
+Employe -- UC1
+Employe -- UC2
 
 UC2 .> UC1 : <<extend>>
 

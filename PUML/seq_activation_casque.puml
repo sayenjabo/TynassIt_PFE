@@ -20,25 +20,29 @@ database "MongoDB\nAtlas" as DB
 == Demande d'activation (côté casque) ==
 Unity -> API : POST /api/company/devices/request-activation\n{ metaUserId }
 API -> DB : rechercher / créer Device(metaUserId)
+DB --> API : device (le résultat est utilisé pour générer le code)
 API -> API : générer code à 6 chiffres\n(expire dans 15 min)
 API -> DB : enregistrer activationCode + expiration
 API --> Unity : { activationCode, expiresIn }
 Unity -> Unity : afficher le code à l'écran
 
+
 == Validation (côté dashboard admin) ==
 Admin -> API : POST /api/company/devices/activate\n{ code, companyId, label }
 API -> DB : vérifier code + expiration
+DB --> API : { valid, expired } (déclenche l'alt)
 alt code valide
   API -> API : générer JWT device (1 an)\n+ hash SHA-256
   API -> DB : stocker deviceToken (hash)\n+ deviceTokenPlain (60 s)
   API --> Admin : 200 -- casque activé
 else code expiré / invalide
-  API --> Admin : 400 -- régénérer un code
+  API --> Admin : 410 -- régénérer un code
 end
 
 == Récupération du token (côté casque) ==
 Unity -> API : POST /api/company/devices/check\n{ metaUserId }
 API -> DB : lire deviceTokenPlain (si < 60 s)
+DB --> API : deviceTokenPlain (renvoyé à Unity)
 API -> DB : effacer deviceTokenPlain
 API --> Unity : { status: "activated", deviceToken }
 Unity -> Unity : conserver le jeton localement

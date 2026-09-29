@@ -24,6 +24,7 @@ Unity -> API : POST /api/company/employees/login\n{ accessCode, pin } + device_t
 API -> API : identifier l'entreprise\nassociée au casque
 
 API -> DB : rechercher l'employé\npar entreprise et code d'accès
+DB --> API : employee
 alt employé trouvé et actif
   API -> API : bcrypt.compare(pin, employee.pin)
   alt PIN correct

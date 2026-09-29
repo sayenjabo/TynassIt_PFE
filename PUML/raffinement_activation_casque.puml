@@ -7,7 +7,7 @@ skinparam defaultFontName Helvetica
 skinparam actorStyle awesome
 
 actor "Staff Admin" as Admin
-actor "Application VR" as VR 
+rectangle "Application VR" as VR 
 
 rectangle "Système d'activation du casque" {
 
@@ -18,8 +18,8 @@ rectangle "Système d'activation du casque" {
     usecase "Autoriser l'accès\ndu casque" as Autoriser
 }
 
-Admin --> Activer
-Code <-- VR 
+Admin -- Activer
+Code -- VR 
 
 Activer ..> Code : <<include>>
 Activer ..> Verifier : <<include>>

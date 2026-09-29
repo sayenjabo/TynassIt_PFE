@@ -9,24 +9,13 @@
 skinparam classAttributeIconSize 0
 skinparam classFontStyle bold
 skinparam classBackgroundColor #FFFFFF
-skinparam classHeaderBackgroundColor #183D5D
-skinparam classFontColor #FFFFFF
+skinparam classHeaderBackgroundColor #D6E4F0
 skinparam classAttributeFontColor #000000
-skinparam classBorderColor #183D5D
-skinparam ArrowColor #2B4B6F
+skinparam classBorderColor #5B7FA6
+skinparam ArrowColor #5B7FA6
 skinparam shadowing false
 skinparam linetype ortho
 hide circle
-
-' ---------------- Entités principales ----------------
-
-class Admin {
-  - name : String
-  - email : String «unique»
-  - password : String «bcrypt»
-  - role : superadmin | staff
-  - isActive : Boolean
-}
 
 class Company {
   - companyName : String
@@ -74,7 +63,7 @@ class Device {
 class Session {
   - company : ObjectId «ref Company»
   - training : ObjectId «ref Training»
-  - employee : ObjectId «ref, nullable»
+  - employee : ObjectId «ref, employee»
   - startedAt : Date
   - completedAt : Date
   - durationSeconds : Number

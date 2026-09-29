@@ -19,6 +19,7 @@ database "MongoDB" as DB
 Admin -> UI : saisir email + mot de passe
 UI -> API : POST /api/admin/auth/login\n{ email, password }
 API -> DB : rechercher Admin(email)
+DB --> API : admin : Admin (ou null)
 alt admin trouvé et actif
   API -> API : bcrypt.compare(password)
   alt mot de passe correct
